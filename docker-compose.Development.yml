@@ -1,0 +1,36 @@
+version: '3.4'
+
+services:
+  # API
+  identity.api:
+    image: ${REGISTRY:-microservices-dotnet}/identity.api:${PLATFORM:-linux}-${TAG:-latest}
+    env_file:
+      - src/Services/Identity/Services.Identity.API/Development.env
+    build:
+      context: .
+      dockerfile: src/Services/Identity/Services.Identity.API/Development.Dockerfile
+    ports:
+      - "5101:8080"
+    volumes:
+      - ~/vsdbg:/vsdbg:ro
+      - .:/workspace
+      # - ${HOME}/.nuget/packages:/root/.nuget/packages:ro
+      # - ${DOTNET_PATH}/sdk/NuGetFallbackFolder:/root/.nuget/fallbackpackages:ro
+
+  # Web
+  webauthentication:
+    image: ${REGISTRY:-microservices-dotnet}/webauthentication:${PLATFORM:-linux}-${TAG:-latest}
+    env_file:
+      - src/Web/WebAuthentication/Development.env
+    build:
+      context: .
+      dockerfile: src/Web/WebAuthentication/Development.Dockerfile
+    ports:
+      - "5001:8080"
+    volumes:
+      - ~/vsdbg:/vsdbg:ro
+      - .:/workspace
+      # - ${HOME}/.nuget/packages:/root/.nuget/packages:ro
+      # - ${DOTNET_PATH}/sdk/NuGetFallbackFolder:/root/.nuget/fallbackpackages:ro
+    depends_on:
+      - identity.api
