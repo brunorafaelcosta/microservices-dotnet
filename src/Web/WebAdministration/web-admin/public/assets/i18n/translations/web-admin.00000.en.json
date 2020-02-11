@@ -1,0 +1,10 @@
+{
+  "hello.label": "Hello",
+  "thankyou.label": "Thank you",
+
+  "signout.label": "Sing out",
+
+  "menutitle.pages": "Pages",
+  "menutitle.dashboards": "Dashboards",
+  "menutitle.dashboards.default": "Default"
+}
