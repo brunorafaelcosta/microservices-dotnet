@@ -1,31 +1,22 @@
-import React, { Component, Suspense } from 'react';
+import React from 'react'
+import { default as BaseApp } from 'web-admin-common/src/App'
 
-import 'local_webcommon/src/_services/_mock';
-// import './__web-common/_services/_mock';
+import { moduleConfig, moduleRoutes } from './config'
+import '_assets/scss/index.scss'
 
-import { ConfigContext } from './__web-common/context'
-import { Bootstrap } from './__web-common/components'
-
-import './_assets/scss/index.scss';
-
-import config from './config'
-import routes from './routes';
-
-export default class App extends Component {
+class App extends React.Component {
   constructor() {
     super()
-
-    this.state = {}
   }
 
   render() {
     return (
-      <Suspense fallback={null}>
-        <ConfigContext.Provider value={config}>
-          <Bootstrap config={config} routes={routes}>
-          </Bootstrap>
-        </ConfigContext.Provider>
-      </Suspense>
+      <BaseApp 
+        moduleConfig={moduleConfig} 
+        moduleRoutes={moduleRoutes}
+      />
     );
   }
 }
+
+export default App

@@ -21,5 +21,12 @@ web-admin-humanresources
         - List
         - Details/Create/Update/Delete
 
-        
+
+    How i managed to split react apps and share them
+    https://medium.com/capriza-engineering/sharing-source-code-and-libraries-in-react-bd30926df312
+    https://github.com/timarney/react-app-rewired
+
 TODO:
+    - web-common
+        - utils
+            - custom render routes

@@ -1,1 +1,2 @@
-export { default as DashboardDefault } from './DashboardDefault';
+export { default as Routes } from './routes'
+export { default as DashboardDefault } from './DashboardDefault'

@@ -1,9 +1,7 @@
-import React, { lazy } from 'react';
-import { Redirect } from 'react-router-dom';
+import React, { lazy } from 'react'
+import { Redirect } from 'react-router-dom'
 
-import config from '../config'
-
-const Routes = (basePath) => {
+const Routes = (basePath, moduleConfig) => {
     return [
         {
             path: `${basePath}`,
@@ -16,14 +14,14 @@ const Routes = (basePath) => {
             // component: lazy(() => import('./DashboardDefault'))
             component: lazy(() => {
                 return new Promise(resolve => {
-                    setTimeout(() => resolve(import("./DashboardDefault")), 2500);
-                });
+                    setTimeout(() => resolve(import("./DashboardDefault")), 2500)
+                })
             })
         },
         {
-            component: () => <Redirect to={config.route.onNotFoundRouteRedirectToPath} />
+            component: () => <Redirect to={moduleConfig.router.onNotFoundRouteRedirectToPath} />
         }
-    ];
-};
+    ]
+}
 
-export default Routes;
+export default Routes
