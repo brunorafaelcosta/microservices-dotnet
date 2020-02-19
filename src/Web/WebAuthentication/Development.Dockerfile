@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS dev
 
 # Project configuration
-ENV PROJECT_ROOT_FOLDER "src/Web/WebAuthentication"
+ENV PROJECT_ROOT_FOLDER "WebAuthentication"
 ENV PROJECT_HTTP_PORT "8080"
 
 # VSCode Remote Debugger

@@ -27,7 +27,7 @@ class Header extends React.Component {
           gutterBottom
           variant="overline"
         >
-          Dashboards
+          Dashboards blablabla 
         </Typography>
       </div>
     )

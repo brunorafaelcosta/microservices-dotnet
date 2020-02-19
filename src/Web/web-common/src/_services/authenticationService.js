@@ -17,7 +17,7 @@ function getAuthenticatedUser() {
             // .then(handleResponse)
             .then(user => {
                 localStorage.setItem('currentUser', JSON.stringify(user.data))
-                resolve(user)
+                setTimeout(() => resolve(user), 5000)
             })
             .catch(function (error) {
                 reject(error)

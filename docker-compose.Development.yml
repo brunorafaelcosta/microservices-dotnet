@@ -7,30 +7,48 @@ services:
     env_file:
       - src/Services/Identity/Services.Identity.API/Development.env
     build:
-      context: .
-      dockerfile: src/Services/Identity/Services.Identity.API/Development.Dockerfile
+      context: src/Services
+      dockerfile: Identity/Services.Identity.API/Development.Dockerfile
     ports:
       - "5101:8080"
     volumes:
       - ~/vsdbg:/vsdbg:ro
-      - .:/workspace
+      - ./src/Services:/workspace
       # - ${HOME}/.nuget/packages:/root/.nuget/packages:ro
       # - ${DOTNET_PATH}/sdk/NuGetFallbackFolder:/root/.nuget/fallbackpackages:ro
 
   # Web
+  ## Authentication
   webauthentication:
     image: ${REGISTRY:-microservices-dotnet}/webauthentication:${PLATFORM:-linux}-${TAG:-latest}
     env_file:
       - src/Web/WebAuthentication/Development.env
     build:
-      context: .
-      dockerfile: src/Web/WebAuthentication/Development.Dockerfile
+      context: src/Web
+      dockerfile: WebAuthentication/Development.Dockerfile
     ports:
       - "5001:8080"
     volumes:
       - ~/vsdbg:/vsdbg:ro
-      - .:/workspace
+      - ./src/Web:/workspace
       # - ${HOME}/.nuget/packages:/root/.nuget/packages:ro
       # - ${DOTNET_PATH}/sdk/NuGetFallbackFolder:/root/.nuget/fallbackpackages:ro
     depends_on:
       - identity.api
+  
+  ## Administration
+  webadministration:
+    image: ${REGISTRY:-microservices-dotnet}/webadministration:${PLATFORM:-linux}-${TAG:-latest}
+    env_file:
+      - src/Web/WebAdministration/web-admin/Development.env
+    build:
+      context: src/Web
+      dockerfile: WebAdministration/web-admin/Development.Dockerfile
+    ports:
+      - "5002:3000"
+    volumes:
+      - ~/vsdbg:/vsdbg:ro
+      - ./src/Web:/workspace
+      - /workspace/WebAdministration/web-admin/node_modules
+    depends_on:
+      - webauthentication

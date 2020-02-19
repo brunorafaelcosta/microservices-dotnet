@@ -28,6 +28,7 @@ class DashboardDefault extends React.Component {
                 className={classes.root}
                 title="Default Dashboard"
             >
+                <div> texto asdasdasd </div>
                 <Header />
                 <Grid
                     className={classes.container}
