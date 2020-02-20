@@ -10,12 +10,14 @@ services:
       context: src/Services
       dockerfile: Identity/Services.Identity.API/Development.Dockerfile
     ports:
-      - "5101:8080"
+      - '5101:8080'
     volumes:
       - ~/vsdbg:/vsdbg:ro
       - ./src/Services:/workspace
       # - ${HOME}/.nuget/packages:/root/.nuget/packages:ro
       # - ${DOTNET_PATH}/sdk/NuGetFallbackFolder:/root/.nuget/fallbackpackages:ro
+    depends_on:
+      - db
 
   # Web
   ## Authentication
@@ -27,7 +29,7 @@ services:
       context: src/Web
       dockerfile: WebAuthentication/Development.Dockerfile
     ports:
-      - "5001:8080"
+      - '5001:8080'
     volumes:
       - ~/vsdbg:/vsdbg:ro
       - ./src/Web:/workspace
@@ -45,10 +47,92 @@ services:
       context: src/Web
       dockerfile: WebAdministration/web-admin/Development.Dockerfile
     ports:
-      - "5002:3000"
+      - '5002:3000'
     volumes:
       - ~/vsdbg:/vsdbg:ro
       - ./src/Web:/workspace
       - /workspace/WebAdministration/web-admin/node_modules
     depends_on:
       - webauthentication
+  
+  # Databases
+  db:
+    image: mysql:8
+    estart: always
+    environment:
+      MYSQL_DATABASE: 'db'
+      MYSQL_USER: ${MICROSERVICESDOTNET_DB_USER}
+      MYSQL_PASSWORD: ${MICROSERVICESDOTNET_DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MICROSERVICESDOTNET_DB_ROOT_PASSWORD}
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+    volumes:
+      - db:/var/lib/mysql
+  
+  # Event Bus
+  messagebroker:
+    image: rabbitmq:3-management
+    ports:
+      - '15672:15672'
+      - '5672:5672'
+    expose:
+      - '15672'
+      - '5672'
+  
+  # ELK
+  ## E
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch
+    ports:
+      - '9200:9200'
+      - '9300:9300'
+    expose:
+      - '92000'
+      - '93000'
+    environment:
+      ES_JAVA_OPTS: '-Xmx256m -Xms256m'
+    volumes:
+      - ./config/elk/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    networks:
+      - elk
+  ## L
+  logstash:
+    image: docker.elastic.co/logstash/logstash
+    volumes:
+      - ./config/elk/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ./config/elk/logstash.pipeline.conf:/usr/share/logstash/pipeline/logstash.conf
+    ports:
+      - '5000:5000'
+      - '31311:31311'
+    environment:
+      LS_JAVA_OPTS: '-Xmx256m -Xms256m'
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+  ## K
+  kibana:
+    image: docker.elastic.co/kibana/kibana
+    ports:
+      - '5601:5601'
+    expose:
+      - '5601'
+    depends_on:
+      - elasticsearch
+    networks:
+      - elk
+
+volumes:
+  db:
+    labels:
+      com.microservices-dotnet.description: "MySQL data volume"
+  elasticsearch-data:
+    labels:
+      com.microservices-dotnet.description: "Elasticsearch data volume"
+
+networks:
+  elk:
+    driver: bridge
