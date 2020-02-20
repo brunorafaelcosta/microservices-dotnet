@@ -2,15 +2,17 @@ version: '3.4'
 
 services:
   # API
-  identity.api:
-    image: ${REGISTRY:-microservices-dotnet}/identity.api:${PLATFORM:-linux}-${TAG:-latest}
+  api.identity:
+    image: ${REGISTRY:-microservices-dotnet}/api.identity:${PLATFORM:-linux}-${TAG:-latest}
     env_file:
       - src/Services/Identity/Services.Identity.API/Development.env
     build:
       context: src/Services
       dockerfile: Identity/Services.Identity.API/Development.Dockerfile
     ports:
-      - '5101:8080'
+      - '${MICROSERVICESDOTNET_API_IDENTITY_PORT}:8080'
+    expose:
+      - '${MICROSERVICESDOTNET_API_IDENTITY_PORT}'
     volumes:
       - ~/vsdbg:/vsdbg:ro
       - ./src/Services:/workspace
@@ -21,118 +23,136 @@ services:
 
   # Web
   ## Authentication
-  webauthentication:
-    image: ${REGISTRY:-microservices-dotnet}/webauthentication:${PLATFORM:-linux}-${TAG:-latest}
+  web.authentication:
+    image: ${REGISTRY:-microservices-dotnet}/web.authentication:${PLATFORM:-linux}-${TAG:-latest}
     env_file:
       - src/Web/WebAuthentication/Development.env
     build:
       context: src/Web
       dockerfile: WebAuthentication/Development.Dockerfile
     ports:
-      - '5001:8080'
+      - '${MICROSERVICESDOTNET_WEB_AUTHENTICATION_PORT}:8080'
+    expose:
+      - '${MICROSERVICESDOTNET_WEB_AUTHENTICATION_PORT}'
     volumes:
       - ~/vsdbg:/vsdbg:ro
       - ./src/Web:/workspace
       # - ${HOME}/.nuget/packages:/root/.nuget/packages:ro
       # - ${DOTNET_PATH}/sdk/NuGetFallbackFolder:/root/.nuget/fallbackpackages:ro
     depends_on:
-      - identity.api
+      - api.identity
   
   ## Administration
-  webadministration:
-    image: ${REGISTRY:-microservices-dotnet}/webadministration:${PLATFORM:-linux}-${TAG:-latest}
+  web.administration:
+    image: ${REGISTRY:-microservices-dotnet}/web.administration:${PLATFORM:-linux}-${TAG:-latest}
     env_file:
       - src/Web/WebAdministration/web-admin/Development.env
     build:
       context: src/Web
       dockerfile: WebAdministration/web-admin/Development.Dockerfile
     ports:
-      - '5002:3000'
+      - '${MICROSERVICESDOTNET_WEB_ADMINISTRATION_PORT}:3000'
+    expose:
+      - '${MICROSERVICESDOTNET_WEB_ADMINISTRATION_PORT}'
     volumes:
       - ~/vsdbg:/vsdbg:ro
       - ./src/Web:/workspace
       - /workspace/WebAdministration/web-admin/node_modules
     depends_on:
-      - webauthentication
+      - web.authentication
   
   # Databases
   db:
     image: mysql:8
-    estart: always
+    restart: always
     environment:
-      MYSQL_DATABASE: 'db'
       MYSQL_USER: ${MICROSERVICESDOTNET_DB_USER}
       MYSQL_PASSWORD: ${MICROSERVICESDOTNET_DB_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${MICROSERVICESDOTNET_DB_ROOT_PASSWORD}
     ports:
-      - '3306:3306'
+      - '${MICROSERVICESDOTNET_DB_PORT}:3306'
     expose:
-      - '3306'
+      - '${MICROSERVICESDOTNET_DB_PORT}'
     volumes:
       - db:/var/lib/mysql
   
-  # Event Bus
+  # Message Broker
   messagebroker:
     image: rabbitmq:3-management
     ports:
-      - '15672:15672'
-      - '5672:5672'
+      - '${MICROSERVICESDOTNET_MESSAGEBROKER_MGMT_PLUGIN_PORT}:15672'
+      - '${MICROSERVICESDOTNET_MESSAGEBROKER_QUEUE_PORT}:5672'
     expose:
-      - '15672'
-      - '5672'
+      - '${MICROSERVICESDOTNET_MESSAGEBROKER_MGMT_PLUGIN_PORT}'
+      - '${MICROSERVICESDOTNET_MESSAGEBROKER_QUEUE_PORT}'
   
-  # ELK
+  # Logging
   ## E
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch
+    build:
+      context: infrastructure/logging
+      dockerfile: elasticsearch/Development.Dockerfile
     ports:
-      - '9200:9200'
-      - '9300:9300'
+      - '${MICROSERVICESDOTNET_ELASTICSEARCH_PORT}:9200'
+      - '${MICROSERVICESDOTNET_ELASTICSEARCH_NODES_PORT}:9300'
     expose:
-      - '92000'
-      - '93000'
+      - '${MICROSERVICESDOTNET_ELASTICSEARCH_PORT}'
+      - '${MICROSERVICESDOTNET_ELASTICSEARCH_NODES_PORT}'
     environment:
       ES_JAVA_OPTS: '-Xmx256m -Xms256m'
     volumes:
-      - ./config/elk/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./infrastructure/logging/elasticsearch/config.Development.yml:/usr/share/elasticsearch/config/elasticsearch.yml
       - elasticsearch-data:/usr/share/elasticsearch/data
     networks:
       - elk
   ## L
   logstash:
-    image: docker.elastic.co/logstash/logstash
-    volumes:
-      - ./config/elk/logstash.yml:/usr/share/logstash/config/logstash.yml
-      - ./config/elk/logstash.pipeline.conf:/usr/share/logstash/pipeline/logstash.conf
+    build:
+      context: infrastructure/logging
+      dockerfile: logstash/Development.Dockerfile
     ports:
-      - '5000:5000'
-      - '31311:31311'
+      - '${MICROSERVICESDOTNET_LOGSTASH_TCP_PORT}:${MICROSERVICESDOTNET_LOGSTASH_TCP_PORT}'
+      - '${MICROSERVICESDOTNET_LOGSTASH_HTTP_PORT}:${MICROSERVICESDOTNET_LOGSTASH_HTTP_PORT}'
     environment:
-      LS_JAVA_OPTS: '-Xmx256m -Xms256m'
+      - TCP_PORT: ${MICROSERVICESDOTNET_LOGSTASH_TCP_PORT}
+      - HTTP_PORT: ${MICROSERVICESDOTNET_LOGSTASH_HTTP_PORT}
+      - ELASTICSEARCH_URL: ${MICROSERVICESDOTNET_ELASTICSEARCH_URL}
+      - LS_JAVA_OPTS: '-Xmx256m -Xms256m'
+    volumes:
+      - ./infrastructure/logging/logstash/config.Development.yml:/usr/share/logstash/config/logstash.yml
+      - ./infrastructure/logging/logstash/pipeline.Development.conf:/usr/share/logstash/pipeline/logstash.conf
     networks:
       - elk
     depends_on:
       - elasticsearch
   ## K
   kibana:
-    image: docker.elastic.co/kibana/kibana
+    build:
+      context: infrastructure/logging
+      dockerfile: kibana/Development.Dockerfile
     ports:
-      - '5601:5601'
+      - '${MICROSERVICESDOTNET_KIBANA_PORT}:5601'
     expose:
-      - '5601'
-    depends_on:
-      - elasticsearch
+      - '${MICROSERVICESDOTNET_KIBANA_PORT}'
+    environment:
+      - ELASTICSEARCH_URL: ${MICROSERVICESDOTNET_ELASTICSEARCH_URL}
+    volumes:
+      - ./infrastructure/logging/kibana/config.Development.yml://usr/share/kibana/config/kibana.yml
     networks:
       - elk
+    depends_on:
+      - elasticsearch
 
 volumes:
   db:
     labels:
-      com.microservices-dotnet.description: "MySQL data volume"
+      com.microservices-dotnet.description: 'MySQL data volume'
   elasticsearch-data:
     labels:
-      com.microservices-dotnet.description: "Elasticsearch data volume"
+      com.microservices-dotnet.description: 'Elasticsearch data volume'
 
 networks:
+  default:
+    driver: bridge
   elk:
     driver: bridge
