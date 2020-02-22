@@ -6,6 +6,8 @@ services:
     image: ${REGISTRY:-microservices-dotnet}/api.identity:${PLATFORM:-linux}-${TAG:-latest}
     env_file:
       - src/Services/Identity/Services.Identity.API/Development.env
+    environment:
+      Logger__Uri: 'http://logstash:${MICROSERVICESDOTNET_LOGSTASH_HTTP_PORT}'
     build:
       context: src/Services
       dockerfile: Identity/Services.Identity.API/Development.Dockerfile
@@ -18,6 +20,8 @@ services:
       - ./src/Services:/workspace
       # - ${HOME}/.nuget/packages:/root/.nuget/packages:ro
       # - ${DOTNET_PATH}/sdk/NuGetFallbackFolder:/root/.nuget/fallbackpackages:ro
+    networks:
+      - default
     depends_on:
       - db
 
@@ -27,6 +31,8 @@ services:
     image: ${REGISTRY:-microservices-dotnet}/web.authentication:${PLATFORM:-linux}-${TAG:-latest}
     env_file:
       - src/Web/WebAuthentication/Development.env
+    environment:
+      Logger__Uri: 'http://logstash:${MICROSERVICESDOTNET_LOGSTASH_HTTP_PORT}'
     build:
       context: src/Web
       dockerfile: WebAuthentication/Development.Dockerfile
@@ -39,6 +45,8 @@ services:
       - ./src/Web:/workspace
       # - ${HOME}/.nuget/packages:/root/.nuget/packages:ro
       # - ${DOTNET_PATH}/sdk/NuGetFallbackFolder:/root/.nuget/fallbackpackages:ro
+    networks:
+      - default
     depends_on:
       - api.identity
   
@@ -95,9 +103,6 @@ services:
     ports:
       - '${MICROSERVICESDOTNET_ELASTICSEARCH_PORT}:9200'
       - '${MICROSERVICESDOTNET_ELASTICSEARCH_NODES_PORT}:9300'
-    # expose:
-    #   - '${MICROSERVICESDOTNET_ELASTICSEARCH_PORT}'
-    #   - '${MICROSERVICESDOTNET_ELASTICSEARCH_NODES_PORT}'
     environment:
       ES_JAVA_OPTS: '-Xmx256m -Xms256m'
     volumes:
@@ -123,6 +128,7 @@ services:
       - ./infrastructure/logging/logstash/pipeline.Development.conf:/usr/share/logstash/pipeline/logstash.conf
     networks:
       - logging
+      - default
     depends_on:
       - elasticsearch
   ## K
@@ -132,8 +138,6 @@ services:
       dockerfile: kibana/Development.Dockerfile
     ports:
       - '${MICROSERVICESDOTNET_KIBANA_PORT}:5601'
-    # expose:
-    #   - '${MICROSERVICESDOTNET_KIBANA_PORT}'
     environment:
       ELASTICSEARCH_URL: 'http://elasticsearch:${MICROSERVICESDOTNET_ELASTICSEARCH_PORT}'
     volumes:

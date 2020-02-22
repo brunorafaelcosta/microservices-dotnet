@@ -4,4 +4,10 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Serilog.AspNetCore" Version="3.2.0" />
+    <PackageReference Include="Serilog.Formatting.Elasticsearch" Version="8.0.1" />
+    <PackageReference Include="Serilog.Sinks.Http" Version="5.2.1" />
+  </ItemGroup>
+
 </Project>
