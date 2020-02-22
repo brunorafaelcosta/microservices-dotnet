@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using Serilog.Exceptions;
 using Serilog.Formatting.Elasticsearch;
 using Serilog.Sinks.Http.BatchFormatters;
 
@@ -74,6 +75,7 @@ namespace WebAuthentication
                 .Enrich.WithProperty("ApplicationContext", Namespace)
                 .Enrich.WithProperty("CorrelationId", Guid.NewGuid().ToString())
                 .Enrich.FromLogContext()
+                .Enrich.WithExceptionDetails()
                 .MinimumLevel.Information()
                 .WriteTo.DurableHttpUsingFileSizeRolledBuffers(
                     requestUri: logstashUri,
