@@ -5,8 +5,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Exceptions;
-using Serilog.Formatting.Elasticsearch;
-using Serilog.Sinks.Http.BatchFormatters;
 
 namespace Services.Identity.API
 {
@@ -66,25 +64,12 @@ namespace Services.Identity.API
 
         private static Serilog.ILogger CreateSerilogLogger(IConfiguration configuration)
         {
-            var logstashUri = Convert.ToString(configuration["Logger:Uri"]);
-            var bufferBaseFileName = Convert.ToString(configuration["Logger:BufferBaseFileName"]);
-            var retainedBufferFileCountLimit = Convert.ToInt32(configuration["Logger:RetainedBufferFileCountLimit"]);
-            var bufferFileSizeLimitBytes = Convert.ToInt64(configuration["Logger:BufferFileSizeLimitBytes"]);
-            
             return new LoggerConfiguration()
                 .Enrich.WithProperty("ApplicationContext", Namespace)
                 .Enrich.WithProperty("CorrelationId", Guid.NewGuid().ToString())
                 .Enrich.FromLogContext()
                 .Enrich.WithExceptionDetails()
-                .MinimumLevel.Information()
-                .WriteTo.DurableHttpUsingFileSizeRolledBuffers(
-                    requestUri: logstashUri,
-                    batchFormatter: new ArrayBatchFormatter(),
-                    textFormatter: new ElasticsearchJsonFormatter(),
-                    bufferBaseFileName: bufferBaseFileName,
-                    retainedBufferFileCountLimit: retainedBufferFileCountLimit,
-                    bufferFileSizeLimitBytes: bufferFileSizeLimitBytes
-                )
+                .ReadFrom.Configuration(configuration, "Logger")
                 .CreateLogger();
         }
     }

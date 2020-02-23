@@ -6,8 +6,8 @@ services:
     image: ${REGISTRY:-microservices-dotnet}/api.identity:${PLATFORM:-linux}-${TAG:-latest}
     env_file:
       - src/Services/Identity/Services.Identity.API/Development.env
-    environment:
-      Logger__Uri: 'http://logstash:${MICROSERVICESDOTNET_LOGSTASH_HTTP_PORT}'
+    # environment:
+    #   Logger__Uri: 'http://logstash:${MICROSERVICESDOTNET_LOGSTASH_HTTP_PORT}'
     build:
       context: src/Services
       dockerfile: Identity/Services.Identity.API/Development.Dockerfile
@@ -31,8 +31,8 @@ services:
     image: ${REGISTRY:-microservices-dotnet}/web.authentication:${PLATFORM:-linux}-${TAG:-latest}
     env_file:
       - src/Web/WebAuthentication/Development.env
-    environment:
-      Logger__Uri: 'http://logstash:${MICROSERVICESDOTNET_LOGSTASH_HTTP_PORT}'
+    # environment:
+    #   Logger__Uri: 'http://logstash:${MICROSERVICESDOTNET_LOGSTASH_HTTP_PORT}'
     build:
       context: src/Web
       dockerfile: WebAuthentication/Development.Dockerfile
@@ -66,6 +66,8 @@ services:
       - ~/vsdbg:/vsdbg:ro
       - ./src/Web:/workspace
       - /workspace/WebAdministration/web-admin/node_modules
+    networks:
+      - default
     depends_on:
       - web.authentication
   
@@ -83,6 +85,8 @@ services:
       - '${MICROSERVICESDOTNET_DB_PORT}'
     volumes:
       - db:/var/lib/mysql
+    networks:
+      - default
   
   # Message Broker
   messagebroker:
@@ -93,70 +97,72 @@ services:
     expose:
       - '${MICROSERVICESDOTNET_MESSAGEBROKER_MGMT_PLUGIN_PORT}'
       - '${MICROSERVICESDOTNET_MESSAGEBROKER_QUEUE_PORT}'
+    networks:
+      - default
   
   # Logging
-  ## E
-  elasticsearch:
-    build:
-      context: infrastructure/logging
-      dockerfile: elasticsearch/Development.Dockerfile
-    ports:
-      - '${MICROSERVICESDOTNET_ELASTICSEARCH_PORT}:9200'
-      - '${MICROSERVICESDOTNET_ELASTICSEARCH_NODES_PORT}:9300'
-    environment:
-      ES_JAVA_OPTS: '-Xmx256m -Xms256m'
-    volumes:
-      - ./infrastructure/logging/elasticsearch/config.Development.yml:/usr/share/elasticsearch/config/elasticsearch.yml
-      - elasticsearch-data:/usr/share/elasticsearch/data
-    networks:
-      - logging
-  ## L
-  logstash:
-    build:
-      context: infrastructure/logging
-      dockerfile: logstash/Development.Dockerfile
-    ports:
-      - '${MICROSERVICESDOTNET_LOGSTASH_TCP_PORT}:${MICROSERVICESDOTNET_LOGSTASH_TCP_PORT}'
-      - '${MICROSERVICESDOTNET_LOGSTASH_HTTP_PORT}:${MICROSERVICESDOTNET_LOGSTASH_HTTP_PORT}'
-    environment:
-      LOGSTASH_TCP_PORT: ${MICROSERVICESDOTNET_LOGSTASH_TCP_PORT}
-      LOGSTASH_HTTP_PORT: ${MICROSERVICESDOTNET_LOGSTASH_HTTP_PORT}
-      ELASTICSEARCH_URL: 'elasticsearch:${MICROSERVICESDOTNET_ELASTICSEARCH_PORT}'
-      LS_JAVA_OPTS: '-Xmx256m -Xms256m'
-    volumes:
-      - ./infrastructure/logging/logstash/config.Development.yml:/usr/share/logstash/config/logstash.yml
-      - ./infrastructure/logging/logstash/pipeline.Development.conf:/usr/share/logstash/pipeline/logstash.conf
-    networks:
-      - logging
-      - default
-    depends_on:
-      - elasticsearch
-  ## K
-  kibana:
-    build:
-      context: infrastructure/logging
-      dockerfile: kibana/Development.Dockerfile
-    ports:
-      - '${MICROSERVICESDOTNET_KIBANA_PORT}:5601'
-    environment:
-      ELASTICSEARCH_URL: 'http://elasticsearch:${MICROSERVICESDOTNET_ELASTICSEARCH_PORT}'
-    volumes:
-      - ./infrastructure/logging/kibana/config.Development.yml://usr/share/kibana/config/kibana.yml
-    networks:
-      - logging
-    depends_on:
-      - elasticsearch
+  # ## E
+  # elasticsearch:
+  #   build:
+  #     context: infrastructure/logging
+  #     dockerfile: elasticsearch/Development.Dockerfile
+  #   ports:
+  #     - '${MICROSERVICESDOTNET_ELASTICSEARCH_PORT}:9200'
+  #     - '${MICROSERVICESDOTNET_ELASTICSEARCH_NODES_PORT}:9300'
+  #   environment:
+  #     ES_JAVA_OPTS: '-Xmx256m -Xms256m'
+  #   volumes:
+  #     - ./infrastructure/logging/elasticsearch/config.Development.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+  #     - elasticsearch-data:/usr/share/elasticsearch/data
+  #   networks:
+  #     - logging
+  # ## L
+  # logstash:
+  #   build:
+  #     context: infrastructure/logging
+  #     dockerfile: logstash/Development.Dockerfile
+  #   ports:
+  #     - '${MICROSERVICESDOTNET_LOGSTASH_TCP_PORT}:${MICROSERVICESDOTNET_LOGSTASH_TCP_PORT}'
+  #     - '${MICROSERVICESDOTNET_LOGSTASH_HTTP_PORT}:${MICROSERVICESDOTNET_LOGSTASH_HTTP_PORT}'
+  #   environment:
+  #     LOGSTASH_TCP_PORT: ${MICROSERVICESDOTNET_LOGSTASH_TCP_PORT}
+  #     LOGSTASH_HTTP_PORT: ${MICROSERVICESDOTNET_LOGSTASH_HTTP_PORT}
+  #     ELASTICSEARCH_URL: 'elasticsearch:${MICROSERVICESDOTNET_ELASTICSEARCH_PORT}'
+  #     LS_JAVA_OPTS: '-Xmx256m -Xms256m'
+  #   volumes:
+  #     - ./infrastructure/logging/logstash/config.Development.yml:/usr/share/logstash/config/logstash.yml
+  #     - ./infrastructure/logging/logstash/pipeline.Development.conf:/usr/share/logstash/pipeline/logstash.conf
+  #   networks:
+  #     - logging
+  #     - default
+  #   depends_on:
+  #     - elasticsearch
+  # ## K
+  # kibana:
+  #   build:
+  #     context: infrastructure/logging
+  #     dockerfile: kibana/Development.Dockerfile
+  #   ports:
+  #     - '${MICROSERVICESDOTNET_KIBANA_PORT}:5601'
+  #   environment:
+  #     ELASTICSEARCH_URL: 'http://elasticsearch:${MICROSERVICESDOTNET_ELASTICSEARCH_PORT}'
+  #   volumes:
+  #     - ./infrastructure/logging/kibana/config.Development.yml://usr/share/kibana/config/kibana.yml
+  #   networks:
+  #     - logging
+  #   depends_on:
+  #     - elasticsearch
 
 volumes:
   db:
     labels:
       com.microservices-dotnet.description: 'MySQL data volume'
-  elasticsearch-data:
-    labels:
-      com.microservices-dotnet.description: 'Elasticsearch data volume'
+  # elasticsearch-data:
+  #   labels:
+  #     com.microservices-dotnet.description: 'Elasticsearch data volume'
 
 networks:
   default:
     driver: bridge
-  logging:
-    driver: bridge
+  # logging:
+  #   driver: bridge
