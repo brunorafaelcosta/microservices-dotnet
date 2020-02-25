@@ -1,6 +1,7 @@
 # microservices-dotnet
 
 VSCode:
+
     Debug docker containers:
         Add the following to .vscode/launch.json
             "configurations": [
