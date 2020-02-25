@@ -1,20 +1,22 @@
 version: '3.4'
 
 services:
-  # API
-  api.identity:
-    image: ${REGISTRY:-microservices-dotnet}/api.identity:${PLATFORM:-linux}-${TAG:-latest}
+  # Identity
+  identity.sts:
+    image: ${REGISTRY:-microservices-dotnet}/identity.sts:${PLATFORM:-linux}-${TAG:-latest}
     env_file:
-      - src/Services/Identity/Services.Identity.API/Development.env
-    # environment:
-    #   Logger__Uri: 'http://logstash:${MICROSERVICESDOTNET_LOGSTASH_HTTP_PORT}'
+      - src/Services/Identity/Services.Identity.STS/Development.env
+    environment:
+      # Logger__Uri: 'http://logstash:${MICROSERVICESDOTNET_LOGSTASH_HTTP_PORT}'
+      ConnectionStrings__Default: 'Server=db;Port=3306;Database=microservicesdotnet.services.identitydb;User=root;Password=123Qweasd#;'
+      ClientEndpoints__webadministration: 'localhost:5002'
     build:
       context: src/Services
-      dockerfile: Identity/Services.Identity.API/Development.Dockerfile
+      dockerfile: Identity/Services.Identity.STS/Development.Dockerfile
     ports:
-      - '${MICROSERVICESDOTNET_API_IDENTITY_PORT}:8080'
+      - '${MICROSERVICESDOTNET_IDENTITY_STS_PORT}:8080'
     expose:
-      - '${MICROSERVICESDOTNET_API_IDENTITY_PORT}'
+      - '${MICROSERVICESDOTNET_IDENTITY_STS_PORT}'
     volumes:
       - ~/vsdbg:/vsdbg:ro
       - ./src/Services:/workspace
@@ -24,32 +26,9 @@ services:
       - default
     depends_on:
       - db
+      - messagebroker
 
   # Web
-  ## Authentication
-  web.authentication:
-    image: ${REGISTRY:-microservices-dotnet}/web.authentication:${PLATFORM:-linux}-${TAG:-latest}
-    env_file:
-      - src/Web/WebAuthentication/Development.env
-    # environment:
-    #   Logger__Uri: 'http://logstash:${MICROSERVICESDOTNET_LOGSTASH_HTTP_PORT}'
-    build:
-      context: src/Web
-      dockerfile: WebAuthentication/Development.Dockerfile
-    ports:
-      - '${MICROSERVICESDOTNET_WEB_AUTHENTICATION_PORT}:8080'
-    expose:
-      - '${MICROSERVICESDOTNET_WEB_AUTHENTICATION_PORT}'
-    volumes:
-      - ~/vsdbg:/vsdbg:ro
-      - ./src/Web:/workspace
-      # - ${HOME}/.nuget/packages:/root/.nuget/packages:ro
-      # - ${DOTNET_PATH}/sdk/NuGetFallbackFolder:/root/.nuget/fallbackpackages:ro
-    networks:
-      - default
-    depends_on:
-      - api.identity
-  
   ## Administration
   web.administration:
     image: ${REGISTRY:-microservices-dotnet}/web.administration:${PLATFORM:-linux}-${TAG:-latest}
@@ -69,7 +48,7 @@ services:
     networks:
       - default
     depends_on:
-      - web.authentication
+      - identity.sts
   
   # Databases
   db:
