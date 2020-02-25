@@ -49,7 +49,7 @@
 ## ELK:
 ### Disabled in Development Environment for faster startup
 - elasticsearch:
-	- delete all indexes: curl -X DELETE 'http://localhost:9200/_all'
+	- delete all indexes: `curl -X DELETE 'http://localhost:9200/_all'`
 
 ## Authentication:
 - https://github.com/benscabbia/identityserver4-dockersample-dotnetcore-nginx
