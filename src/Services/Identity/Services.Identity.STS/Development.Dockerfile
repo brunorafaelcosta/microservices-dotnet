@@ -29,7 +29,7 @@ RUN dotnet restore
 RUN dotnet build -c debug
 
 # Project bootstrap
-RUN cp start.Development.sh /start.Development.sh
+RUN cp Development.start.sh /Development.start.sh
 WORKDIR /
-RUN sed -i -e 's/\r$//' /start.Development.sh && chmod +x /start.Development.sh
-ENTRYPOINT ["/start.Development.sh"]
+RUN sed -i -e 's/\r$//' /Development.start.sh && chmod +x /Development.start.sh
+ENTRYPOINT ["/Development.start.sh"]

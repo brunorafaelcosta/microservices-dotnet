@@ -30,21 +30,22 @@ services:
 
   # Web
   ## Administration
-  web.administration:
-    image: ${REGISTRY:-microservices-dotnet}/web.administration:${PLATFORM:-linux}-${TAG:-latest}
+  #### base-admin
+  web.administration.baseadmin:
+    image: ${REGISTRY:-microservices-dotnet}/web.administration.baseadmin:${PLATFORM:-linux}-${TAG:-latest}
     env_file:
-      - src/Web/WebAdministration/web-admin/Development.env
+      - src/Web/web-administration/Development.env
     build:
-      context: src/Web
-      dockerfile: WebAdministration/web-admin/Development.Dockerfile
+      context: src/Web/web-administration
+      dockerfile: Development.Dockerfile
     ports:
-      - '${MICROSERVICESDOTNET_WEB_ADMINISTRATION_PORT}:3000'
+      - '${MICROSERVICESDOTNET_WEB_ADMINISTRATION_PORT}:4200'
     expose:
       - '${MICROSERVICESDOTNET_WEB_ADMINISTRATION_PORT}'
     volumes:
       - ~/vsdbg:/vsdbg:ro
-      - ./src/Web:/workspace
-      - /workspace/WebAdministration/web-admin/node_modules
+      - ./src/Web/web-administration:/workspace
+      - /workspace/node_modules
     networks:
       - default
     depends_on:
