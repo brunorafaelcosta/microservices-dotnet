@@ -3,17 +3,12 @@
 ## Architecture:
 - Services:
 	- Identity
-		- Services.Identity.STS (https://identityserver4.readthedocs.io/en/latest/intro/terminology.html)
+		- Services.Identity.STS (https://identityserver4.readthedocs.io/en/latest/intro/terminology.html (ASP.NETCore)
 - Web:
-	- shared
-		- web-common
 	- Administration
-		- shared
-			- web-admininistration-common
-		- web-administration
-		- web-tenancy-administration
+		- web-administration (Angular)
 	- Portal
-		- web-portal
+		- web-portal (Angular)
 - Mobile
 	- Portal
 		- Mobile.Portal.Droid
@@ -24,7 +19,7 @@
  - Add the following to .vscode/launch.json
 		`"configurations": [
 	               {
-	                    "name": "Docker Attach - {CONTAINER_NAME}",
+	                 "name": "Docker Attach - {CONTAINER_NAME}",
 	                    "type": "coreclr",
 	                    "request": "attach",
 	                    "processId": "${command:pickRemoteProcess}",

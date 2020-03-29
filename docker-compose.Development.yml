@@ -34,9 +34,9 @@ services:
   web.administration.baseadmin:
     image: ${REGISTRY:-microservices-dotnet}/web.administration.baseadmin:${PLATFORM:-linux}-${TAG:-latest}
     env_file:
-      - src/Web/web-administration/Development.env
+      - src/Web/Administration/web-administration/Development.env
     build:
-      context: src/Web/web-administration
+      context: src/Web/Administration/web-administration
       dockerfile: Development.Dockerfile
     ports:
       - '${MICROSERVICESDOTNET_WEB_ADMINISTRATION_PORT}:4200'
@@ -44,7 +44,7 @@ services:
       - '${MICROSERVICESDOTNET_WEB_ADMINISTRATION_PORT}'
     volumes:
       - ~/vsdbg:/vsdbg:ro
-      - ./src/Web/web-administration:/workspace
+      - ./src/Web/Administration/web-administration:/workspace
       - /workspace/node_modules
     networks:
       - default
