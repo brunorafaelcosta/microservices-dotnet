@@ -4,6 +4,7 @@ import { CoreConfig } from './core.config';
 import { ErrorLayoutComponent } from './layout';
 import {
   Error401Component,
+  Error403Component,
   Error404Component,
   Error500Component
 } from './pages/error';
@@ -20,6 +21,10 @@ export function GetDefaultRoutes(config: CoreConfig): Routes {
         {
           path: 'error-401',
           component: Error401Component,
+        },
+        {
+          path: 'error-403',
+          component: Error403Component,
         },
         {
           path: 'error-404',

@@ -12,7 +12,13 @@
 
 cd workspace/
 
+# Build project libraries
 ng build shared
+
+# Replace environment variables in env.js
+envsubst < ${PROJECT_ROOT_FOLDER}/src/env.template.js > ${PROJECT_ROOT_FOLDER}/src/assets/env.js
+
+# Project start
 ng serve --project=${PROJECT_NAME} --host 0.0.0.0 #--base-href ${PROJECT_BASE_URL}
 
 exec "$@"

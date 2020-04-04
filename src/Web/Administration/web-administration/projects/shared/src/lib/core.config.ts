@@ -17,8 +17,10 @@ export class CoreConfig {
     public Environment: any;
 
     public Routes: Routes;
-    public OnNotFoundRouteRedirectToPath: string = 'errors/error-404';
+    public DefaultRoutePath: string = '/';
     public OnUnauthorizedRouteRedirectToPath: string = 'errors/error-401';
+    public OnForbiddenRouteRedirectToPath: string = 'errors/error-403';
+    public OnNotFoundRouteRedirectToPath: string = 'errors/error-404';
 
     public AuthenticationConfig: AuthenticationConfig;
 

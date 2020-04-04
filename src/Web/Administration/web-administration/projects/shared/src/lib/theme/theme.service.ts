@@ -1,13 +1,17 @@
 import { Injectable } from '@angular/core';
 
+import { LoggerService } from '../helpers';
+
 @Injectable({
     providedIn: 'root',
 })
 export class ThemeService {
-    constructor() {
+    constructor(
+        private logger: LoggerService,
+    ) {
     }
 
     init() : void {
-        console.log('ThemeService init...');
+        this.logger.Debug('ThemeService init...');
     }
 }

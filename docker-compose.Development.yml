@@ -9,7 +9,7 @@ services:
     environment:
       # Logger__Uri: 'http://logstash:${MICROSERVICESDOTNET_LOGSTASH_HTTP_PORT}'
       ConnectionStrings__Default: 'Server=db;Port=3306;Database=microservicesdotnet.services.identitydb;User=root;Password=123Qweasd#;'
-      ClientEndpoints__webadministration: 'localhost:5002'
+      ClientEndpoints__web_base_administration: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_WEB_BASE_ADMINISTRATION_PORT}'
     build:
       context: src/Services
       dockerfile: Identity/Services.Identity.STS/Development.Dockerfile
@@ -35,13 +35,18 @@ services:
     image: ${REGISTRY:-microservices-dotnet}/web.administration.baseadmin:${PLATFORM:-linux}-${TAG:-latest}
     env_file:
       - src/Web/Administration/web-administration/Development.env
+    environment:
+      AUTHORITYLOGINURL: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_IDENTITY_STS_PORT}/${MICROSERVICESDOTNET_IDENTITY_STS_LOGIN_PATH}'
+      AUTHORITYREDIRECTURL: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_WEB_BASE_ADMINISTRATION_PORT}/'
+      AUTHORITYLOGOUTURL: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_IDENTITY_STS_PORT}/${MICROSERVICESDOTNET_IDENTITY_STS_LOGOUT_PATH}'
+      AUTHORITYUSERINFOURL: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_IDENTITY_STS_PORT}/${MICROSERVICESDOTNET_IDENTITY_STS_USERINFO_PATH}'
     build:
       context: src/Web/Administration/web-administration
       dockerfile: Development.Dockerfile
     ports:
-      - '${MICROSERVICESDOTNET_WEB_ADMINISTRATION_PORT}:4200'
+      - '${MICROSERVICESDOTNET_WEB_BASE_ADMINISTRATION_PORT}:4200'
     expose:
-      - '${MICROSERVICESDOTNET_WEB_ADMINISTRATION_PORT}'
+      - '${MICROSERVICESDOTNET_WEB_BASE_ADMINISTRATION_PORT}'
     volumes:
       - ~/vsdbg:/vsdbg:ro
       - ./src/Web/Administration/web-administration:/workspace

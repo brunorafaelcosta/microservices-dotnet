@@ -11,6 +11,22 @@ namespace Services.Identity.STS.IdentityServerConfig
         {
             return new List<Client>
             {
+                new Client
+                {
+                    ClientId = "web_base_administration",
+                    ClientName = "Web Base Administration OpenId Client",
+                    AllowedGrantTypes = GrantTypes.Implicit,
+                    AllowAccessTokensViaBrowser = true,
+                    RedirectUris = { $"{clientsUrl["web_base_administration"]}/" },
+                    RequireConsent = false,
+                    PostLogoutRedirectUris = { $"{clientsUrl["web_base_administration"]}/" },
+                    AllowedCorsOrigins = { $"{clientsUrl["web_base_administration"]}" },
+                    AllowedScopes =
+                    {
+                        IdentityServerConstants.StandardScopes.OpenId,
+                        IdentityServerConstants.StandardScopes.Profile,
+                    },
+                },
             };
         }
     }

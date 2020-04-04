@@ -27,7 +27,7 @@ namespace Services.Identity.STS
         public void ConfigureServices(IServiceCollection services)
         {
             ConfigureEntityFrameworkService(services);
-            
+
             ConfigureIdentityServerService(services);
 
             services
@@ -54,9 +54,20 @@ namespace Services.Identity.STS
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
-            app.UseRouting();
+            // Make work identity server redirections in Edge and lastest versions of browers.
+            // WARN: Not valid in a production environment.
+            if (env.IsDevelopment())
+            {
+                app.Use(async (context, next) =>
+                {
+                    context.Response.Headers.Add("Content-Security-Policy", "script-src 'unsafe-inline'");
+                    await next();
+                });
+            }
 
+            app.UseForwardedHeaders();
             app.UseIdentityServer();
+            app.UseRouting();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

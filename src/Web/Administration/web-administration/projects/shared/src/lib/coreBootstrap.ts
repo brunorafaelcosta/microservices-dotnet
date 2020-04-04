@@ -1,29 +1,45 @@
 import { Injector } from '@angular/core';
 
+import { LoggerService } from './helpers';
 import { CoreConfig } from './core.config';
-import { LayoutService } from './layout';
+import { AuthenticationService } from './authentication';
+import { LocalizationService } from './localization';
 import { ThemeService } from './theme';
+import { LayoutService } from './layout';
 
 export class CoreBootstrap {
     public static run(injector: Injector, appRootUrl: string, callback: () => void, resolve: any, reject: any): void {
-        console.log('CoreBootstrap running...');
+        const logger: LoggerService = injector.get(LoggerService);
+
+        logger.Debug('CoreBootstrap running...');
 
         const config: CoreConfig = injector.get(CoreConfig);
 
-        CoreBootstrap.logCurrentEnvironment(config.Environment);
+        CoreBootstrap.logCurrentEnvironment(logger, config.Environment);
 
-        CoreBootstrap.initializeLayout(injector);
+        CoreBootstrap.initializeAuthentication(injector);
+
+        CoreBootstrap.initializeLocalization(injector);
 
         CoreBootstrap.initializeTheme(injector);
 
+        CoreBootstrap.initializeLayout(injector);
+
         callback();
-        console.log('CoreBootstrap finished...');
+
+        logger.Debug('CoreBootstrap finished...');
     }
 
-    private static initializeLayout(injector: Injector): void {
-        const layoutService: LayoutService = injector.get(LayoutService);
+    private static initializeAuthentication(injector: Injector): void {
+        const authenticationService: AuthenticationService = injector.get(AuthenticationService);
 
-        layoutService.init();
+        authenticationService.init();
+    }
+
+    private static initializeLocalization(injector: Injector): void {
+        const localizationService: LocalizationService = injector.get(LocalizationService);
+
+        localizationService.init();
     }
 
     private static initializeTheme(injector: Injector): void {
@@ -32,11 +48,17 @@ export class CoreBootstrap {
         themeService.init();
     }
 
-    private static logCurrentEnvironment(env: any): void {
+    private static initializeLayout(injector: Injector): void {
+        const layoutService: LayoutService = injector.get(LayoutService);
+
+        layoutService.init();
+    }
+
+    private static logCurrentEnvironment(logger: LoggerService, env: any): void {
         if (env.production) {
-            console.log('Env - Production');
+            logger.Debug('Env - Production');
         } else {
-            console.log('Env - Development');
+            logger.Debug('Env - Development');
         }
     }
 }

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { BehaviorSubject } from 'rxjs';
 
+import { LoggerService } from '../helpers';
 import { CoreConfig } from '../core.config';
 
 @Injectable({
@@ -12,11 +13,13 @@ export class LayoutService {
 
     constructor (
         private config: CoreConfig,
-        private titleService: Title,) {
+        private titleService: Title,
+        private logger: LoggerService,
+    ) {
     }
 
     init() : void {
-        console.log('LayoutService init...');
+        this.logger.Debug('LayoutService init...');
 
         this.title = new BehaviorSubject<string>(this.config.AppTitle);
         this.title.asObservable().subscribe(title => {
