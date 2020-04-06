@@ -3,9 +3,10 @@ import { HttpClient, HttpHeaders }      from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { LoggerService, StorageService, RouterService } from '../helpers';
+import { UrlUtils } from '../utils';
 import { CoreConfig } from '../core.config';
 import { AuthenticationConfig } from './authentication.config';
-import { UrlUtils } from '../utils';
+import { IIdentity } from './identity.model';
 
 @Injectable({
     providedIn: 'root',
@@ -19,25 +20,27 @@ export class AuthenticationService {
         private storage: StorageService,
         private logger: LoggerService,
     ) {
+        this.IsAuthorized = false;
+        this.User = null;
     }
 
-    init() : void {
+    Init() : void {
         if (typeof this.storage.retrieve('IsAuthorized') === 'boolean') {
             this.IsAuthorized = this.storage.retrieve('IsAuthorized');
-            this.UserData = this.storage.retrieve('userData');
+            this.User = this.storage.retrieve('userInfo') || null;
         }
 
         if (window.location.hash) {
-            this.AuthorizedCallback();
+            this.loginCallback();
         } else if (!this.IsAuthorized) {
-            this.Authorize();
+            this.Login();
         }
     }
 
     public IsAuthorized: boolean;
-    public UserData: any;
+    public User: IIdentity;
 
-    public Authorize() {
+    public Login() {
         this.resetAuthorizationData();
 
         const loginUrl = this.config.AuthorityLoginUrl;
@@ -63,7 +66,22 @@ export class AuthenticationService {
         window.location.href = url;
     }
 
-    public AuthorizedCallback() {
+    public Logout() {
+        const logoutUrl = this.config.AuthorityLogoutUrl;
+        const redirectUri = this.config.AuthorityRedirectUrl;
+        const idTokenHint = this.storage.retrieve('authorizationDataIdToken');
+
+        let url =
+            logoutUrl + '?' +
+            'id_token_hint=' + encodeURI(idTokenHint) + '&' +
+            'post_logout_redirect_uri=' + encodeURI(redirectUri);
+
+        this.resetAuthorizationData();
+
+        window.location.href = url;
+    }
+
+    private loginCallback() {
         this.resetAuthorizationData();
 
         let hash = window.location.hash.substr(1);
@@ -117,13 +135,17 @@ export class AuthenticationService {
 
         this.storage.store('authorizationData', token);
         this.storage.store('authorizationDataIdToken', idToken);
-        this.storage.store('IsAuthorized', true);
+        this.storage.store('isAuthorized', true);
         this.IsAuthorized = true;
 
         this.getUserInfo()
             .subscribe(info => {
-                this.UserData = info;
-                this.storage.store('userData', info);
+                this.User = {
+                    PreferredUsername: info['preferred_username'],
+                    Name: info['name'],
+                    LoginDate: new Date(),
+                };
+                this.storage.store('userInfo', this.User);
                 
                 this.router.redirectToDefaultRoute();
             },
@@ -138,7 +160,7 @@ export class AuthenticationService {
                 }
             },
             () => {
-                this.logger.Debug(this.UserData);
+                this.logger.Debug('Logged user info: ', this.User);
             });
     }
     private resetAuthorizationData() {
@@ -146,7 +168,9 @@ export class AuthenticationService {
         this.storage.store('authorizationDataIdToken', '');
 
         this.IsAuthorized = false;
-        this.storage.store('IsAuthorized', false);
+        this.User = null;
+        this.storage.store('isAuthorized', false);
+        this.storage.store('userInfo', '');
     }
 
     private getToken(): any {

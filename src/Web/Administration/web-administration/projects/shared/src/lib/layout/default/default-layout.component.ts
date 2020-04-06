@@ -7,7 +7,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class DefaultLayoutComponent implements OnInit {
   constructor() {
-    }
+  }
 
   ngOnInit(): void {
   }

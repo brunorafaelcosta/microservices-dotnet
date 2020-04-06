@@ -32,8 +32,8 @@ export class CoreBootstrap {
 
     private static initializeAuthentication(injector: Injector): void {
         const authenticationService: AuthenticationService = injector.get(AuthenticationService);
-
-        authenticationService.init();
+        
+        authenticationService.Init();
     }
 
     private static initializeLocalization(injector: Injector): void {

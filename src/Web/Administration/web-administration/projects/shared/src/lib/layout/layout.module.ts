@@ -4,22 +4,22 @@ import { RouterModule } from '@angular/router';
 
 import { LayoutService } from './layout.service';
 import { LayoutComponent } from './layout.component';
-import { DefaultLayoutComponent } from './default';
+import { DefaultLayoutModule } from './default';
 import { ErrorLayoutComponent } from './error';
 
 @NgModule({
   declarations: [
     LayoutComponent,
-    DefaultLayoutComponent,
     ErrorLayoutComponent,
   ],
   imports: [
     BrowserModule,
     RouterModule,
+
+    DefaultLayoutModule,
   ],
   exports: [
     LayoutComponent,
-    DefaultLayoutComponent,
     ErrorLayoutComponent,
   ],
   providers: [
