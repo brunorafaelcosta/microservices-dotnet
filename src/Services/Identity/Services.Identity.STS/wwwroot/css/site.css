@@ -16,32 +16,23 @@ body {
   background-color: #f5f5f5;
 }
 
-.form-signin {
+.account-logout-container,
+.account-login-container,
+.account-loggedin-container {
   width: 100%;
-  max-width: 330px;
+  max-width: 480px;
   padding: 15px;
   margin: auto;
 }
-.form-signin .checkbox {
-  font-weight: 400;
+
+.account-avatar {
+  vertical-align: middle;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
 }
-.form-signin .form-control {
-  position: relative;
-  box-sizing: border-box;
-  height: auto;
-  padding: 10px;
-  font-size: 16px;
-}
-.form-signin .form-control:focus {
-  z-index: 2;
-}
-.form-signin input[type="email"] {
-  margin-bottom: -1px;
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
-}
-.form-signin input[type="password"] {
-  margin-bottom: 10px;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
+
+.account-claims {
+  margin-top: 15px;
+  margin-bottom: 15px;
 }

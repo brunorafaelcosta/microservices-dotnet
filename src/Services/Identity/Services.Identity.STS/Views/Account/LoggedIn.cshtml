@@ -1,0 +1,42 @@
+@model Services.Identity.STS.Models.Account.LoggedInViewModel
+
+@{
+    ViewData["Title"] = "Account info";
+
+    var logoutUrl = Url.Action("Logout", "Account");
+}
+
+<div class="container account-loggedin-container">
+    <div class="card">
+        <div class="card-body text-center">
+            <div class="card-title">
+                <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Avatar" class="account-avatar">
+            </div>
+            <h5 class="card-subtitle mb-2 text-muted">
+                @Model.Name
+            </h5>
+            <div class="account-claims">
+                <p>
+                    <button
+                        class="btn btn-link"
+                        type="button"
+                        data-toggle="collapse"
+                        data-target="#claims"
+                        aria-expanded="false"
+                        aria-controls="claims"
+                    >
+                        Claims
+                    </button>
+                </p>
+                <div class="collapse" id="claims">
+                    <div class="card card-body text-left">
+                        <pre>@Html.Raw(Json.Serialize(Model.Claims))</pre>
+                    </div>
+                </div>
+            </div>
+            <a href="@logoutUrl" class="btn btn-secondary">
+                Logout
+            </a>
+        </div>
+    </div>
+</div>

@@ -60,7 +60,7 @@ namespace Services.Identity.STS
             {
                 app.Use(async (context, next) =>
                 {
-                    context.Response.Headers.Add("Content-Security-Policy", "script-src 'unsafe-inline'");
+                    context.Response.Headers.Add("Content-Security-Policy", "script-src 'self' 'unsafe-inline'");
                     await next();
                 });
             }

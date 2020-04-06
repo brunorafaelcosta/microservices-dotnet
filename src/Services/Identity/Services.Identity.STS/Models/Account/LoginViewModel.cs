@@ -4,9 +4,6 @@ namespace Services.Identity.STS.Models.Account
 {
     public class LoginViewModel
     {
-        // [Required]
-        // public string ClientId { get; set; }
-
         [Required]
         [EmailAddress]
         [Display(Name = "Email", Prompt = "Email")]

@@ -1,0 +1,33 @@
+@model Services.Identity.STS.Models.Account.LogoutViewModel
+
+@{
+    ViewData["Title"] = "Logout";
+}
+
+<div class="container account-logout-container">
+    <div class="card">
+        <div class="card-body text-center">
+            <div class="card-title">
+                <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Avatar" class="account-avatar">
+            </div>
+            <h5 class="card-subtitle mb-2 text-muted">
+                @Model.Name
+            </h5>
+            <p class="card-text">
+                Would you like to logout of the Identity Server?
+            </p>
+            <form asp-action="Logout" class="d-inline-block">
+                <input type="hidden" name="logoutId" value="@Model.LogoutId" />
+                <button type="submit" class="btn btn btn-primary">
+                    Logout
+                </button>
+            </form>
+            <form asp-action="CancelLogout" class="d-inline-block">
+                <input type="hidden" name="logoutId" value="@Model.LogoutId" />
+                <button type="submit" class="btn btn btn-secondary">
+                    Return
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

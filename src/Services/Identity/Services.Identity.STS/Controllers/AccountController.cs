@@ -38,9 +38,18 @@ namespace Services.Identity.STS.Controllers
             _loginService = loginService;
         }
 
+        #region Login
+
+        /// <summary>
+        /// Shows the login page
+        /// </summary>
         [HttpGet]
         public async Task<IActionResult> Login(string returnUrl)
         {
+            if (User.Identity.IsAuthenticated == true) {
+                return RedirectToAction(nameof(LoggedIn));
+            }
+
             var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
             if (context?.IdP != null)
             {
@@ -54,6 +63,9 @@ namespace Services.Identity.STS.Controllers
             return View(vm);
         }
         
+        /// <summary>
+        /// Handles postback from the login page
+        /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(AccountModels.LoginViewModel model)
@@ -70,7 +82,7 @@ namespace Services.Identity.STS.Controllers
                     {
                         ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(tokenLifetime),
                         AllowRefresh = true,
-                        RedirectUri = model.ReturnUrl
+                        RedirectUri = model.ReturnUrl,
                     };
 
                     if (model.RememberMe)
@@ -89,7 +101,7 @@ namespace Services.Identity.STS.Controllers
                         return Redirect(model.ReturnUrl);
                     }
 
-                    return RedirectToAction("LoggedIn");
+                    return RedirectToAction(nameof(LoggedIn));
                 }
 
                 ModelState.AddModelError("", "Invalid username or password.");
@@ -103,9 +115,25 @@ namespace Services.Identity.STS.Controllers
             return View(vm);
         }
 
+        // <summary>
+        /// Shows the logged user information page
+        /// </summary>
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> LoggedIn()
+        {
+            var vm = new AccountModels.LoggedInViewModel
+            {
+                Name = User.Identity.Name,
+                Claims = User.Claims.ToDictionary(claim => claim.Type, claim => claim.Value),
+            };
+
+            return View(vm);
+        }
+
         private async Task<AccountModels.LoginViewModel> BuildLoginViewModelAsync(string returnUrl, AuthorizationRequest context)
         {
-            var allowLocal = true;
+            // var allowLocal = true;
             // if (context?.ClientId != null)
             // {
             //     var client = await _clientStore.FindEnabledClientByIdAsync(context.ClientId);
@@ -131,14 +159,114 @@ namespace Services.Identity.STS.Controllers
             return vm;
         }
 
+        #endregion Login
 
+        #region Logout
+
+        /// <summary>
+        /// Show the logout page
+        /// </summary>
+        /// <remarks>
+        /// this prevents attacks where the user
+        /// is automatically signed out by another malicious web page
+        /// </remarks>
         [HttpGet]
         [Authorize]
-        public IActionResult LoggedIn()
+        public async Task<IActionResult> Logout(string logoutId = null)
         {
-            // _logger.LogInformation("Http request access to {Resource}", $"{nameof(AccountController)}.{nameof(Get)}");
-
-            return new JsonResult(from c in User.Claims select new { c.Type, c.Value });
+            var vm = new AccountModels.LogoutViewModel
+            {
+                LogoutId = logoutId,
+                Name = User.Identity.Name,
+            };
+            return View(vm);
         }
+
+        /// <summary>
+        /// Handles postback from the logout page
+        /// </summary>
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout(AccountModels.LogoutViewModel model)
+        {
+            var idp = User?.FindFirst(JwtClaimTypes.IdentityProvider)?.Value;
+
+            if (idp != null && idp != IdentityServerConstants.LocalIdentityProvider)
+            {
+                if (model.LogoutId == null)
+                {
+                    // if there's no current logout context, we need to create one
+                    // this captures necessary info from the current logged in user
+                    // before we signout and redirect away to the external IdP for signout
+                    model.LogoutId = await _interaction.CreateLogoutContextAsync();
+                }
+
+                string url = "/Account/Logout?logoutId=" + model.LogoutId;
+
+                try
+                {
+
+                    // hack: try/catch to handle social providers that throw
+                    await HttpContext.SignOutAsync(idp, new AuthenticationProperties
+                    {
+                        RedirectUri = url,
+                    });
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "LOGOUT ERROR: {ExceptionMessage}", ex.Message);
+                }
+            }
+
+            // delete authentication cookie
+            await HttpContext.SignOutAsync();
+
+            await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
+
+            // set this so UI rendering sees an anonymous user
+            HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity());
+
+            // get context information (client name, post logout redirect URI and iframe for federated signout)
+            var logout = await _interaction.GetLogoutContextAsync(model.LogoutId);
+
+            if (logout is null || string.IsNullOrEmpty(logout.PostLogoutRedirectUri)) {
+                return RedirectToAction(nameof(Login));
+            } else {
+                return Redirect(logout.PostLogoutRedirectUri);
+            }
+        }
+
+        /// <summary>
+        /// Handles cancel postback from the logout page
+        /// </summary>
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CancelLogout(AccountModels.LogoutViewModel model)
+        {
+            var idp = User?.FindFirst(JwtClaimTypes.IdentityProvider)?.Value;
+
+            if (idp != null && idp != IdentityServerConstants.LocalIdentityProvider)
+            {
+                if (string.IsNullOrEmpty(model.LogoutId))
+                {
+                    // if there's no current logout context, we need to create one
+                    // this captures necessary info from the current logged in user
+                    // before we signout and redirect away to the external IdP for signout
+                    model.LogoutId = await _interaction.CreateLogoutContextAsync();
+                }
+            }
+            
+            var logout = await _interaction.GetLogoutContextAsync(model.LogoutId);
+
+            if (logout is null || string.IsNullOrEmpty(logout.PostLogoutRedirectUri)) {
+                return RedirectToAction(nameof(LoggedIn));
+            } else {
+                return Redirect(logout.PostLogoutRedirectUri);
+            }
+        }
+
+        #endregion Logout
     }
 }
