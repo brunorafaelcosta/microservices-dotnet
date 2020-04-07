@@ -120,7 +120,7 @@ namespace Services.Identity.STS.Controllers
         /// </summary>
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> LoggedIn()
+        public IActionResult LoggedIn()
         {
             var vm = new AccountModels.LoggedInViewModel
             {
@@ -164,7 +164,7 @@ namespace Services.Identity.STS.Controllers
         #region Logout
 
         /// <summary>
-        /// Show the logout page
+        /// Shows the logout page
         /// </summary>
         /// <remarks>
         /// this prevents attacks where the user
@@ -172,7 +172,7 @@ namespace Services.Identity.STS.Controllers
         /// </remarks>
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> Logout(string logoutId = null)
+        public IActionResult Logout(string logoutId = null)
         {
             var vm = new AccountModels.LogoutViewModel
             {
@@ -232,36 +232,6 @@ namespace Services.Identity.STS.Controllers
 
             if (logout is null || string.IsNullOrEmpty(logout.PostLogoutRedirectUri)) {
                 return RedirectToAction(nameof(Login));
-            } else {
-                return Redirect(logout.PostLogoutRedirectUri);
-            }
-        }
-
-        /// <summary>
-        /// Handles cancel postback from the logout page
-        /// </summary>
-        [HttpPost]
-        [Authorize]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CancelLogout(AccountModels.LogoutViewModel model)
-        {
-            var idp = User?.FindFirst(JwtClaimTypes.IdentityProvider)?.Value;
-
-            if (idp != null && idp != IdentityServerConstants.LocalIdentityProvider)
-            {
-                if (string.IsNullOrEmpty(model.LogoutId))
-                {
-                    // if there's no current logout context, we need to create one
-                    // this captures necessary info from the current logged in user
-                    // before we signout and redirect away to the external IdP for signout
-                    model.LogoutId = await _interaction.CreateLogoutContextAsync();
-                }
-            }
-            
-            var logout = await _interaction.GetLogoutContextAsync(model.LogoutId);
-
-            if (logout is null || string.IsNullOrEmpty(logout.PostLogoutRedirectUri)) {
-                return RedirectToAction(nameof(LoggedIn));
             } else {
                 return Redirect(logout.PostLogoutRedirectUri);
             }

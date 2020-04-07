@@ -52,7 +52,7 @@ namespace Services.Identity.STS.Application.Data
                 Email = "user@example.com",
                 Id = Guid.NewGuid().ToString(),
                 LastName = "User Last Name",
-                FirstName = "User First Name",
+                Name = "User First Name",
                 PhoneNumber = "1234567890",
                 UserName = "user@example.com",
                 NormalizedEmail = "USER@EXAMPLE.COM",

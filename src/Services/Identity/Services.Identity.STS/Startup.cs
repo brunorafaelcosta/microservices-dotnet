@@ -107,7 +107,8 @@ namespace Services.Identity.STS
                 .AddInMemoryApiResources(IdentityServerConfig.ApiResourcesConfig.GetApis())
                 .AddInMemoryClients(IdentityServerConfig.ClientsConfig.GetClients(clientEndpoints))
                 .AddAspNetIdentity<Application.Models.ApplicationUser>();
-
+            
+            services.AddTransient<IdentityServer4.Services.IProfileService, Application.Services.ProfileService>();
             services.AddTransient<Application.Services.ILoginService, Application.Services.LoginService>();
         }
 
