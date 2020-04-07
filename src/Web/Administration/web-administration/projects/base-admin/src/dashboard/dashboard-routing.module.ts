@@ -1,6 +1,8 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
+import { PermissionGuard } from 'shared';
+
 import { DashboardComponent } from './dashboard.component';
 import { DefaultDashboardComponent } from './default';
 
@@ -10,7 +12,9 @@ const routes: Routes = [
     component: DashboardComponent,
     children: [
       {
-        path: 'default', component: DefaultDashboardComponent
+        path: 'default', component: DefaultDashboardComponent,
+        canActivate: [PermissionGuard],
+        data: { permissions: 'permission1' },
       },
       {
         path: '', redirectTo: 'default', pathMatch: 'full'

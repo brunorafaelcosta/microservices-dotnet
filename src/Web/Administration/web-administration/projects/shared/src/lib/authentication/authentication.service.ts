@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders }      from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { LoggerService, StorageService, RouterService } from '../helpers';
@@ -81,6 +81,39 @@ export class AuthenticationService {
         window.location.href = url;
     }
 
+    public HasPermissions(permissions: string[], matchAll: boolean = true): boolean {
+        let has: boolean = true;
+
+        if (permissions) {
+            if (matchAll) {
+                has = 
+                    this.User &&
+                    this.User.Permissions &&
+                    permissions.every(p=> this.User.Permissions.indexOf(p) > -1);
+            } else {
+                has = 
+                    this.User &&
+                    this.User.Permissions &&
+                    permissions.some(p=> this.User.Permissions.indexOf(p) > -1);
+            }
+        }
+
+        return has;
+    }
+
+    public HasPermission(permission: string): boolean {
+        let has: boolean = true;
+
+        if (permission) {
+            has = 
+                this.User &&
+                this.User.Permissions &&
+                this.User.Permissions.indexOf(permission) > -1;
+        }
+
+        return has;
+    }
+
     private loginCallback() {
         this.resetAuthorizationData();
 
@@ -144,6 +177,7 @@ export class AuthenticationService {
                     PreferredUsername: info['preferred_username'],
                     Name: info['name'],
                     LoginDate: new Date(),
+                    Permissions: this.getParsedPermissions(info['permissions']),
                 };
                 this.storage.store('userInfo', this.User);
                 
@@ -194,5 +228,17 @@ export class AuthenticationService {
         return this.http
             .get<string[]>(httpUrl, httpOptions)
             .pipe<string[]>((info: any) => info);
+    }
+
+    private getParsedPermissions(permissions: string): string[] {
+        let permissionsArray: string[] = [];
+
+        if (permissions) {
+            permissions = permissions.replace(/\s+/g, '');
+
+            permissionsArray = permissions.split(';');
+        }
+        
+        return permissionsArray;
     }
 }

@@ -7,6 +7,8 @@ import { CoreConfig } from './core.config';
 import { GetDefaultRoutes } from './core.routes';
 import { CoreInitializerFactory } from './core.module-Initializer-factory';
 import { HelpersModule } from './helpers';
+import { DirectivesModule } from './directives';
+import { GuardsModule } from './guards';
 import { AuthenticationModule, AuthenticationConfig } from './authentication';
 import { LocalizationModule, LocalizationConfig } from './localization';
 import { ThemeModule, ThemeConfig } from './theme';
@@ -34,6 +36,8 @@ import {
     RouterModule.forRoot([]),
 
     HelpersModule,
+    DirectivesModule,
+    GuardsModule,
     AuthenticationModule,
     LocalizationModule,
     ThemeModule,

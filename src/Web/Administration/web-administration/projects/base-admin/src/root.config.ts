@@ -5,6 +5,7 @@ import {
     CoreConfig,
     DefaultLayoutComponent,
     AuthenticationConfig,
+    AuthenticationGuard,
 } from 'shared';
 
 export default class RootConfig extends CoreConfig {
@@ -18,6 +19,7 @@ export default class RootConfig extends CoreConfig {
         {
             path: 'dashboard',
             component: DefaultLayoutComponent,
+            canActivate: [AuthenticationGuard],
             loadChildren: () => import(`./dashboard/dashboard.module`).then(m => m.DashboardModule)
         },
         { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
