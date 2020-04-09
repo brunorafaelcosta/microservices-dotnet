@@ -27,6 +27,20 @@ namespace Services.Identity.STS.IdentityServerConfig
                         IdentityServerConstants.StandardScopes.Profile,
                     },
                 },
+                new Client
+                {
+                    ClientId = "localizationswaggerui",
+                    ClientName = "Localization Swagger UI",
+                    AllowedGrantTypes = GrantTypes.Implicit,
+                    AllowAccessTokensViaBrowser = true,
+                    RedirectUris = { $"{clientsUrl["localization_api"]}/swagger/oauth2-redirect.html" },
+                    PostLogoutRedirectUris = { $"{clientsUrl["localization_api"]}/swagger/" },
+                    RequireConsent = false,
+                    AllowedScopes =
+                    {
+                        "localization"
+                    }
+                }
             };
         }
     }

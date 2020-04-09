@@ -1,1 +1,1 @@
-docker-compose -f "docker-compose.Development.yml" --env-file="Development.env" down
+docker-compose -f "docker-compose.Development.yml" -f "docker-compose.Development.override.yml" --env-file="Development.env" down

@@ -1,13 +1,15 @@
+using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Serilog;
 
 namespace Services.Identity.STS
@@ -36,8 +38,10 @@ namespace Services.Identity.STS
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
+            var logger = loggerFactory.CreateLogger<Startup>();
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -49,9 +53,17 @@ namespace Services.Identity.STS
                 app.UseHsts();
             }
 
-            app.UseSerilogRequestLogging();
+            #region Base path
+            var pathBase = Configuration["PATH_BASE"];
+            if (!string.IsNullOrEmpty(pathBase))
+            {
+                logger.LogDebug("Using PATH BASE '{pathBase}'", pathBase);
+                app.UsePathBase(pathBase);
+            }
+            #endregion Base path
 
-            app.UseHttpsRedirection();
+            app.UseSerilogRequestLogging();
+            
             app.UseStaticFiles();
 
             // Make work identity server redirections in Edge and lastest versions of browers.
@@ -66,8 +78,16 @@ namespace Services.Identity.STS
             }
 
             app.UseForwardedHeaders();
+
             app.UseIdentityServer();
+
+            // Fix a problem with chrome. Chrome enabled a new feature "Cookies without SameSite must be secure", 
+            // the coockies shold be expided from https, but in eShop, the internal comunicacion in aks and docker compose is http.
+            // To avoid this problem, the policy of cookies shold be in Lax mode.
+            app.UseCookiePolicy(new CookiePolicyOptions { MinimumSameSitePolicy = Microsoft.AspNetCore.Http.SameSiteMode.Lax });
+
             app.UseRouting();
+            
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
@@ -101,7 +121,11 @@ namespace Services.Identity.STS
             var clientEndpoints = Configuration.GetSection("ClientEndpoints").Get<Dictionary<string, string>>();
 
             services
-                .AddIdentityServer()
+                .AddIdentityServer(x =>
+                {
+                    x.IssuerUri = "null";
+                    x.Authentication.CookieLifetime = TimeSpan.FromHours(2);
+                })
                 .AddSigningCredential(certificate)
                 .AddInMemoryIdentityResources(IdentityServerConfig.IdentityResourcesConfig.GetResources())
                 .AddInMemoryApiResources(IdentityServerConfig.ApiResourcesConfig.GetApis())

@@ -38,6 +38,10 @@
 	            ]
 	`
 
+## dotnet
+ - add/remove project to solution: dotnet sln add/remove project_name.csproj
+ - add/remove referece to project: dotnet add/remove reference project_name.csproj
+
 ## docker-compose:
  - conditional services: https://github.com/docker/compose/issues/1294
 

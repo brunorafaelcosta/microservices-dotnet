@@ -1,0 +1,75 @@
+version: '3.4'
+
+services:
+  # Identity
+  identity_sts:
+    environment:
+      Logger__Uri: 'http://logstash:${MICROSERVICESDOTNET_LOGSTASH_HTTP_PORT}'
+  
+  # API
+  ## Localization
+  localization_api:
+    environment:
+      Logger__Uri: 'http://logstash:${MICROSERVICESDOTNET_LOGSTASH_HTTP_PORT}'
+  
+  # Logging
+  ## E
+  elasticsearch:
+    build:
+      context: infrastructure/logging
+      dockerfile: elasticsearch/Development.Dockerfile
+    ports:
+      - '${MICROSERVICESDOTNET_ELASTICSEARCH_PORT}:9200'
+      - '${MICROSERVICESDOTNET_ELASTICSEARCH_NODES_PORT}:9300'
+    environment:
+      ES_JAVA_OPTS: '-Xmx256m -Xms256m'
+    volumes:
+      - ./infrastructure/logging/elasticsearch/config.Development.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - logging
+  ## L
+  logstash:
+    build:
+      context: infrastructure/logging
+      dockerfile: logstash/Development.Dockerfile
+    ports:
+      - '${MICROSERVICESDOTNET_LOGSTASH_TCP_PORT}:${MICROSERVICESDOTNET_LOGSTASH_TCP_PORT}'
+      - '${MICROSERVICESDOTNET_LOGSTASH_HTTP_PORT}:${MICROSERVICESDOTNET_LOGSTASH_HTTP_PORT}'
+    environment:
+      LOGSTASH_TCP_PORT: ${MICROSERVICESDOTNET_LOGSTASH_TCP_PORT}
+      LOGSTASH_HTTP_PORT: ${MICROSERVICESDOTNET_LOGSTASH_HTTP_PORT}
+      ELASTICSEARCH_URL: 'elasticsearch:${MICROSERVICESDOTNET_ELASTICSEARCH_PORT}'
+      LS_JAVA_OPTS: '-Xmx256m -Xms256m'
+    volumes:
+      - ./infrastructure/logging/logstash/config.Development.yml:/usr/share/logstash/config/logstash.yml
+      - ./infrastructure/logging/logstash/pipeline.Development.conf:/usr/share/logstash/pipeline/logstash.conf
+    networks:
+      - logging
+      - default
+    depends_on:
+      - elasticsearch
+  ## K
+  kibana:
+    build:
+      context: infrastructure/logging
+      dockerfile: kibana/Development.Dockerfile
+    ports:
+      - '${MICROSERVICESDOTNET_KIBANA_PORT}:5601'
+    environment:
+      ELASTICSEARCH_URL: 'http://elasticsearch:${MICROSERVICESDOTNET_ELASTICSEARCH_PORT}'
+    volumes:
+      - ./infrastructure/logging/kibana/config.Development.yml://usr/share/kibana/config/kibana.yml
+    networks:
+      - logging
+    depends_on:
+      - elasticsearch
+
+volumes:
+  elasticsearch_data:
+    labels:
+      com.microservices_dotnet.description: 'Elasticsearch data volume'
+
+networks:
+  logging:
+    driver: bridge

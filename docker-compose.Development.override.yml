@@ -1,0 +1,85 @@
+version: '3.4'
+
+services:
+  # Identity
+  identity_sts:
+    env_file:
+      - src/Services/Identity/Services.Identity.STS/Development.env
+    environment:
+      ConnectionStrings__Default: 'Server=db;Port=${MICROSERVICESDOTNET_DB_PORT};Database=microservicesdotnet.services.identitydb;User=root;Password=${MICROSERVICESDOTNET_DB_ROOT_PASSWORD};'
+      ClientEndpoints__localization_api: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_LOCALIZATION_API_PORT}'
+      ClientEndpoints__web_base_administration: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_WEB_BASE_ADMINISTRATION_PORT}'
+    ports:
+      - '${MICROSERVICESDOTNET_IDENTITY_STS_PORT}:8080'
+    expose:
+      - '${MICROSERVICESDOTNET_IDENTITY_STS_PORT}'
+    volumes:
+      - ~/vsdbg:/vsdbg:ro
+      - ./src/Services:/workspace
+      # - ${HOME}/.nuget/packages:/root/.nuget/packages:ro
+      # - ${DOTNET_PATH}/sdk/NuGetFallbackFolder:/root/.nuget/fallbackpackages:ro
+  
+  # API
+  ## Localization
+  localization_api:
+    env_file:
+      - src/Services/Localization/Services.Localization.API/Development.env
+    environment:
+      IdentityUrl: 'http://identity_sts:8080'
+      IdentityUrlExternal: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_IDENTITY_STS_PORT}'
+    ports:
+      - '${MICROSERVICESDOTNET_LOCALIZATION_API_PORT}:8080'
+    expose:
+      - '${MICROSERVICESDOTNET_LOCALIZATION_API_PORT}'
+    volumes:
+      - ~/vsdbg:/vsdbg:ro
+      - ./src/Services:/workspace
+      # - ${HOME}/.nuget/packages:/root/.nuget/packages:ro
+      # - ${DOTNET_PATH}/sdk/NuGetFallbackFolder:/root/.nuget/fallbackpackages:ro
+  
+  # Web
+  ## Administration
+  #### base-admin
+  web_administration_baseadmin:
+    env_file:
+      - src/Web/Administration/web-administration/Development.env
+    environment:
+      AUTHORITYLOGINURL: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_IDENTITY_STS_PORT}/${MICROSERVICESDOTNET_IDENTITY_STS_LOGIN_PATH}'
+      AUTHORITYREDIRECTURL: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_WEB_BASE_ADMINISTRATION_PORT}/'
+      AUTHORITYLOGOUTURL: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_IDENTITY_STS_PORT}/${MICROSERVICESDOTNET_IDENTITY_STS_LOGOUT_PATH}'
+      AUTHORITYUSERINFOURL: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_IDENTITY_STS_PORT}/${MICROSERVICESDOTNET_IDENTITY_STS_USERINFO_PATH}'
+    ports:
+      - '${MICROSERVICESDOTNET_WEB_BASE_ADMINISTRATION_PORT}:4200'
+    expose:
+      - '${MICROSERVICESDOTNET_WEB_BASE_ADMINISTRATION_PORT}'
+    volumes:
+      - ~/vsdbg:/vsdbg:ro
+      - ./src/Web/Administration/web-administration:/workspace
+      - /workspace/node_modules
+
+  # Databases
+  db:
+    environment:
+      MYSQL_USER: ${MICROSERVICESDOTNET_DB_USER}
+      MYSQL_PASSWORD: ${MICROSERVICESDOTNET_DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MICROSERVICESDOTNET_DB_ROOT_PASSWORD}
+    ports:
+      - '${MICROSERVICESDOTNET_DB_PORT}:3306'
+    expose:
+      - '${MICROSERVICESDOTNET_DB_PORT}'
+    volumes:
+      - db:/var/lib/mysql
+  
+  # Message Broker
+  messagebroker:
+    ports:
+      - '${MICROSERVICESDOTNET_MESSAGEBROKER_MGMT_PLUGIN_PORT}:15672'
+      - '${MICROSERVICESDOTNET_MESSAGEBROKER_QUEUE_PORT}:5672'
+    expose:
+      - '${MICROSERVICESDOTNET_MESSAGEBROKER_MGMT_PLUGIN_PORT}'
+      - '${MICROSERVICESDOTNET_MESSAGEBROKER_QUEUE_PORT}'
+
+volumes:
+  db:
+    labels:
+      com.microservices-dotnet.description: 'MySQL data volume'
