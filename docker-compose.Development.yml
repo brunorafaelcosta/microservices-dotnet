@@ -10,7 +10,7 @@ services:
     networks:
       - default
     depends_on:
-      - db
+      - sqldata
       - messagebroker
 
   # API
@@ -23,6 +23,9 @@ services:
     networks:
       - default
     depends_on:
+      - sqldata
+      - redisdata
+      - messagebroker
       - identity_sts
   
   # Web
@@ -39,9 +42,21 @@ services:
       - identity_sts
   
   # Databases
-  db:
+  ## SQL
+  sqldata:
     image: mysql:8
     restart: always
+    networks:
+      - default
+  ## NoSQL
+  nosqldata:
+    image: mongo:4
+    networks:
+      - default
+  
+  # Redis
+  redisdata:
+    image: redis:5-alpine
     networks:
       - default
   

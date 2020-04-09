@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Infrastructure.Web.API.ActionResults
+namespace Transversal.Web.API.ActionResults
 {
     public class InternalServerErrorObjectResult : ObjectResult
     {

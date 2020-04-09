@@ -34,7 +34,7 @@ namespace Services.Localization.API
         public void ConfigureServices(IServiceCollection services)
         {
             services
-                .AddControllers(options => options.Filters.Add(typeof(Infrastructure.Web.API.Filters.HttpGlobalExceptionFilter)))
+                .AddControllers(options => options.Filters.Add(typeof(Transversal.Web.API.Filters.HttpGlobalExceptionFilter)))
                 .AddJsonOptions(options => options.JsonSerializerOptions.WriteIndented = !WebHostEnvironment.IsProduction());
 
             ConfigureAuthenticationService(services);
@@ -136,7 +136,7 @@ namespace Services.Localization.API
                     }
                 });
 
-                options.OperationFilter<Infrastructure.Web.API.Swagger.Filters.AuthorizeCheckOperationFilter>();
+                options.OperationFilter<Transversal.Web.API.Swagger.Filters.AuthorizeCheckOperationFilter>();
             });
         }
 

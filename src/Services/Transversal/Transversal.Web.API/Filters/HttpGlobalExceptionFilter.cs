@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Net;
 
-namespace Infrastructure.Web.API.Filters
+namespace Transversal.Web.API.Filters
 {
     public class HttpGlobalExceptionFilter : IExceptionFilter
     {

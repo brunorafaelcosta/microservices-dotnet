@@ -6,7 +6,7 @@ services:
     env_file:
       - src/Services/Identity/Services.Identity.STS/Development.env
     environment:
-      ConnectionStrings__Default: 'Server=db;Port=${MICROSERVICESDOTNET_DB_PORT};Database=microservicesdotnet.services.identitydb;User=root;Password=${MICROSERVICESDOTNET_DB_ROOT_PASSWORD};'
+      ConnectionStrings__Sql: 'Server=sqldata;Port=${MICROSERVICESDOTNET_SQL_PORT};Database=microservicesdotnet.services.identitydb;User=root;Password=${MICROSERVICESDOTNET_SQL_ROOT_PASSWORD};'
       ClientEndpoints__localization_api: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_LOCALIZATION_API_PORT}'
       ClientEndpoints__web_base_administration: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_WEB_BASE_ADMINISTRATION_PORT}'
     ports:
@@ -25,6 +25,8 @@ services:
     env_file:
       - src/Services/Localization/Services.Localization.API/Development.env
     environment:
+      ConnectionStrings__Sql: 'Server=sqldata;Port=${MICROSERVICESDOTNET_SQL_PORT};Database=microservicesdotnet.services.localizationdb;User=root;Password=${MICROSERVICESDOTNET_SQL_ROOT_PASSWORD};'
+      ConnectionStrings__Redis: ${MICROSERVICESDOTNET_REDIS_DB:-redisdata}
       IdentityUrl: 'http://identity_sts:8080'
       IdentityUrlExternal: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_IDENTITY_STS_PORT}'
     ports:
@@ -58,17 +60,29 @@ services:
       - /workspace/node_modules
 
   # Databases
-  db:
+  ## SQL
+  sqldata:
     environment:
-      MYSQL_USER: ${MICROSERVICESDOTNET_DB_USER}
-      MYSQL_PASSWORD: ${MICROSERVICESDOTNET_DB_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${MICROSERVICESDOTNET_DB_ROOT_PASSWORD}
+      MYSQL_USER: ${MICROSERVICESDOTNET_SQL_USER}
+      MYSQL_PASSWORD: ${MICROSERVICESDOTNET_SQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MICROSERVICESDOTNET_SQL_ROOT_PASSWORD}
     ports:
-      - '${MICROSERVICESDOTNET_DB_PORT}:3306'
-    expose:
-      - '${MICROSERVICESDOTNET_DB_PORT}'
+      - '${MICROSERVICESDOTNET_SQL_PORT}:3306'
     volumes:
-      - db:/var/lib/mysql
+      - microservicesdotnet-sqldata:/var/lib/mysql
+  ## NoSQL
+  nosqldata:
+    ports:
+      - '${MICROSERVICESDOTNET_NOSQL_PORT}:27017'
+    volumes:
+      - microservicesdotnet-nosqldata:/data/db
+  
+  # Redis
+  redisdata:
+    ports:
+      - '${MICROSERVICESDOTNET_REDIS_PORT}:6379'
+    volumes:
+      - microservicesdotnet-redisdata:/data
   
   # Message Broker
   messagebroker:
@@ -80,6 +94,15 @@ services:
       - '${MICROSERVICESDOTNET_MESSAGEBROKER_QUEUE_PORT}'
 
 volumes:
-  db:
+  microservicesdotnet-sqldata:
+    external: false
     labels:
-      com.microservices-dotnet.description: 'MySQL data volume'
+      com.microservicesdotnet.description: 'SQL data volume'
+  microservicesdotnet-nosqldata:
+    external: false
+    labels:
+      com.microservicesdotnet.description: 'NoSQL data volume'
+  microservicesdotnet-redisdata:
+    external: false
+    labels:
+      com.microservicesdotnet.description: 'Redis data volume'

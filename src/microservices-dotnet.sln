@@ -13,11 +13,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Localization", "Localizatio
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services.Localization.API", "Services\Localization\Services.Localization.API\Services.Localization.API.csproj", "{E9AC58EB-97DC-4640-8333-A43E2F0C5FB0}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{CF62A032-733C-4B0E-B0EB-2D4FACA82E6A}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Transversal", "Transversal", "{CF62A032-733C-4B0E-B0EB-2D4FACA82E6A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.Web", "Services\Infrastructure\Infrastructure.Web\Infrastructure.Web.csproj", "{AB1976CC-4680-4072-BC1B-3910AC7826BA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transversal.Web", "Services\Transversal\Transversal.Web\Transversal.Web.csproj", "{AB1976CC-4680-4072-BC1B-3910AC7826BA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.Web.API", "Services\Infrastructure\Infrastructure.Web.API\Infrastructure.Web.API.csproj", "{E9E2AEB5-16C6-4EC4-AF8E-7AF5E90B7A61}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transversal.Web.API", "Services\Transversal\Transversal.Web.API\Transversal.Web.API.csproj", "{E9E2AEB5-16C6-4EC4-AF8E-7AF5E90B7A61}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

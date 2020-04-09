@@ -102,10 +102,10 @@ namespace Services.Identity.STS
 
         private void ConfigureEntityFrameworkService(IServiceCollection services)
         {
-            var connectionString = Configuration.GetConnectionString("Default");
+            var connectionString = Configuration.GetConnectionString("Sql");
 
             services.AddDbContext<Application.Data.ApplicationDbContext>(options =>
-            options.UseMySql(connectionString,mySqlOptionsAction: sqlOptions =>
+            options.UseMySql(connectionString, mySqlOptionsAction: sqlOptions =>
             {
                 sqlOptions.MigrationsAssembly(typeof(Startup).GetTypeInfo().Assembly.GetName().Name);
             }));
