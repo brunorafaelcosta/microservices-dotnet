@@ -1,0 +1,19 @@
+version: '3.4'
+
+services:
+    # Identity
+    identity_sts:
+        volumes:
+            - ~/vsdbg:/vsdbg:ro
+            - ./Services:/workspace
+            # - ${HOME}/.nuget/packages:/root/.nuget/packages:ro
+            # - ${DOTNET_PATH}/sdk/NuGetFallbackFolder:/root/.nuget/fallbackpackages:ro
+
+    # API
+    ## Localization
+    localization_api:
+        volumes:
+            - ~/vsdbg:/vsdbg:ro
+            - ./Services:/workspace
+            # - ${HOME}/.nuget/packages:/root/.nuget/packages:ro
+            # - ${DOTNET_PATH}/sdk/NuGetFallbackFolder:/root/.nuget/fallbackpackages:ro
