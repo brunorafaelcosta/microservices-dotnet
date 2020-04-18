@@ -6,7 +6,7 @@
     <ProjectGuid>722b6d32-0a48-4605-882c-a326cd56837b</ProjectGuid>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}</DockerServiceUrl>
-    <DockerServiceName>identity_sts</DockerServiceName>
+    <DockerServiceName>web_administration_baseadmin</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>
     <None Include="docker-compose.override.yml">
