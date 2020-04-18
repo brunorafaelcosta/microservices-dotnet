@@ -4,10 +4,10 @@ using Transversal.Data.EFCore;
 
 namespace Services.Localization.API.Core.Data.Repositories
 {
-    public class ResourceGroupRepository : EFCoreRepositoryBase<DbContext, ResourceGroup, int>,
+    public class ResourceGroupRepository : EFCoreRepositoryBase<DefaultDbContext, ResourceGroup, int>,
         IResourceGroupRepository
     {
-        public ResourceGroupRepository(IDbContextProvider<DbContext> dbContextProvider)
+        public ResourceGroupRepository(IDbContextProvider<DefaultDbContext> dbContextProvider)
             : base(dbContextProvider)
         {
         }

@@ -49,5 +49,10 @@ namespace Transversal.Data.EFCore
                 throw ex;
             }
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Owned<Domain.ValueObjects.Localization.LocalizedValueObject>();
+        }
     }
 }

@@ -3,6 +3,9 @@ using Transversal.Common.Exceptions;
 
 namespace Transversal.Application.Exceptions
 {
+    /// <summary>
+    /// Exception thrown in the Application context.
+    /// </summary>
     public class AppException : DefaultException
     {
         public AppException()

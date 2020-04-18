@@ -73,6 +73,9 @@ namespace Services.Identity.STS.Application.Services
                 new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName)
             };
 
+            claims.Add(new Claim(Transversal.Web.Session.Identity.ClaimsConstants.UserIdClaimType, 1.ToString()));
+            claims.Add(new Claim(Transversal.Web.Session.Identity.ClaimsConstants.TenantIdClaimType, null));
+
             if (!string.IsNullOrWhiteSpace(user.Name))
                 claims.Add(new Claim("name", user.Name));
 

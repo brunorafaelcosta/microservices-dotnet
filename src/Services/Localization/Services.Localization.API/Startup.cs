@@ -12,7 +12,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using Autofac;
-using Autofac.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
@@ -99,7 +98,7 @@ namespace Services.Localization.API
         {
             var connectionString = Configuration.GetConnectionString("Sql");
 
-            services.AddDbContext<Core.Data.DbContext>(options =>
+            services.AddDbContext<Core.Data.DefaultDbContext>(options =>
             options.UseMySql(connectionString, mySqlOptionsAction: sqlOptions =>
             {
                 sqlOptions.MigrationsAssembly(typeof(Startup).GetTypeInfo().Assembly.GetName().Name);
@@ -191,19 +190,19 @@ namespace Services.Localization.API
     {
         public static void Register(ContainerBuilder containerBuilder)
         {
-            containerBuilder.RegisterType<SESSION>().As<Transversal.Common.Session.ISessionInfo>();
+            containerBuilder.RegisterType<Transversal.Web.Session.SessionInfo>().As<Transversal.Common.Session.ISessionInfo>();
 
             containerBuilder.RegisterType<Core.Data.Repositories.ResourceGroupRepository>().As<Core.Domain.Resources.IResourceGroupRepository>();
             containerBuilder.RegisterType<Core.Application.ResourcesApplicationService>().As<Core.Application.IResourcesApplicationService>();
 
             
-            containerBuilder.RegisterType<Core.Data.DbContext>();
-            containerBuilder.RegisterType<Core.Data.Uow.UnitOfWork>().As<Transversal.Domain.Uow.IUnitOfWork>();
+            containerBuilder.RegisterType<Core.Data.DefaultDbContext>();
+            containerBuilder.RegisterType<Core.Data.Uow.DefaultUnityOfWork>().As<Transversal.Domain.Uow.IUnitOfWork>();
 
             containerBuilder.RegisterType<Transversal.Domain.Uow.Manager.UnitOfWorkManager>().As<Transversal.Domain.Uow.Manager.IUnitOfWorkManager>();
             containerBuilder.RegisterType<Transversal.Domain.Uow.Options.UnitOfWorkDefaultOptions>().As<Transversal.Domain.Uow.Options.IUnitOfWorkDefaultOptions>();
             containerBuilder.RegisterType<Transversal.Domain.Uow.Provider.AsyncLocalCurrentUnitOfWorkProvider>().As<Transversal.Domain.Uow.Provider.ICurrentUnitOfWorkProvider>();
-            containerBuilder.RegisterType<CONNECTIONSTRINGRESOLVER>().As<Transversal.Domain.Uow.IConnectionStringResolver>();
+            containerBuilder.RegisterType<Transversal.Data.EFCore.Uow.DefaultConnectionStringResolver>().As<Transversal.Domain.Uow.IConnectionStringResolver>();
 
             containerBuilder.RegisterType<Transversal.Data.EFCore.DefaultDbContextResolver>()
                 .As<Transversal.Data.EFCore.IDbContextResolver>();
@@ -212,32 +211,6 @@ namespace Services.Localization.API
             
             containerBuilder.RegisterType<Transversal.Data.EFCore.Uow.DbContextEfCoreTransactionStrategy>()
                 .As<Transversal.Data.EFCore.Uow.IEfCoreTransactionStrategy>();
-        }
-    }
-
-    public class SESSION : Transversal.Common.Session.ISessionInfo
-    {
-        public long? UserId => 2;
-
-        public int? TenantId => 3;
-
-        public long? ImpersonatorUserId => null;
-
-        public int? ImpersonatorTenantId => null;
-    }
-
-    public class CONNECTIONSTRINGRESOLVER : Transversal.Domain.Uow.IConnectionStringResolver
-    {
-        private readonly IConfiguration _configuration;
-
-        public CONNECTIONSTRINGRESOLVER(IConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
-
-        public string GetNameOrConnectionString()
-        {
-            return _configuration.GetConnectionString("Sql");
         }
     }
 }

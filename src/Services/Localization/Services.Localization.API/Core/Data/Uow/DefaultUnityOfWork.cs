@@ -5,9 +5,9 @@ using Transversal.Domain.Uow;
 
 namespace Services.Localization.API.Core.Data.Uow
 {
-    public class UnitOfWork : Transversal.Data.EFCore.Uow.EfCoreUnitOfWork
+    public class DefaultUnityOfWork : EfCoreUnitOfWork
     {
-        public UnitOfWork(
+        public DefaultUnityOfWork(
             IIocResolver iocResolver,
             IEfCoreTransactionStrategy transactionStrategy,
             IDbContextResolver dbContextResolver,

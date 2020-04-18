@@ -28,7 +28,7 @@ namespace Services.Localization.API
                 var host = CreateHostBuilder(args, configuration).Build();
 
                 Log.Information("Applying migrations ({ApplicationContext})...", AppName);
-                host.MigrateDbContext<Core.Data.DbContext>((context, services) => { });
+                host.MigrateDbContext<Core.Data.DefaultDbContext>((context, services) => { });
 
                 Log.Information("Starting web host ({ApplicationContext})...", AppName);
                 host.Run();

@@ -1,4 +1,6 @@
 using Services.Localization.API.Core.Domain.Resources;
+using System.Collections.Generic;
+using System.Linq;
 using Transversal.Application;
 using Transversal.Common.Session;
 using Transversal.Domain.Uow.Manager;
@@ -30,6 +32,16 @@ namespace Services.Localization.API.Core.Application
                 });
 
                 uow.Complete();
+            }
+        }
+
+        public IEnumerable<Dto.ResourceGroupDto> GetAllResourceGroups()
+        {
+            using (var uow = UowManager.Begin())
+            {
+                var resourceGroups = _resourceGroupRepository.GetAllList();
+
+                return resourceGroups.Select(rg => Dto.ResourceGroupDto.FromEntity(rg)).ToList();
             }
         }
     }
