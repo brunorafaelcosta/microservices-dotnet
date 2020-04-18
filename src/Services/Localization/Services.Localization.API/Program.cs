@@ -2,12 +2,12 @@ using System;
 using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Exceptions;
+using Services.Localization.API.Common.Utils.Mvc.Extensions;
+using Autofac.Extensions.DependencyInjection;
 
 namespace Services.Localization.API
 {
@@ -26,6 +26,9 @@ namespace Services.Localization.API
             {
                 Log.Information("Configuring web host ({ApplicationContext})...", AppName);
                 var host = CreateHostBuilder(args, configuration).Build();
+
+                Log.Information("Applying migrations ({ApplicationContext})...", AppName);
+                host.MigrateDbContext<Core.Data.DbContext>((context, services) => { });
 
                 Log.Information("Starting web host ({ApplicationContext})...", AppName);
                 host.Run();
@@ -48,7 +51,8 @@ namespace Services.Localization.API
                         .UseStartup<Startup>()
                         .UseConfiguration(configuration);
                 })
-                .UseSerilog();
+                .UseSerilog()
+                .UseServiceProviderFactory(new AutofacServiceProviderFactory());
         
         private static IConfiguration GetConfiguration()
         {

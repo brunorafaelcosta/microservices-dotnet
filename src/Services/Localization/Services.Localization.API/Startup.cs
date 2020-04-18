@@ -1,21 +1,20 @@
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Serilog;
-using Microsoft.AspNetCore.Authorization;
-using Swashbuckle.AspNetCore.SwaggerGen;
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 namespace Services.Localization.API
 {
@@ -34,8 +33,10 @@ namespace Services.Localization.API
         public void ConfigureServices(IServiceCollection services)
         {
             services
-                .AddControllers(options => options.Filters.Add(typeof(Infrastructure.Web.API.Filters.HttpGlobalExceptionFilter)))
+                .AddControllers(options => options.Filters.Add(typeof(Transversal.Web.API.Filters.HttpGlobalExceptionFilter)))
                 .AddJsonOptions(options => options.JsonSerializerOptions.WriteIndented = !WebHostEnvironment.IsProduction());
+
+            ConfigureEntityFrameworkService(services);
 
             ConfigureAuthenticationService(services);
 
@@ -84,8 +85,26 @@ namespace Services.Localization.API
 
             ConfigureSwagger(app, pathBase, logger);
         }
-    
+
+        public void ConfigureContainer(ContainerBuilder builder) {
+            DI.Register(builder);
+
+            builder.RegisterType<Transversal.Web.Dependency.AutofacIocManager>().As<Transversal.Common.Dependency.IIocManager>();
+            builder.RegisterType<Transversal.Web.Dependency.AutofacIocManager>().As<Transversal.Common.Dependency.IIocResolver>();
+        }
+
         #region Configure Services
+
+        private void ConfigureEntityFrameworkService(IServiceCollection services)
+        {
+            var connectionString = Configuration.GetConnectionString("Sql");
+
+            services.AddDbContext<Core.Data.DbContext>(options =>
+            options.UseMySql(connectionString, mySqlOptionsAction: sqlOptions =>
+            {
+                sqlOptions.MigrationsAssembly(typeof(Startup).GetTypeInfo().Assembly.GetName().Name);
+            }));
+        }
 
         private void ConfigureAuthenticationService(IServiceCollection services) {
             // prevent from mapping "sub" claim to nameidentifier.
@@ -136,7 +155,7 @@ namespace Services.Localization.API
                     }
                 });
 
-                options.OperationFilter<Infrastructure.Web.API.Swagger.Filters.AuthorizeCheckOperationFilter>();
+                options.OperationFilter<Transversal.Web.API.Swagger.Filters.AuthorizeCheckOperationFilter>();
             });
         }
 
@@ -166,5 +185,59 @@ namespace Services.Localization.API
         }
 
         #endregion Configure
+    }
+
+    public static class DI
+    {
+        public static void Register(ContainerBuilder containerBuilder)
+        {
+            containerBuilder.RegisterType<SESSION>().As<Transversal.Common.Session.ISessionInfo>();
+
+            containerBuilder.RegisterType<Core.Data.Repositories.ResourceGroupRepository>().As<Core.Domain.Resources.IResourceGroupRepository>();
+            containerBuilder.RegisterType<Core.Application.ResourcesApplicationService>().As<Core.Application.IResourcesApplicationService>();
+
+            
+            containerBuilder.RegisterType<Core.Data.DbContext>();
+            containerBuilder.RegisterType<Core.Data.Uow.UnitOfWork>().As<Transversal.Domain.Uow.IUnitOfWork>();
+
+            containerBuilder.RegisterType<Transversal.Domain.Uow.Manager.UnitOfWorkManager>().As<Transversal.Domain.Uow.Manager.IUnitOfWorkManager>();
+            containerBuilder.RegisterType<Transversal.Domain.Uow.Options.UnitOfWorkDefaultOptions>().As<Transversal.Domain.Uow.Options.IUnitOfWorkDefaultOptions>();
+            containerBuilder.RegisterType<Transversal.Domain.Uow.Provider.AsyncLocalCurrentUnitOfWorkProvider>().As<Transversal.Domain.Uow.Provider.ICurrentUnitOfWorkProvider>();
+            containerBuilder.RegisterType<CONNECTIONSTRINGRESOLVER>().As<Transversal.Domain.Uow.IConnectionStringResolver>();
+
+            containerBuilder.RegisterType<Transversal.Data.EFCore.DefaultDbContextResolver>()
+                .As<Transversal.Data.EFCore.IDbContextResolver>();
+            containerBuilder.RegisterGeneric(typeof(Transversal.Data.EFCore.Uow.UnitOfWorkDbContextProvider<>))
+                .As(typeof(Transversal.Data.EFCore.IDbContextProvider<>));
+            
+            containerBuilder.RegisterType<Transversal.Data.EFCore.Uow.DbContextEfCoreTransactionStrategy>()
+                .As<Transversal.Data.EFCore.Uow.IEfCoreTransactionStrategy>();
+        }
+    }
+
+    public class SESSION : Transversal.Common.Session.ISessionInfo
+    {
+        public long? UserId => 2;
+
+        public int? TenantId => 3;
+
+        public long? ImpersonatorUserId => null;
+
+        public int? ImpersonatorTenantId => null;
+    }
+
+    public class CONNECTIONSTRINGRESOLVER : Transversal.Domain.Uow.IConnectionStringResolver
+    {
+        private readonly IConfiguration _configuration;
+
+        public CONNECTIONSTRINGRESOLVER(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
+        public string GetNameOrConnectionString()
+        {
+            return _configuration.GetConnectionString("Sql");
+        }
     }
 }
