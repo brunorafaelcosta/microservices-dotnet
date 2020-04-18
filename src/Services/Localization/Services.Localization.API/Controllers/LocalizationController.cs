@@ -16,9 +16,13 @@ namespace Services.Localization.API.Controllers
     public class LocalizationController : ControllerBase
     {
         private readonly ILogger<LocalizationController> _logger;
+        private readonly Core.Application.IResourcesApplicationService _service;
 
-        public LocalizationController(ILogger<LocalizationController> logger)
+        public LocalizationController(
+            Core.Application.IResourcesApplicationService service,
+            ILogger<LocalizationController> logger)
         {
+            _service = service;
             _logger = logger;
         }
 

@@ -56,7 +56,7 @@ namespace Services.Identity.STS.Controllers
                 throw new NotImplementedException("External login is not implemented!");
             }
 
-            var vm = await BuildLoginViewModelAsync(returnUrl, context);
+            var vm = BuildLoginViewModel(returnUrl, context);
 
             ViewData["ReturnUrl"] = returnUrl;
 
@@ -131,7 +131,7 @@ namespace Services.Identity.STS.Controllers
             return View(vm);
         }
 
-        private async Task<AccountModels.LoginViewModel> BuildLoginViewModelAsync(string returnUrl, AuthorizationRequest context)
+        private AccountModels.LoginViewModel BuildLoginViewModel(string returnUrl, AuthorizationRequest context)
         {
             // var allowLocal = true;
             // if (context?.ClientId != null)
@@ -153,7 +153,7 @@ namespace Services.Identity.STS.Controllers
         private async Task<AccountModels.LoginViewModel> BuildLoginViewModelAsync(AccountModels.LoginViewModel model)
         {
             var context = await _interaction.GetAuthorizationContextAsync(model.ReturnUrl);
-            var vm = await BuildLoginViewModelAsync(model.ReturnUrl, context);
+            var vm = BuildLoginViewModel(model.ReturnUrl, context);
             vm.Email = model.Email;
             vm.RememberMe = model.RememberMe;
             return vm;
