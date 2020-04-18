@@ -54,3 +54,7 @@
 - https://github.com/benscabbia/identityserver4-dockersample-dotnetcore-nginx
 - https://damienbod.com/2017/04/14/asp-net-core-identityserver4-resource-owner-password-flow-with-custom-userrepository
 - https://bitoftech.net/2014/06/01/token-based-authentication-asp-net-web-api-2-owin-asp-net-identity
+- Generate self signed certificate:
+	- Download and install OpenSSL from https://slproweb.com/products/Win32OpenSSL.html
+	- openssl req -x509 -newkey rsa:4096 -sha256 -nodes -keyout development.cert.key -out development.cert.crt -subj "/CN=example.com" -days 3650
+	- openssl pkcs12 -export -out development.cert.pfx -inkey development.cert.key -in development.cert.crt -certfile development.cert.crt

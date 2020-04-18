@@ -1,3 +1,5 @@
 #!/bin/bash
 
-docker-compose -f "docker-compose.Development.yml" -f "docker-compose.Development.override.yml" --env-file="Development.env" down
+cd ../src/
+
+docker-compose -f "docker-compose.yml" -f "docker-compose.override.yml" --env-file=".env" down

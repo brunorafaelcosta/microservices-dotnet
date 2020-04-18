@@ -1,31 +1,33 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26124.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{535D2AFC-9020-48A1-938F-5E5C6474FA23}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Identity", "Identity", "{FE166CE6-4C36-48B9-8D14-A1CBBC15BBC8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services.Identity.STS", "Services\Identity\Services.Identity.STS\Services.Identity.STS.csproj", "{5978959F-00D9-47DD-A85C-45E6419AACFE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.Identity.STS", "Services\Identity\Services.Identity.STS\Services.Identity.STS.csproj", "{5978959F-00D9-47DD-A85C-45E6419AACFE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Localization", "Localization", "{2E57D151-A1A9-4447-85AA-4B5E00BD23C7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services.Localization.API", "Services\Localization\Services.Localization.API\Services.Localization.API.csproj", "{E9AC58EB-97DC-4640-8333-A43E2F0C5FB0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.Localization.API", "Services\Localization\Services.Localization.API\Services.Localization.API.csproj", "{E9AC58EB-97DC-4640-8333-A43E2F0C5FB0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Transversal", "Transversal", "{CF62A032-733C-4B0E-B0EB-2D4FACA82E6A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transversal.Web", "Services\Transversal\Transversal.Web\Transversal.Web.csproj", "{AB1976CC-4680-4072-BC1B-3910AC7826BA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transversal.Web", "Services\Transversal\Transversal.Web\Transversal.Web.csproj", "{AB1976CC-4680-4072-BC1B-3910AC7826BA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transversal.Web.API", "Services\Transversal\Transversal.Web.API\Transversal.Web.API.csproj", "{E9E2AEB5-16C6-4EC4-AF8E-7AF5E90B7A61}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transversal.Web.API", "Services\Transversal\Transversal.Web.API\Transversal.Web.API.csproj", "{E9E2AEB5-16C6-4EC4-AF8E-7AF5E90B7A61}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transversal.Common", "Services\Transversal\Transversal.Common\Transversal.Common.csproj", "{AC6A07CC-AF1F-4324-AC33-401CE978E911}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transversal.Common", "Services\Transversal\Transversal.Common\Transversal.Common.csproj", "{AC6A07CC-AF1F-4324-AC33-401CE978E911}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transversal.Domain", "Services\Transversal\Transversal.Domain\Transversal.Domain.csproj", "{7999081E-CEA7-4519-8957-45B4336FADA2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transversal.Domain", "Services\Transversal\Transversal.Domain\Transversal.Domain.csproj", "{7999081E-CEA7-4519-8957-45B4336FADA2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transversal.Data.EFCore", "Services\Transversal\Transversal.Data.EFCore\Transversal.Data.EFCore.csproj", "{929679CA-8E98-4FCF-A484-3ABF2F6CC56E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transversal.Data.EFCore", "Services\Transversal\Transversal.Data.EFCore\Transversal.Data.EFCore.csproj", "{929679CA-8E98-4FCF-A484-3ABF2F6CC56E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transversal.Application", "Services\Transversal\Transversal.Application\Transversal.Application.csproj", "{FE91230F-3271-4908-885B-C6210C93A13F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transversal.Application", "Services\Transversal\Transversal.Application\Transversal.Application.csproj", "{FE91230F-3271-4908-885B-C6210C93A13F}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{722B6D32-0A48-4605-882C-A326CD56837B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,9 +37,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{5978959F-00D9-47DD-A85C-45E6419AACFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -136,6 +135,21 @@ Global
 		{FE91230F-3271-4908-885B-C6210C93A13F}.Release|x64.Build.0 = Release|Any CPU
 		{FE91230F-3271-4908-885B-C6210C93A13F}.Release|x86.ActiveCfg = Release|Any CPU
 		{FE91230F-3271-4908-885B-C6210C93A13F}.Release|x86.Build.0 = Release|Any CPU
+		{722B6D32-0A48-4605-882C-A326CD56837B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{722B6D32-0A48-4605-882C-A326CD56837B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{722B6D32-0A48-4605-882C-A326CD56837B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{722B6D32-0A48-4605-882C-A326CD56837B}.Debug|x64.Build.0 = Debug|Any CPU
+		{722B6D32-0A48-4605-882C-A326CD56837B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{722B6D32-0A48-4605-882C-A326CD56837B}.Debug|x86.Build.0 = Debug|Any CPU
+		{722B6D32-0A48-4605-882C-A326CD56837B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{722B6D32-0A48-4605-882C-A326CD56837B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{722B6D32-0A48-4605-882C-A326CD56837B}.Release|x64.ActiveCfg = Release|Any CPU
+		{722B6D32-0A48-4605-882C-A326CD56837B}.Release|x64.Build.0 = Release|Any CPU
+		{722B6D32-0A48-4605-882C-A326CD56837B}.Release|x86.ActiveCfg = Release|Any CPU
+		{722B6D32-0A48-4605-882C-A326CD56837B}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{FE166CE6-4C36-48B9-8D14-A1CBBC15BBC8} = {535D2AFC-9020-48A1-938F-5E5C6474FA23}
@@ -149,5 +163,8 @@ Global
 		{7999081E-CEA7-4519-8957-45B4336FADA2} = {CF62A032-733C-4B0E-B0EB-2D4FACA82E6A}
 		{929679CA-8E98-4FCF-A484-3ABF2F6CC56E} = {CF62A032-733C-4B0E-B0EB-2D4FACA82E6A}
 		{FE91230F-3271-4908-885B-C6210C93A13F} = {CF62A032-733C-4B0E-B0EB-2D4FACA82E6A}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {94294464-E6B4-415F-8A79-3B105B37AC32}
 	EndGlobalSection
 EndGlobal

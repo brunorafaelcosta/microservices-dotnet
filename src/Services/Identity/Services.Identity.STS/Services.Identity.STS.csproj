@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <DebugType>portable</DebugType>
+	<DebugType>portable</DebugType>
   </PropertyGroup>
 
   <ItemGroup>
