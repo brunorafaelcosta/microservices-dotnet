@@ -1,4 +1,4 @@
-namespace Transversal.Data.EFCore
+namespace Transversal.Data.EFCore.DbContext
 {
     /// <summary>
     /// Interface used by <see cref="Repositories.EFCoreRepositoryBase{TDbContext, TEntity, TPrimaryKey}"/>
@@ -6,7 +6,7 @@ namespace Transversal.Data.EFCore
     /// </summary>
     /// <typeparam name="TDbContext">Type of the DbContext</typeparam>
     public interface IDbContextProvider<out TDbContext>
-        where TDbContext : DbContextBase
+        where TDbContext : EfCoreDbContextBase
     {
         TDbContext GetDbContext();
     }

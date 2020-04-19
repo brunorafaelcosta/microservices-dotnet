@@ -1,6 +1,6 @@
 using System.Data.Common;
 
-namespace Transversal.Data.EFCore
+namespace Transversal.Data.EFCore.DbContext
 {
     /// <summary>
     /// Interface used by <see cref="Uow.EfCoreUnitOfWork"/> to resolve (instantiate) a DbContext.
@@ -8,6 +8,6 @@ namespace Transversal.Data.EFCore
     public interface IDbContextResolver
     {
         TDbContext Resolve<TDbContext>(string connectionString, DbConnection existingConnection)
-            where TDbContext : DbContextBase;
+            where TDbContext : EfCoreDbContextBase;
     }
 }

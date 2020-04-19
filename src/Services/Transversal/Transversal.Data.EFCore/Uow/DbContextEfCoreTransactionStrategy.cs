@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Transversal.Common.Dependency;
 using Transversal.Common.Extensions.Collections;
+using Transversal.Data.EFCore.DbContext;
 using Transversal.Data.EFCore.Extensions.Transactions;
 using Transversal.Domain.Uow.Options;
 
@@ -27,7 +28,7 @@ namespace Transversal.Data.EFCore.Uow
         }
 
         public TDbContext CreateDbContext<TDbContext>(string connectionString, IDbContextResolver dbContextResolver)
-            where TDbContext : DbContextBase
+            where TDbContext : EfCoreDbContextBase
         {
             TDbContext dbContext;
 

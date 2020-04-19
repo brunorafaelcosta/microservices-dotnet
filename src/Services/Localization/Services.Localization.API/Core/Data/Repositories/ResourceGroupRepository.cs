@@ -1,6 +1,6 @@
 using Services.Localization.API.Core.Domain.Resources;
 using Transversal.Data.EFCore.Repositories;
-using Transversal.Data.EFCore;
+using Transversal.Data.EFCore.DbContext;
 
 namespace Services.Localization.API.Core.Data.Repositories
 {

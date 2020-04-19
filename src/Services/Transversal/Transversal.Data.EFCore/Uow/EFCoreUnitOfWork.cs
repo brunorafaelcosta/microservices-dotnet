@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Transversal.Common.Dependency;
+using Transversal.Data.EFCore.DbContext;
 using Transversal.Domain.Uow;
 
 namespace Transversal.Data.EFCore.Uow
@@ -11,7 +12,7 @@ namespace Transversal.Data.EFCore.Uow
     /// </summary>
     public abstract class EfCoreUnitOfWork : UnitOfWorkBase
     {
-        protected IDictionary<string, DbContextBase> ActiveDbContexts { get; }
+        protected IDictionary<string, EfCoreDbContextBase> ActiveDbContexts { get; }
         protected IIocResolver IocResolver { get; }
         protected IEfCoreTransactionStrategy TransactionStrategy { get; }
         protected IDbContextResolver DbContextResolver { get; }
@@ -27,7 +28,7 @@ namespace Transversal.Data.EFCore.Uow
             TransactionStrategy = transactionStrategy;
             DbContextResolver = dbContextResolver;
 
-            ActiveDbContexts = new Dictionary<string, DbContextBase>();
+            ActiveDbContexts = new Dictionary<string, EfCoreDbContextBase>();
         }
 
         protected override void BeginUow()
@@ -92,13 +93,13 @@ namespace Transversal.Data.EFCore.Uow
             }
         }
 
-        protected virtual IReadOnlyList<DbContextBase> GetAllActiveDbContexts()
+        protected virtual IReadOnlyList<EfCoreDbContextBase> GetAllActiveDbContexts()
         {
             return ActiveDbContexts.Values.ToImmutableList();
         }
 
         public virtual TDbContext GetOrCreateDbContext<TDbContext>()
-            where TDbContext : DbContextBase
+            where TDbContext : EfCoreDbContextBase
         {
             var concreteDbContextType = typeof(TDbContext);
 
@@ -106,7 +107,7 @@ namespace Transversal.Data.EFCore.Uow
 
             var dbContextKey = concreteDbContextType.FullName + "#" + connectionString;
 
-            DbContextBase dbContext;
+            EfCoreDbContextBase dbContext;
             if (!ActiveDbContexts.TryGetValue(dbContextKey, out dbContext))
             {
                 if (Options.IsTransactional == true)

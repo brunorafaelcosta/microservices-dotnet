@@ -74,7 +74,7 @@ namespace Services.Identity.STS.Application.Services
             };
 
             claims.Add(new Claim(Transversal.Web.Session.Identity.ClaimsConstants.UserIdClaimType, 1.ToString()));
-            claims.Add(new Claim(Transversal.Web.Session.Identity.ClaimsConstants.TenantIdClaimType, null));
+            claims.Add(new Claim(Transversal.Web.Session.Identity.ClaimsConstants.TenantIdClaimType, string.Empty));
 
             if (!string.IsNullOrWhiteSpace(user.Name))
                 claims.Add(new Claim("name", user.Name));

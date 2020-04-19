@@ -4,7 +4,7 @@ using System.Data.Common;
 using Transversal.Common.Exceptions;
 using Transversal.Common.Dependency;
 
-namespace Transversal.Data.EFCore
+namespace Transversal.Data.EFCore.DbContext
 {
     public class DefaultDbContextResolver : IDbContextResolver
     {
@@ -17,7 +17,7 @@ namespace Transversal.Data.EFCore
         }
 
         public TDbContext Resolve<TDbContext>(string connectionString, DbConnection existingConnection)
-            where TDbContext : DbContextBase
+            where TDbContext : EfCoreDbContextBase
         {
             return _iocResolver.Resolve<TDbContext>(new Dictionary<string, object>()
             {
@@ -26,11 +26,12 @@ namespace Transversal.Data.EFCore
         }
 
         protected virtual DbContextOptions<TDbContext> CreateOptions<TDbContext>(string connectionString, DbConnection existingConnection = null)
-            where TDbContext : DbContextBase
+            where TDbContext : EfCoreDbContextBase
         {
-            if (_iocResolver.IsRegistered<DbContextOptions<TDbContext>>())
+            if (_iocResolver.IsRegistered<IDbContextOptionsResolver<TDbContext>>())
             {
-                return _iocResolver.Resolve<DbContextOptions<TDbContext>>();
+                var dbContextOptionsResolver = _iocResolver.Resolve<IDbContextOptionsResolver<TDbContext>>();
+                return dbContextOptionsResolver.GetDbContextOptions(connectionString, existingConnection);
             }
 
             throw new DefaultException($"Couldn't resolve DbContextOptions for {typeof(TDbContext).AssemblyQualifiedName}.");

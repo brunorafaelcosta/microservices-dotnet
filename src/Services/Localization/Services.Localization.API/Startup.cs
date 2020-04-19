@@ -12,8 +12,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using Autofac;
-using Microsoft.EntityFrameworkCore;
-using System.Reflection;
 
 namespace Services.Localization.API
 {
@@ -34,8 +32,6 @@ namespace Services.Localization.API
             services
                 .AddControllers(options => options.Filters.Add(typeof(Transversal.Web.API.Filters.HttpGlobalExceptionFilter)))
                 .AddJsonOptions(options => options.JsonSerializerOptions.WriteIndented = !WebHostEnvironment.IsProduction());
-
-            ConfigureEntityFrameworkService(services);
 
             ConfigureAuthenticationService(services);
 
@@ -58,7 +54,7 @@ namespace Services.Localization.API
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
             var logger = loggerFactory.CreateLogger<Startup>();
-            
+
             #region Base path
             var pathBase = Configuration["PATH_BASE"];
             if (!string.IsNullOrEmpty(pathBase))
@@ -85,7 +81,8 @@ namespace Services.Localization.API
             ConfigureSwagger(app, pathBase, logger);
         }
 
-        public void ConfigureContainer(ContainerBuilder builder) {
+        public void ConfigureContainer(ContainerBuilder builder)
+        {
             DI.Register(builder);
 
             builder.RegisterType<Transversal.Web.Dependency.AutofacIocManager>().As<Transversal.Common.Dependency.IIocManager>();
@@ -94,18 +91,8 @@ namespace Services.Localization.API
 
         #region Configure Services
 
-        private void ConfigureEntityFrameworkService(IServiceCollection services)
+        private void ConfigureAuthenticationService(IServiceCollection services)
         {
-            var connectionString = Configuration.GetConnectionString("Sql");
-
-            services.AddDbContext<Core.Data.DefaultDbContext>(options =>
-            options.UseMySql(connectionString, mySqlOptionsAction: sqlOptions =>
-            {
-                sqlOptions.MigrationsAssembly(typeof(Startup).GetTypeInfo().Assembly.GetName().Name);
-            }));
-        }
-
-        private void ConfigureAuthenticationService(IServiceCollection services) {
             // prevent from mapping "sub" claim to nameidentifier.
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
@@ -122,7 +109,8 @@ namespace Services.Localization.API
             });
         }
 
-        private void ConfigureSwaggerService(IServiceCollection services) {
+        private void ConfigureSwaggerService(IServiceCollection services)
+        {
             services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1", new OpenApiInfo
@@ -159,7 +147,7 @@ namespace Services.Localization.API
         }
 
         #endregion Configure Services
-    
+
         #region Configure
 
         private void ConfigureAuthentication(IApplicationBuilder app, ILogger<Startup> logger)
@@ -173,7 +161,7 @@ namespace Services.Localization.API
         private void ConfigureSwagger(IApplicationBuilder app, string pathBase, ILogger<Startup> logger)
         {
             logger.LogDebug("Configuring Swagger...");
-            
+
             app.UseSwagger()
                 .UseSwaggerUI(c =>
                 {
@@ -190,25 +178,37 @@ namespace Services.Localization.API
     {
         public static void Register(ContainerBuilder containerBuilder)
         {
-            containerBuilder.RegisterType<Transversal.Web.Session.SessionInfo>().As<Transversal.Common.Session.ISessionInfo>();
+            containerBuilder.RegisterType<Transversal.Web.Session.SessionInfo>()
+                .As<Transversal.Common.Session.ISessionInfo>();
 
-            containerBuilder.RegisterType<Core.Data.Repositories.ResourceGroupRepository>().As<Core.Domain.Resources.IResourceGroupRepository>();
-            containerBuilder.RegisterType<Core.Application.ResourcesApplicationService>().As<Core.Application.IResourcesApplicationService>();
+            containerBuilder.RegisterType<Core.Data.Repositories.ResourceGroupRepository>()
+                .As<Core.Domain.Resources.IResourceGroupRepository>();
+            containerBuilder.RegisterType<Core.Application.ResourcesApplicationService>()
+                .As<Core.Application.IResourcesApplicationService>();
 
-            
+            containerBuilder.RegisterType<Core.Data.DefaultDbContextOptionsResolver>()
+                .As<Transversal.Data.EFCore.DbContext.IDbContextOptionsResolver<Core.Data.DefaultDbContext>>();
             containerBuilder.RegisterType<Core.Data.DefaultDbContext>();
-            containerBuilder.RegisterType<Core.Data.Uow.DefaultUnityOfWork>().As<Transversal.Domain.Uow.IUnitOfWork>();
-
-            containerBuilder.RegisterType<Transversal.Domain.Uow.Manager.UnitOfWorkManager>().As<Transversal.Domain.Uow.Manager.IUnitOfWorkManager>();
-            containerBuilder.RegisterType<Transversal.Domain.Uow.Options.UnitOfWorkDefaultOptions>().As<Transversal.Domain.Uow.Options.IUnitOfWorkDefaultOptions>();
-            containerBuilder.RegisterType<Transversal.Domain.Uow.Provider.AsyncLocalCurrentUnitOfWorkProvider>().As<Transversal.Domain.Uow.Provider.ICurrentUnitOfWorkProvider>();
-            containerBuilder.RegisterType<Transversal.Data.EFCore.Uow.DefaultConnectionStringResolver>().As<Transversal.Domain.Uow.IConnectionStringResolver>();
-
-            containerBuilder.RegisterType<Transversal.Data.EFCore.DefaultDbContextResolver>()
-                .As<Transversal.Data.EFCore.IDbContextResolver>();
-            containerBuilder.RegisterGeneric(typeof(Transversal.Data.EFCore.Uow.UnitOfWorkDbContextProvider<>))
-                .As(typeof(Transversal.Data.EFCore.IDbContextProvider<>));
+            containerBuilder.RegisterType<Core.Data.DefaultDbSeeder>()
+                .As<Transversal.Data.EFCore.DbSeeder.IEfCoreDbSeeder<Core.Data.DefaultDbContext>>();
+            containerBuilder.RegisterType<Core.Data.Uow.DefaultUnityOfWork>()
+                .As<Transversal.Domain.Uow.IUnitOfWork>();
             
+            containerBuilder.RegisterType<Transversal.Domain.Uow.Manager.UnitOfWorkManager>()
+                .As<Transversal.Domain.Uow.Manager.IUnitOfWorkManager>();
+            containerBuilder.RegisterType<Transversal.Domain.Uow.Options.UnitOfWorkDefaultOptions>()
+                .As<Transversal.Domain.Uow.Options.IUnitOfWorkDefaultOptions>();
+            containerBuilder.RegisterType<Transversal.Domain.Uow.Provider.AsyncLocalCurrentUnitOfWorkProvider>()
+                .As<Transversal.Domain.Uow.Provider.ICurrentUnitOfWorkProvider>();
+            containerBuilder.RegisterType<Transversal.Data.EFCore.Uow.DefaultConnectionStringResolver>()
+                .As<Transversal.Domain.Uow.IConnectionStringResolver>();
+
+            containerBuilder.RegisterGeneric(typeof(Transversal.Data.EFCore.DbMigrator.DefaultEFCoreDbMigrator<>))
+                .As(typeof(Transversal.Data.EFCore.DbMigrator.IEFCoreDbMigrator<>));
+            containerBuilder.RegisterType<Transversal.Data.EFCore.DbContext.DefaultDbContextResolver>()
+                .As<Transversal.Data.EFCore.DbContext.IDbContextResolver>();
+            containerBuilder.RegisterGeneric(typeof(Transversal.Data.EFCore.Uow.UnitOfWorkDbContextProvider<>))
+                .As(typeof(Transversal.Data.EFCore.DbContext.IDbContextProvider<>));
             containerBuilder.RegisterType<Transversal.Data.EFCore.Uow.DbContextEfCoreTransactionStrategy>()
                 .As<Transversal.Data.EFCore.Uow.IEfCoreTransactionStrategy>();
         }

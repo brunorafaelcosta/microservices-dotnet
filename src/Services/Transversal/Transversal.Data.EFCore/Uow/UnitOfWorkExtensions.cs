@@ -1,4 +1,5 @@
 using System;
+using Transversal.Data.EFCore.DbContext;
 using Transversal.Domain.Uow;
 
 namespace Transversal.Data.EFCore.Uow
@@ -15,7 +16,7 @@ namespace Transversal.Data.EFCore.Uow
         /// <typeparam name="TDbContext">Type of the DbContext</typeparam>
         /// <param name="unitOfWork">Current (active) Unit of Work</param>
         public static TDbContext GetDbContext<TDbContext>(this IUnitOfWork unitOfWork)
-            where TDbContext : DbContextBase
+            where TDbContext : EfCoreDbContextBase
         {
             if (unitOfWork == null)
             {

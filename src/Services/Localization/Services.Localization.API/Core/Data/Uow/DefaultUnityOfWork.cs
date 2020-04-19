@@ -1,5 +1,5 @@
 using Transversal.Common.Dependency;
-using Transversal.Data.EFCore;
+using Transversal.Data.EFCore.DbContext;
 using Transversal.Data.EFCore.Uow;
 using Transversal.Domain.Uow;
 

@@ -1,3 +1,4 @@
+using Transversal.Data.EFCore.DbContext;
 using Transversal.Domain.Uow.Provider;
 
 namespace Transversal.Data.EFCore.Uow
@@ -7,7 +8,7 @@ namespace Transversal.Data.EFCore.Uow
     /// </summary>
     /// <typeparam name="TDbContext">Type of the DbContext</typeparam>
     public class UnitOfWorkDbContextProvider<TDbContext> : IDbContextProvider<TDbContext> 
-        where TDbContext : DbContextBase
+        where TDbContext : EfCoreDbContextBase
     {
         private readonly ICurrentUnitOfWorkProvider _currentUnitOfWorkProvider;
 

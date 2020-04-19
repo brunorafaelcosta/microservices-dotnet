@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Storage;
+using Transversal.Data.EFCore.DbContext;
 
 namespace Transversal.Data.EFCore.Uow
 {
@@ -10,16 +11,16 @@ namespace Transversal.Data.EFCore.Uow
     {
         public IDbContextTransaction DbContextTransaction { get; }
 
-        public DbContextBase StarterDbContext { get; }
+        public EfCoreDbContextBase StarterDbContext { get; }
 
-        public List<DbContextBase> AttendedDbContexts { get; }
+        public List<EfCoreDbContextBase> AttendedDbContexts { get; }
 
-        public ActiveTransactionInfo(IDbContextTransaction dbContextTransaction, DbContextBase starterDbContext)
+        public ActiveTransactionInfo(IDbContextTransaction dbContextTransaction, EfCoreDbContextBase starterDbContext)
         {
             DbContextTransaction = dbContextTransaction;
             StarterDbContext = starterDbContext;
 
-            AttendedDbContexts = new List<DbContextBase>();
+            AttendedDbContexts = new List<EfCoreDbContextBase>();
         }
     }
 }

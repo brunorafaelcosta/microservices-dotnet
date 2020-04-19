@@ -1,19 +1,15 @@
+﻿using Microsoft.EntityFrameworkCore;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 
-namespace Transversal.Data.EFCore
+namespace Transversal.Data.EFCore.DbContext
 {
     /// <summary>
     /// Base class for all DbContexts in the application.
     /// </summary>
-    public abstract class DbContextBase : DbContext
+    public abstract class EfCoreDbContextBase : Microsoft.EntityFrameworkCore.DbContext
     {
-
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        protected DbContextBase(DbContextOptions options)
+        protected EfCoreDbContextBase(DbContextOptions options)
             : base(options)
         {
             InitializeDbContext();
@@ -21,7 +17,7 @@ namespace Transversal.Data.EFCore
 
         protected virtual void InitializeDbContext()
         {
-            
+
         }
 
         public override int SaveChanges()

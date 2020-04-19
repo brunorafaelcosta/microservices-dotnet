@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Transversal.Data.EFCore.DbContext;
 using Transversal.Domain.Entities;
 using Transversal.Domain.Repositories;
 
@@ -10,7 +11,7 @@ namespace Transversal.Data.EFCore.Repositories
     public abstract class EFCoreRepositoryBase<TDbContext, TEntity, TPrimaryKey> : 
         RepositoryBase<TEntity, TPrimaryKey>
         where TEntity : class, IEntity<TPrimaryKey>
-        where TDbContext : DbContextBase
+        where TDbContext : EfCoreDbContextBase
     {
         private readonly IDbContextProvider<TDbContext> _dbContextProvider;
 

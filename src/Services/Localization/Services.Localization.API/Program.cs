@@ -6,8 +6,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Exceptions;
-using Services.Localization.API.Common.Utils.Mvc.Extensions;
 using Autofac.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
+using Transversal.Data.EFCore.DbMigrator;
 
 namespace Services.Localization.API
 {
@@ -28,7 +29,7 @@ namespace Services.Localization.API
                 var host = CreateHostBuilder(args, configuration).Build();
 
                 Log.Information("Applying migrations ({ApplicationContext})...", AppName);
-                host.MigrateDbContext<Core.Data.DefaultDbContext>((context, services) => { });
+                MigrateDbContexts(host, Log.Logger);
 
                 Log.Information("Starting web host ({ApplicationContext})...", AppName);
                 host.Run();
@@ -78,6 +79,20 @@ namespace Services.Localization.API
                 .Enrich.WithExceptionDetails()
                 .ReadFrom.Configuration(configuration, "Logger")
                 .CreateLogger();
+        }
+
+        private static void MigrateDbContexts(IHost host, ILogger logger)
+        {
+            using (var scope = host.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+
+                var defaultDbMigrator = services.GetService<IEFCoreDbMigrator<Core.Data.DefaultDbContext>>();
+                if (defaultDbMigrator != null)
+                {
+                    defaultDbMigrator.CreateOrMigrate();
+                }
+            }
         }
     }
 }

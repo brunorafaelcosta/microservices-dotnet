@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Services.Localization.API.Core.Data
 {
-    public class DefaultDbContext : Transversal.Data.EFCore.DbContextBase
+    public class DefaultDbContext : Transversal.Data.EFCore.DbContext.EfCoreDbContextBase
     {
         public DbSet<Domain.Resources.ResourceGroup> ResourceGroups { get; set; }
         public DbSet<Domain.Resources.Resource> Resource { get; set; }
