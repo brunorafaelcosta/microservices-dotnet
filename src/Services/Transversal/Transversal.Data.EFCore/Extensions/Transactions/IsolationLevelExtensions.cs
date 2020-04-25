@@ -11,7 +11,7 @@ namespace Transversal.Data.EFCore.Extensions.Transactions
         /// <summary>
         /// Converts <see cref="System.Transactions.IsolationLevel"/> to <see cref="System.Data.IsolationLevel"/>.
         /// </summary>
-        public static System.Data.IsolationLevel ToSystemDataIsolationLevel(this System.Transactions.IsolationLevel isolationLevel)
+        public static IsolationLevel ToSystemDataIsolationLevel(this System.Transactions.IsolationLevel isolationLevel)
         {
             switch (isolationLevel)
             {

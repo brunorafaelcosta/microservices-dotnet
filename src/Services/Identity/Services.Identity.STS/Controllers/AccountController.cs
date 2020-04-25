@@ -1,16 +1,11 @@
 ﻿using System;
 using System.Linq;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Security.Claims;
-using System.Text.Encodings.Web;
-using System.Net;
 using System.Threading.Tasks;
 using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
-using IdentityServer4.Stores;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -26,16 +21,16 @@ namespace Services.Identity.STS.Controllers
         private readonly ILogger<AccountController> _logger;
         private readonly IConfiguration _configuration;
         private readonly IIdentityServerInteractionService _interaction;
-        private readonly Application.Services.ILoginService _loginService;
+        private readonly Core.Application.IUsersApplicationService _usersApplicationService;
 
         public AccountController(ILogger<AccountController> logger, IConfiguration config,
             IIdentityServerInteractionService interaction,
-            Application.Services.ILoginService loginService)
+            Core.Application.IUsersApplicationService usersApplicationService)
         {
             _logger = logger;
             _configuration = config;
             _interaction = interaction;
-            _loginService = loginService;
+            _usersApplicationService = usersApplicationService;
         }
 
         #region Login
@@ -72,9 +67,9 @@ namespace Services.Identity.STS.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await _loginService.FindByUsername(model.Email);
+                var user = await _usersApplicationService.FindByUsernameAsync(model.Email);
 
-                if (await _loginService.ValidateCredentials(user, model.Password))
+                if (await _usersApplicationService.ValidateCredentialsAsync(user, model.Password))
                 {
                     var tokenLifetime = 120; //_configuration.GetValue("TokenLifetimeMinutes", 120);
 
@@ -93,7 +88,7 @@ namespace Services.Identity.STS.Controllers
                         props.IsPersistent = true;
                     };
 
-                    await _loginService.SignInAsync(user, props);
+                    await _usersApplicationService.SignInAsync(user, props);
 
                     // make sure the returnUrl is still valid, and if yes - redirect back to authorize endpoint
                     if (_interaction.IsValidReturnUrl(model.ReturnUrl))

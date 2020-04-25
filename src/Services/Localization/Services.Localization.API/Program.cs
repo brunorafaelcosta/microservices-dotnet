@@ -65,12 +65,10 @@ namespace Services.Localization.API
                 .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
                 .AddEnvironmentVariables();
 
-            var config = builder.Build();
-
             return builder.Build();
         }
 
-        private static Serilog.ILogger CreateSerilogLogger(IConfiguration configuration)
+        private static ILogger CreateSerilogLogger(IConfiguration configuration)
         {
             return new LoggerConfiguration()
                 .Enrich.WithProperty("ApplicationContext", AppName)

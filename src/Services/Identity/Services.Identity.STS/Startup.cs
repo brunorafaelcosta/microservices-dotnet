@@ -1,16 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using Microsoft.AspNetCore;
+using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using System;
+using System.Collections.Generic;
 
 namespace Services.Identity.STS
 {
@@ -28,13 +26,11 @@ namespace Services.Identity.STS
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            ConfigureEntityFrameworkService(services);
-
-            ConfigureIdentityServerService(services);
-
             services
                 .AddControllersWithViews()
                 .AddJsonOptions(options => options.JsonSerializerOptions.WriteIndented = !WebHostEnvironment.IsProduction());
+
+            ConfigureIdentityServerService(services);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -97,24 +93,21 @@ namespace Services.Identity.STS
                     pattern: "{controller=Account}/{action=Login}");
             });
         }
-    
-        #region Configure Services
 
-        private void ConfigureEntityFrameworkService(IServiceCollection services)
+        public void ConfigureContainer(ContainerBuilder builder)
         {
-            var connectionString = Configuration.GetConnectionString("Sql");
+            DI.Register(builder);
 
-            services.AddDbContext<Application.Data.ApplicationDbContext>(options =>
-            options.UseMySql(connectionString, mySqlOptionsAction: sqlOptions =>
-            {
-                sqlOptions.MigrationsAssembly(typeof(Startup).GetTypeInfo().Assembly.GetName().Name);
-            }));
+            builder.RegisterType<Transversal.Web.Dependency.AutofacIocManager>().As<Transversal.Common.Dependency.IIocManager>();
+            builder.RegisterType<Transversal.Web.Dependency.AutofacIocManager>().As<Transversal.Common.Dependency.IIocResolver>();
         }
+
+        #region Configure Services
 
         private void ConfigureIdentityServerService(IServiceCollection services)
         {
-            services.AddIdentity<Application.Models.ApplicationUser, IdentityRole>()
-                .AddEntityFrameworkStores<Application.Data.ApplicationDbContext>()
+            services
+                .AddIdentity<Core.Domain.Users.User, Core.Domain.Roles.Role>()
                 .AddDefaultTokenProviders();
             
             var certificate = Certificates.CertificatesHelper.Get(WebHostEnvironment, Configuration);
@@ -130,12 +123,56 @@ namespace Services.Identity.STS
                 .AddInMemoryIdentityResources(IdentityServerConfig.IdentityResourcesConfig.GetResources())
                 .AddInMemoryApiResources(IdentityServerConfig.ApiResourcesConfig.GetApis())
                 .AddInMemoryClients(IdentityServerConfig.ClientsConfig.GetClients(clientEndpoints))
-                .AddAspNetIdentity<Application.Models.ApplicationUser>();
-            
-            services.AddTransient<IdentityServer4.Services.IProfileService, Application.Services.ProfileService>();
-            services.AddTransient<Application.Services.ILoginService, Application.Services.LoginService>();
+                .AddAspNetIdentity<Core.Domain.Users.User>();
+
+            // https://docs.microsoft.com/en-us/aspnet/core/security/authentication/identity-custom-storage-providers?view=aspnetcore-3.1
+            services.AddTransient<IRoleStore<Core.Domain.Roles.Role>, Core.Data.Repositories.RoleRepository>();
+            services.AddTransient<IUserStore<Core.Domain.Users.User>, Core.Data.Repositories.UserRepository>();
+            services.AddTransient<IdentityServer4.Services.IProfileService, Core.Application.UsersApplicationService>();
         }
 
         #endregion Configure Services
+    }
+
+    public static class DI
+    {
+        public static void Register(ContainerBuilder containerBuilder)
+        {
+            containerBuilder.RegisterType<Transversal.Web.Session.SessionInfo>()
+                .As<Transversal.Common.Session.ISessionInfo>();
+
+            containerBuilder.RegisterType<Core.Data.Repositories.RoleRepository>()
+                .As<Core.Domain.Roles.IRoleRepository>();
+            containerBuilder.RegisterType<Core.Data.Repositories.UserRepository>()
+                .As<Core.Domain.Users.IUserRepository>();
+            containerBuilder.RegisterType<Core.Application.UsersApplicationService>()
+                .As<Core.Application.IUsersApplicationService>();
+
+            containerBuilder.RegisterType<Core.Data.DefaultDbContextOptionsResolver>()
+                .As<Transversal.Data.EFCore.DbContext.IDbContextOptionsResolver<Core.Data.DefaultDbContext>>();
+            containerBuilder.RegisterType<Core.Data.DefaultDbContext>();
+            containerBuilder.RegisterType<Core.Data.DefaultDbSeeder>()
+                .As<Transversal.Data.EFCore.DbSeeder.IEfCoreDbSeeder<Core.Data.DefaultDbContext>>();
+            containerBuilder.RegisterType<Core.Data.Uow.DefaultUnityOfWork>()
+                .As<Transversal.Domain.Uow.IUnitOfWork>();
+
+            containerBuilder.RegisterType<Transversal.Domain.Uow.Manager.UnitOfWorkManager>()
+                .As<Transversal.Domain.Uow.Manager.IUnitOfWorkManager>();
+            containerBuilder.RegisterType<Transversal.Domain.Uow.Options.UnitOfWorkDefaultOptions>()
+                .As<Transversal.Domain.Uow.Options.IUnitOfWorkDefaultOptions>();
+            containerBuilder.RegisterType<Transversal.Domain.Uow.Provider.AsyncLocalCurrentUnitOfWorkProvider>()
+                .As<Transversal.Domain.Uow.Provider.ICurrentUnitOfWorkProvider>();
+            containerBuilder.RegisterType<Transversal.Data.EFCore.Uow.DefaultConnectionStringResolver>()
+                .As<Transversal.Domain.Uow.IConnectionStringResolver>();
+
+            containerBuilder.RegisterGeneric(typeof(Transversal.Data.EFCore.DbMigrator.DefaultEFCoreDbMigrator<>))
+                .As(typeof(Transversal.Data.EFCore.DbMigrator.IEFCoreDbMigrator<>));
+            containerBuilder.RegisterType<Transversal.Data.EFCore.DbContext.DefaultDbContextResolver>()
+                .As<Transversal.Data.EFCore.DbContext.IDbContextResolver>();
+            containerBuilder.RegisterGeneric(typeof(Transversal.Data.EFCore.Uow.UnitOfWorkDbContextProvider<>))
+                .As(typeof(Transversal.Data.EFCore.DbContext.IDbContextProvider<>));
+            containerBuilder.RegisterType<Transversal.Data.EFCore.Uow.DbContextEfCoreTransactionStrategy>()
+                .As<Transversal.Data.EFCore.Uow.IEfCoreTransactionStrategy>();
+        }
     }
 }

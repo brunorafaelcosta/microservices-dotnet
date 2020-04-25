@@ -4,12 +4,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Exceptions;
-using Services.Identity.STS.Application.Data;
-using Services.Identity.STS.Common.Utils.Mvc.Extensions;
+using Transversal.Data.EFCore.DbMigrator;
+using Autofac.Extensions.DependencyInjection;
 
 namespace Services.Identity.STS
 {
@@ -30,15 +29,7 @@ namespace Services.Identity.STS
                 var host = CreateHostBuilder(args, configuration).Build();
 
                 Log.Information("Applying migrations ({ApplicationContext})...", AppName);
-                host.MigrateDbContext<Application.Data.ApplicationDbContext>((context, services) =>
-                {
-                    var env = services.GetService<IWebHostEnvironment>();
-                    var logger = services.GetService<ILogger<ApplicationDbContextSeed>>();
-
-                    new ApplicationDbContextSeed()
-                        .SeedAsync(context, env, logger)
-                        .Wait();
-                });
+                MigrateDbContexts(host, Log.Logger);
 
                 Log.Information("Starting web host ({ApplicationContext})...", AppName);
                 host.Run();
@@ -61,8 +52,9 @@ namespace Services.Identity.STS
                         .UseStartup<Startup>()
                         .UseConfiguration(configuration);
                 })
-                .UseSerilog();
-        
+                .UseSerilog()
+                .UseServiceProviderFactory(new AutofacServiceProviderFactory());
+
         private static IConfiguration GetConfiguration()
         {
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
@@ -73,12 +65,10 @@ namespace Services.Identity.STS
                 .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
                 .AddEnvironmentVariables();
 
-            var config = builder.Build();
-
             return builder.Build();
         }
 
-        private static Serilog.ILogger CreateSerilogLogger(IConfiguration configuration)
+        private static ILogger CreateSerilogLogger(IConfiguration configuration)
         {
             return new LoggerConfiguration()
                 .Enrich.WithProperty("ApplicationContext", AppName)
@@ -87,6 +77,20 @@ namespace Services.Identity.STS
                 .Enrich.WithExceptionDetails()
                 .ReadFrom.Configuration(configuration, "Logger")
                 .CreateLogger();
+        }
+
+        private static void MigrateDbContexts(IHost host, ILogger logger)
+        {
+            using (var scope = host.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+
+                var defaultDbMigrator = services.GetService<IEFCoreDbMigrator<Core.Data.DefaultDbContext>>();
+                if (defaultDbMigrator != null)
+                {
+                    defaultDbMigrator.CreateOrMigrate();
+                }
+            }
         }
     }
 }

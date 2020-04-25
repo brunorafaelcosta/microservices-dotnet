@@ -20,6 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Transversal\Transversal.Application\Transversal.Application.csproj" />
+    <ProjectReference Include="..\..\Transversal\Transversal.Data.EFCore\Transversal.Data.EFCore.csproj" />
     <ProjectReference Include="..\..\Transversal\Transversal.Web\Transversal.Web.csproj" />
   </ItemGroup>
 
