@@ -153,8 +153,6 @@ namespace Services.Identity.STS
             containerBuilder.RegisterType<Core.Data.DefaultDbContext>();
             containerBuilder.RegisterType<Core.Data.DefaultDbSeeder>()
                 .As<Transversal.Data.EFCore.DbSeeder.IEfCoreDbSeeder<Core.Data.DefaultDbContext>>();
-            containerBuilder.RegisterType<Core.Data.Uow.DefaultUnityOfWork>()
-                .As<Transversal.Domain.Uow.IUnitOfWork>();
 
             containerBuilder.RegisterType<Transversal.Domain.Uow.Manager.UnitOfWorkManager>()
                 .As<Transversal.Domain.Uow.Manager.IUnitOfWorkManager>();
@@ -164,6 +162,8 @@ namespace Services.Identity.STS
                 .As<Transversal.Domain.Uow.Provider.ICurrentUnitOfWorkProvider>();
             containerBuilder.RegisterType<Transversal.Data.EFCore.Uow.DefaultConnectionStringResolver>()
                 .As<Transversal.Domain.Uow.IConnectionStringResolver>();
+            containerBuilder.RegisterType<Transversal.Data.EFCore.Uow.DefaultEfCoreUnitOfWork>()
+                .As<Transversal.Domain.Uow.IUnitOfWork>();
 
             containerBuilder.RegisterGeneric(typeof(Transversal.Data.EFCore.DbMigrator.DefaultEFCoreDbMigrator<>))
                 .As(typeof(Transversal.Data.EFCore.DbMigrator.IEFCoreDbMigrator<>));

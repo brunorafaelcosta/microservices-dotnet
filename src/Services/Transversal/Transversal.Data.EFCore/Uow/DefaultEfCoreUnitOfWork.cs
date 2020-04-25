@@ -1,17 +1,16 @@
-using Transversal.Common.Dependency;
+﻿using Transversal.Common.Dependency;
 using Transversal.Data.EFCore.DbContext;
-using Transversal.Data.EFCore.Uow;
 using Transversal.Domain.Uow;
 
-namespace Services.Localization.API.Core.Data.Uow
+namespace Transversal.Data.EFCore.Uow
 {
-    public class DefaultUnityOfWork : EfCoreUnitOfWork
+    public class DefaultEfCoreUnitOfWork : EfCoreUnitOfWork
     {
-        public DefaultUnityOfWork(
+        public DefaultEfCoreUnitOfWork(
             IIocResolver iocResolver,
             IEfCoreTransactionStrategy transactionStrategy,
             IDbContextResolver dbContextResolver,
-            IConnectionStringResolver connectionStringResolver) 
+            IConnectionStringResolver connectionStringResolver)
             : base(
                 iocResolver,
                 transactionStrategy,
