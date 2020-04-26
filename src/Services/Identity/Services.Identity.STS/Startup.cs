@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
@@ -94,12 +95,13 @@ namespace Services.Identity.STS
             });
         }
 
+        // This method gets called by the runtime. Use this method configure the dependency injection container.
         public void ConfigureContainer(ContainerBuilder builder)
         {
-            DI.Register(builder);
-
             builder.RegisterType<Transversal.Web.Dependency.AutofacIocManager>().As<Transversal.Common.Dependency.IIocManager>();
             builder.RegisterType<Transversal.Web.Dependency.AutofacIocManager>().As<Transversal.Common.Dependency.IIocResolver>();
+
+            DI.Register(builder);
         }
 
         #region Configure Services
@@ -107,9 +109,45 @@ namespace Services.Identity.STS
         private void ConfigureIdentityServerService(IServiceCollection services)
         {
             services
-                .AddIdentity<Core.Domain.Users.User, Core.Domain.Roles.Role>()
+                .AddIdentityCore<Core.Domain.Users.User>()
                 .AddDefaultTokenProviders();
-            
+
+            // https://github.com/dotnet/aspnetcore/blob/3.0/src/Identity/Core/src/IdentityServiceCollectionExtensions.cs
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+                options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+                options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+            })
+            .AddCookie(IdentityConstants.ApplicationScheme, o =>
+            {
+                o.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
+                o.Events = new Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationEvents
+                {
+                    OnValidatePrincipal = SecurityStampValidator.ValidatePrincipalAsync
+                };
+            })
+            .AddCookie(IdentityConstants.ExternalScheme, o =>
+            {
+                o.Cookie.Name = IdentityConstants.ExternalScheme;
+                o.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+            })
+            .AddCookie(IdentityConstants.TwoFactorRememberMeScheme, o =>
+            {
+                o.Cookie.Name = IdentityConstants.TwoFactorRememberMeScheme;
+                o.Events = new Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationEvents
+                {
+                    OnValidatePrincipal = SecurityStampValidator.ValidateAsync<ITwoFactorSecurityStampValidator>
+                };
+            })
+            .AddCookie(IdentityConstants.TwoFactorUserIdScheme, o =>
+            {
+                o.Cookie.Name = IdentityConstants.TwoFactorUserIdScheme;
+                o.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+            });
+
+            services.AddHttpContextAccessor();
+
             var certificate = Certificates.CertificatesHelper.Get(WebHostEnvironment, Configuration);
             var clientEndpoints = Configuration.GetSection("ClientEndpoints").Get<Dictionary<string, string>>();
 
@@ -126,9 +164,14 @@ namespace Services.Identity.STS
                 .AddAspNetIdentity<Core.Domain.Users.User>();
 
             // https://docs.microsoft.com/en-us/aspnet/core/security/authentication/identity-custom-storage-providers?view=aspnetcore-3.1
-            services.AddTransient<IRoleStore<Core.Domain.Roles.Role>, Core.Data.Repositories.RoleRepository>();
-            services.AddTransient<IUserStore<Core.Domain.Users.User>, Core.Data.Repositories.UserRepository>();
-            services.AddTransient<IdentityServer4.Services.IProfileService, Core.Application.UsersApplicationService>();
+            services.TryAddScoped<IdentityErrorDescriber>();
+            services.TryAddScoped<ISecurityStampValidator, SecurityStampValidator<Core.Domain.Users.User>>();
+            services.TryAddScoped<ITwoFactorSecurityStampValidator, TwoFactorSecurityStampValidator<Core.Domain.Users.User>>();
+            services.TryAddScoped<IUserClaimsPrincipalFactory<Core.Domain.Users.User>, UserClaimsPrincipalFactory<Core.Domain.Users.User>>();
+            services.TryAddScoped<UserManager<Core.Domain.Users.User>>();
+            services.TryAddScoped<SignInManager<Core.Domain.Users.User>>();
+            services.TryAddScoped<IUserStore<Core.Domain.Users.User>, Core.Data.Repositories.UserRepository>();
+            services.TryAddScoped<IdentityServer4.Services.IProfileService, Core.Application.UsersApplicationService>();
         }
 
         #endregion Configure Services
@@ -141,10 +184,10 @@ namespace Services.Identity.STS
             containerBuilder.RegisterType<Transversal.Web.Session.SessionInfo>()
                 .As<Transversal.Common.Session.ISessionInfo>();
 
-            containerBuilder.RegisterType<Core.Data.Repositories.RoleRepository>()
-                .As<Core.Domain.Roles.IRoleRepository>();
             containerBuilder.RegisterType<Core.Data.Repositories.UserRepository>()
                 .As<Core.Domain.Users.IUserRepository>();
+            containerBuilder.RegisterType<Core.Data.Repositories.UserPictureRepository>()
+                .As<Core.Domain.Users.IUserPictureRepository>();
             containerBuilder.RegisterType<Core.Application.UsersApplicationService>()
                 .As<Core.Application.IUsersApplicationService>();
 

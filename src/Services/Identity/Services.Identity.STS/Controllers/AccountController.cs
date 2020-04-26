@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityModel;
 using IdentityServer4;
+using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -18,15 +21,17 @@ namespace Services.Identity.STS.Controllers
 {
     public class AccountController : Controller
     {
+        private readonly IWebHostEnvironment _env;
         private readonly ILogger<AccountController> _logger;
         private readonly IConfiguration _configuration;
         private readonly IIdentityServerInteractionService _interaction;
         private readonly Core.Application.IUsersApplicationService _usersApplicationService;
 
-        public AccountController(ILogger<AccountController> logger, IConfiguration config,
+        public AccountController(IWebHostEnvironment env, ILogger<AccountController> logger, IConfiguration config,
             IIdentityServerInteractionService interaction,
             Core.Application.IUsersApplicationService usersApplicationService)
         {
+            _env = env;
             _logger = logger;
             _configuration = config;
             _interaction = interaction;
@@ -106,22 +111,6 @@ namespace Services.Identity.STS.Controllers
             var vm = await BuildLoginViewModelAsync(model);
 
             ViewData["ReturnUrl"] = model.ReturnUrl;
-
-            return View(vm);
-        }
-
-        // <summary>
-        /// Shows the logged user information page
-        /// </summary>
-        [HttpGet]
-        [Authorize]
-        public IActionResult LoggedIn()
-        {
-            var vm = new AccountModels.LoggedInViewModel
-            {
-                Name = User.Identity.Name,
-                Claims = User.Claims.ToDictionary(claim => claim.Type, claim => claim.Value),
-            };
 
             return View(vm);
         }
@@ -233,5 +222,43 @@ namespace Services.Identity.STS.Controllers
         }
 
         #endregion Logout
+
+        // <summary>
+        /// Shows the logged user information page
+        /// </summary>
+        [HttpGet]
+        [Authorize]
+        public IActionResult LoggedIn()
+        {
+            var vm = new AccountModels.LoggedInViewModel
+            {
+                Name = User.Identity.Name,
+                Claims = User.Claims.ToDictionary(claim => claim.Type, claim => claim.Value),
+            };
+
+            return View(vm);
+        }
+
+        /// <summary>
+        /// Gets the logged user picture
+        /// </summary>
+        [HttpGet]
+        [Authorize]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<IActionResult> GetPictureAsync()
+        {
+            var subjectId = User.Identity.GetSubjectId();
+            var userId = Convert.ToInt32(subjectId);
+
+            var userPictureDto = await _usersApplicationService.GetUserPictureAsync(userId);
+            
+            if (userPictureDto != null)
+            {
+                return File(userPictureDto.Data, userPictureDto.MimeType);
+            }
+
+            return NotFound();
+        }
     }
 }

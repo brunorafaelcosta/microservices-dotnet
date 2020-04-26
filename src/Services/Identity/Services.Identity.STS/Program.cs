@@ -1,5 +1,4 @@
-using System;
-using System.IO;
+using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,8 +6,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Exceptions;
+using System;
+using System.IO;
 using Transversal.Data.EFCore.DbMigrator;
-using Autofac.Extensions.DependencyInjection;
 
 namespace Services.Identity.STS
 {

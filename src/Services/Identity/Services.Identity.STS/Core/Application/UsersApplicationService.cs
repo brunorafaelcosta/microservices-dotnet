@@ -10,8 +10,10 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Transversal.Application;
+using Transversal.Application.Exceptions;
 using Transversal.Common.Session;
 using Transversal.Domain.Uow.Manager;
+using Transversal.Web.Session.Identity;
 
 namespace Services.Identity.STS.Core.Application
 {
@@ -20,13 +22,17 @@ namespace Services.Identity.STS.Core.Application
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
 
+        private readonly IUserPictureRepository _userPictureRepository;
+
         public UsersApplicationService(
             ISessionInfo session,
             IUnitOfWorkManager uowManager,
+            IUserPictureRepository userPictureRepository,
             UserManager<User> userManager,
             SignInManager<User> signInManager)
             : base(session, uowManager)
         {
+            _userPictureRepository = userPictureRepository ?? throw new ArgumentNullException(nameof(userPictureRepository));
             _userManager = userManager;
             _signInManager = signInManager;
         }
@@ -59,31 +65,26 @@ namespace Services.Identity.STS.Core.Application
         {
             using (var uow = UowManager.Begin())
             {
-                var subject = context.Subject ?? throw new ArgumentNullException(nameof(context.Subject));
-
-                var subjectId = subject.Claims.Where(x => x.Type == "sub").FirstOrDefault().Value;
-                var user = await _userManager.FindByIdAsync(subjectId);
-
                 context.IsActive = false;
 
+                var subject = context.Subject ?? throw new ArgumentNullException(nameof(context.Subject));
+                var userId = subject.Claims.Where(x => x.Type == JwtClaimTypes.Subject).FirstOrDefault().Value;
+
+                var user = await _userManager.FindByIdAsync(userId);
                 if (user != null)
                 {
-                    if (_userManager.SupportsUserSecurityStamp)
-                    {
-                        var security_stamp = subject.Claims.Where(c => c.Type == "security_stamp").Select(c => c.Value).SingleOrDefault();
-                        if (security_stamp != null)
-                        {
-                            var db_security_stamp = await _userManager.GetSecurityStampAsync(user);
-                            if (db_security_stamp != security_stamp)
-                                return;
-                        }
-                    }
+                    //if (_userManager.SupportsUserSecurityStamp)
+                    //{
+                    //    var security_stamp = subject.Claims.Where(c => c.Type == "security_stamp").Select(c => c.Value).SingleOrDefault();
+                    //    if (security_stamp != null)
+                    //    {
+                    //        var db_security_stamp = await _userManager.GetSecurityStampAsync(user);
+                    //        if (db_security_stamp != security_stamp)
+                    //            return;
+                    //    }
+                    //}
 
-                    context.IsActive = true;
-                    //context.IsActive =
-                    //    !user.LockoutEnabled ||
-                    //    !user.LockoutEnd.HasValue ||
-                    //    user.LockoutEnd <= DateTime.Now;
+                    context.IsActive = user.IsActive();
                 }
             }
         }
@@ -93,56 +94,96 @@ namespace Services.Identity.STS.Core.Application
             using (var uow = UowManager.Begin())
             {
                 var subject = context.Subject ?? throw new ArgumentNullException(nameof(context.Subject));
+                var userId = subject.Claims.Where(x => x.Type == JwtClaimTypes.Subject).FirstOrDefault().Value;
 
-                var subjectId = subject.Claims.Where(x => x.Type == "sub").FirstOrDefault().Value;
-
-                var user = await _userManager.FindByIdAsync(subjectId);
+                var user = await _userManager.FindByIdAsync(userId);
                 if (user == null)
-                    throw new ArgumentException("Invalid subject identifier");
+                    throw new AppException("Invalid subject identifier");
 
                 var claims = GetClaimsFromUser(user);
-                context.IssuedClaims = claims.ToList();
+                context.IssuedClaims = claims?.ToList() ?? new List<Claim>();
+            }
+        }
+
+        public async Task<Dto.UserPictureDto> GetUserPictureAsync(int userId)
+        {
+            using (var uow = UowManager.Begin())
+            {
+                Dto.UserPictureDto result = null;
+
+                var userPicture = await _userPictureRepository.GetByUserIdAsync(userId);
+                if (userPicture != null)
+                {
+                    result = new Dto.UserPictureDto
+                    {
+                        MimeType = Transversal.Common.Extensions.FileExtensions.GetImageMimeTypeFromImageFileExtension(userPicture.Extension),
+                        Data = userPicture.Data
+                    };
+                }
+
+                return result;
             }
         }
 
 
         private IEnumerable<Claim> GetClaimsFromUser(User user)
         {
-            var claims = new List<Claim>
+            List<Claim> claims = null;
+
+            if (user != null)
             {
-                new Claim(JwtClaimTypes.Subject, user.Id.ToString()),
-                new Claim(JwtClaimTypes.PreferredUserName, user.UserName),
-                new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName)
-            };
+                claims = new List<Claim>
+                {
+                    new Claim(JwtClaimTypes.Subject, user.Id.ToString()),
+                    new Claim(JwtClaimTypes.PreferredUserName, user.UserName),
+                    new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName)
+                };
 
-            claims.Add(new Claim(Transversal.Web.Session.Identity.ClaimsConstants.UserIdClaimType, 1.ToString()));
-            claims.Add(new Claim(Transversal.Web.Session.Identity.ClaimsConstants.TenantIdClaimType, string.Empty));
+                var userId = user.Id.ToString();
+                claims.Add(new Claim(ClaimsConstants.UserIdClaimType, userId));
 
-            if (!string.IsNullOrWhiteSpace(user.Name))
-                claims.Add(new Claim("name", user.Name));
+                var tenantId = user.HasTenant ? user.TenantId.Value.ToString() : ClaimsConstants.NullValue;
+                claims.Add(new Claim(ClaimsConstants.TenantIdClaimType, tenantId));
 
-            if (!string.IsNullOrWhiteSpace(user.LastName))
-                claims.Add(new Claim("last_name", user.LastName));
+                var name = !string.IsNullOrWhiteSpace(user.Name) ? user.Name : ClaimsConstants.NullValue;
+                claims.Add(new Claim(ClaimsConstants.NameClaimType, name));
 
-            //if (_userManager.SupportsUserEmail)
-            //{
-            //    claims.AddRange(new[]
-            //    {
-            //        new Claim(JwtClaimTypes.Email, user.Email),
-            //        new Claim(JwtClaimTypes.EmailVerified, user.EmailConfirmed ? "true" : "false", ClaimValueTypes.Boolean)
-            //    });
-            //}
+                var lastName = !string.IsNullOrWhiteSpace(user.LastName) ? user.LastName : ClaimsConstants.NullValue;
+                claims.Add(new Claim(ClaimsConstants.NameClaimType, lastName));
 
-            //if (_userManager.SupportsUserPhoneNumber && !string.IsNullOrWhiteSpace(user.PhoneNumber))
-            //{
-            //    claims.AddRange(new[]
-            //    {
-            //        new Claim(JwtClaimTypes.PhoneNumber, user.PhoneNumber),
-            //        new Claim(JwtClaimTypes.PhoneNumberVerified, user.PhoneNumberConfirmed ? "true" : "false", ClaimValueTypes.Boolean)
-            //    });
-            //}
+                var userPictureUrl = user.HasPicture ? "http:localhost:5101/Account/GetPictureAsync" : ClaimsConstants.NullValue;
+                claims.Add(new Claim(JwtClaimTypes.Picture, userPictureUrl));
 
-            claims.Add(new Claim("permissions", "permission1;permission2"));
+                if (_userManager.SupportsUserEmail)
+                {
+                    string email = !string.IsNullOrWhiteSpace(user.Email) ? user.Email : ClaimsConstants.NullValue;
+                    string emailConfirmed = user.EmailConfirmed ? ClaimsConstants.TrueValue : ClaimsConstants.FalseValue;
+
+                    claims.AddRange(new[]
+                    {
+                        new Claim(JwtClaimTypes.Email, email),
+                        new Claim(JwtClaimTypes.EmailVerified, emailConfirmed, ClaimValueTypes.Boolean)
+                    });
+                }
+
+                if (_userManager.SupportsUserPhoneNumber)
+                {
+                    string phoneNumber = !string.IsNullOrWhiteSpace(user.PhoneNumber) ? user.PhoneNumber : ClaimsConstants.NullValue;
+                    string phoneNumberConfirmed = user.PhoneNumberConfirmed ? ClaimsConstants.TrueValue : ClaimsConstants.FalseValue;
+
+                    claims.AddRange(new[]
+                    {
+                        new Claim(JwtClaimTypes.PhoneNumber, phoneNumber),
+                        new Claim(JwtClaimTypes.PhoneNumberVerified, phoneNumberConfirmed, ClaimValueTypes.Boolean)
+                    });
+                }
+
+                var roles = !string.IsNullOrWhiteSpace(user.Roles) ? user.Roles : ClaimsConstants.NullValue;
+                claims.Add(new Claim(ClaimsConstants.RolesClaimType, roles));
+
+                var permissions = !string.IsNullOrWhiteSpace(user.Permissions) ? user.Permissions : ClaimsConstants.NullValue;
+                claims.Add(new Claim(ClaimsConstants.PermissionsClaimType, permissions));
+            }
 
             return claims;
         }

@@ -1,8 +1,9 @@
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using System;
 using System.IO;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Services.Identity.STS.Certificates
 {
@@ -12,12 +13,12 @@ namespace Services.Identity.STS.Certificates
         {
             var certificateConfig = configuration.GetSection("Certificate");
 
-            // https://benjii.me/2017/06/creating-self-signed-certificate-identity-server-azure/
             X509Certificate2 certificate;
 
             if (webHostEnvironment.IsProduction())
             {
-                throw new System.NotImplementedException();
+                // https://benjii.me/2017/06/creating-self-signed-certificate-identity-server-azure/
+                throw new NotImplementedException();
             }
             else
             {
@@ -33,10 +34,10 @@ namespace Services.Identity.STS.Certificates
             return certificate;
         }
 
-        static byte[] ReadStream(System.IO.Stream input)
+        static byte[] ReadStream(Stream input)
         {
             byte[] buffer = new byte[16 * 1024];
-            using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
+            using (MemoryStream ms = new MemoryStream())
             {
                 int read;
                 while ((read = input.Read(buffer, 0, buffer.Length)) > 0)

@@ -13,5 +13,7 @@ namespace Services.Identity.STS.Core.Application
         Task<User> FindByUsernameAsync(string username);
 
         Task SignInAsync(User user, AuthenticationProperties properties, string authenticationMethod = null);
+
+        Task<Dto.UserPictureDto> GetUserPictureAsync(int userId);
     }
 }

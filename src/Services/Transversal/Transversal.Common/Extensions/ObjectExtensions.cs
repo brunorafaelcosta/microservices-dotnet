@@ -5,7 +5,7 @@ namespace Transversal.Common.Extensions
     /// </summary>
     public static class ObjectExtensions
     {
-         /// <summary>
+        /// <summary>
         /// Used to simplify and beautify casting an object to a type. 
         /// </summary>
         /// <typeparam name="T">Type to be casted</typeparam>
