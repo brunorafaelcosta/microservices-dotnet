@@ -1,12 +1,11 @@
-﻿using IdentityServer4.Services;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Services.Identity.STS.Core.Domain.Users;
 using System.Threading.Tasks;
 using Transversal.Application;
 
 namespace Services.Identity.STS.Core.Application
 {
-    public interface IUsersApplicationService : IApplicationService, IProfileService
+    public interface IUsersApplicationService : IApplicationService
     {
         Task<bool> ValidateCredentialsAsync(User user, string password);
 

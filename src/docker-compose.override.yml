@@ -7,6 +7,7 @@ services:
             - Services/Identity/Services.Identity.STS/Development.env
         environment:
             ConnectionStrings__Sql: 'Server=sqldata;Port=${MICROSERVICESDOTNET_SQL_PORT};Database=microservicesdotnet.services.identitydb;User=root;Password=${MICROSERVICESDOTNET_SQL_ROOT_PASSWORD};'
+            ExternalEndpoint: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_IDENTITY_STS_PORT}'
             ClientEndpoints__localization_api: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_LOCALIZATION_API_PORT}'
             ClientEndpoints__web_base_administration: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_WEB_BASE_ADMINISTRATION_PORT}'
         ports:

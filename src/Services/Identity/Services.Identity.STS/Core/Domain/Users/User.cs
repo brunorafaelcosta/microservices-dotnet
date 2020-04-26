@@ -20,7 +20,7 @@ namespace Services.Identity.STS.Core.Domain.Users
         public string LastName { get; set; }
 
         public UserPicture Picture { get; set; }
-        public bool HasPicture => Picture != null;
+        public bool HasPicture { get; set; }
 
         public string Email { get; set; }
         public bool EmailConfirmed { get; set; }

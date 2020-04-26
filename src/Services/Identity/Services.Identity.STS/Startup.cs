@@ -101,6 +101,8 @@ namespace Services.Identity.STS
             builder.RegisterType<Transversal.Web.Dependency.AutofacIocManager>().As<Transversal.Common.Dependency.IIocManager>();
             builder.RegisterType<Transversal.Web.Dependency.AutofacIocManager>().As<Transversal.Common.Dependency.IIocResolver>();
 
+            builder.Register(p => Configuration.Get<Settings>()).SingleInstance();
+
             DI.Register(builder);
         }
 
@@ -165,13 +167,15 @@ namespace Services.Identity.STS
 
             // https://docs.microsoft.com/en-us/aspnet/core/security/authentication/identity-custom-storage-providers?view=aspnetcore-3.1
             services.TryAddScoped<IdentityErrorDescriber>();
-            services.TryAddScoped<ISecurityStampValidator, SecurityStampValidator<Core.Domain.Users.User>>();
-            services.TryAddScoped<ITwoFactorSecurityStampValidator, TwoFactorSecurityStampValidator<Core.Domain.Users.User>>();
-            services.TryAddScoped<IUserClaimsPrincipalFactory<Core.Domain.Users.User>, UserClaimsPrincipalFactory<Core.Domain.Users.User>>();
+            
+            //services.TryAddScoped<ITwoFactorSecurityStampValidator, TwoFactorSecurityStampValidator<Core.Domain.Users.User>>();
+            //services.TryAddScoped<IUserClaimsPrincipalFactory<Core.Domain.Users.User>, UserClaimsPrincipalFactory<Core.Domain.Users.User>>();
             services.TryAddScoped<UserManager<Core.Domain.Users.User>>();
             services.TryAddScoped<SignInManager<Core.Domain.Users.User>>();
-            services.TryAddScoped<IUserStore<Core.Domain.Users.User>, Core.Data.Repositories.UserRepository>();
-            services.TryAddScoped<IdentityServer4.Services.IProfileService, Core.Application.UsersApplicationService>();
+
+            services.AddTransient<IUserStore<Core.Domain.Users.User>, Core.Data.Repositories.UserRepository>();
+            services.AddTransient<IdentityServer4.Services.IProfileService, Core.Application.CustomIdentity.CustomProfileService>();
+            services.AddTransient<ISecurityStampValidator, Core.Application.CustomIdentity.CustomSecurityStampValidator>();
         }
 
         #endregion Configure Services
