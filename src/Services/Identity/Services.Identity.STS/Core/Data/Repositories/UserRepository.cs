@@ -30,14 +30,14 @@ namespace Services.Identity.STS.Core.Data.Repositories
         {
             int id = Convert.ToInt32(userId);
 
-            var user = await FirstOrDefaultAsync(id);
+            var user = await FirstOrDefaultAsync(id, null);
             
             return user;
         }
 
         public Task<User> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
         {
-            return Task.FromResult(FirstOrDefault(e => e.UserName.Equals(normalizedUserName)));
+            return Task.FromResult(FirstOrDefault(e => e.UserName.Equals(normalizedUserName), null));
         }
 
         public Task<string> GetNormalizedUserNameAsync(User user, CancellationToken cancellationToken)

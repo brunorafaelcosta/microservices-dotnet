@@ -11,10 +11,10 @@ namespace Services.Localization.API.Controllers
     public class LocalizationController : ControllerBase
     {
         private readonly ILogger<LocalizationController> _logger;
-        private readonly Core.Application.IResourcesApplicationService _service;
+        private readonly Core.Application.IResourceGroupsAppService _service;
 
         public LocalizationController(
-            Core.Application.IResourcesApplicationService service,
+            Core.Application.IResourceGroupsAppService service,
             ILogger<LocalizationController> logger)
         {
             _service = service;

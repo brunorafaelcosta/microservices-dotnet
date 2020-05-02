@@ -183,8 +183,8 @@ namespace Services.Localization.API
 
             containerBuilder.RegisterType<Core.Data.Repositories.ResourceGroupRepository>()
                 .As<Core.Domain.Resources.IResourceGroupRepository>();
-            containerBuilder.RegisterType<Core.Application.ResourcesApplicationService>()
-                .As<Core.Application.IResourcesApplicationService>();
+            containerBuilder.RegisterType<Core.Application.ResourceGroupsAppService>()
+                .As<Core.Application.IResourceGroupsAppService>();
 
             containerBuilder.RegisterType<Core.Data.DefaultDbContextOptionsResolver>()
                 .As<Transversal.Data.EFCore.DbContext.IDbContextOptionsResolver<Core.Data.DefaultDbContext>>();

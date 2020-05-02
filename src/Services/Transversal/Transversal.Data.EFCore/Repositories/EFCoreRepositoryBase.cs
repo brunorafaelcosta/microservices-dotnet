@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Linq.Expressions;
 using Transversal.Data.EFCore.DbContext;
 using Transversal.Domain.Entities;
 using Transversal.Domain.Repositories;
@@ -22,6 +24,74 @@ namespace Transversal.Data.EFCore.Repositories
         {
             return Entities.AsQueryable();
         }
+
+        protected override IQueryable<TEntity> AsQueryable(
+            Expression<Func<TEntity, bool>> predicate = null,
+            Dictionary<Expression<Func<TEntity, object>>, ListSortDirection> sort = null,
+            int? entitiesToTake = null, int? entitiesToSkip = null)
+        {
+            IQueryable<TEntity> query = Entities.AsQueryable();
+
+            if (predicate != null)
+                query = query.Where(predicate).AsQueryable();
+
+            if (sort != null)
+            {
+                foreach (var sortProperty in sort)
+                {
+                    if (sortProperty.Value == ListSortDirection.Ascending)
+                        query = query.OrderBy(sortProperty.Key);
+                    else
+                        query = query.OrderByDescending(sortProperty.Key);
+                }
+            }
+
+            if (entitiesToSkip.GetValueOrDefault() >= 0 && entitiesToTake.GetValueOrDefault() > 0)
+            {
+                query = query.Skip(entitiesToSkip.Value).Take(entitiesToTake.Value);
+            }
+
+            return query.AsQueryable();
+        }
+
+        protected override IQueryable<TProjection> AsQueryable<TProjection>(
+            Expression<Func<TEntity, TProjection>> projection)
+        {
+            return Entities.Select(projection).AsQueryable();
+        }
+
+        protected override IQueryable<TProjection> AsQueryable<TProjection>(
+            Expression<Func<TEntity, TProjection>> projection,
+            Expression<Func<TEntity, bool>> predicate = null,
+            Dictionary<Expression<Func<TProjection, object>>, ListSortDirection> sort = null,
+            int? entitiesToTake = null, int? entitiesToSkip = null)
+        {
+            IQueryable<TEntity> baseQuery = Entities.AsQueryable();
+
+            if (predicate != null)
+                baseQuery = baseQuery.Where(predicate).AsQueryable();
+
+            IQueryable<TProjection> projectedQuery = baseQuery.Select(projection).AsQueryable();
+
+            if (sort != null)
+            {
+                foreach (var sortProperty in sort)
+                {
+                    if (sortProperty.Value == ListSortDirection.Ascending)
+                        projectedQuery = projectedQuery.OrderBy(sortProperty.Key);
+                    else
+                        projectedQuery = projectedQuery.OrderByDescending(sortProperty.Key);
+                }
+            }
+
+            if (entitiesToSkip.GetValueOrDefault() >= 0 && entitiesToTake.GetValueOrDefault() > 0)
+            {
+                projectedQuery = projectedQuery.Skip(entitiesToSkip.Value).Take(entitiesToTake.Value);
+            }
+
+            return projectedQuery.AsQueryable();
+        }
+
 
         public EFCoreRepositoryBase(IDbContextProvider<TDbContext> dbContextProvider)
         {
@@ -74,7 +144,7 @@ namespace Transversal.Data.EFCore.Repositories
                 return;
             }
 
-            entity = FirstOrDefault(id);
+            entity = AsQueryable(predicate: CreateEqualityExpressionForId(id)).FirstOrDefault();
             if (entity != null)
             {
                 Delete(entity);

@@ -19,82 +19,278 @@ namespace Transversal.Domain.Repositories
         /// <summary>
         /// Used to get all entities.
         /// </summary>
+        /// <param name="options">Query options</param>
         /// <returns>List of all entities</returns>
-        List<TEntity> GetAllList();
+        List<TEntity> GetAllList(Options.GetAllOptions<TEntity, TPrimaryKey> options);
 
         /// <summary>
         /// Used to get all entities.
         /// </summary>
+        /// <param name="options">Query options</param>
         /// <returns>List of all entities</returns>
-        Task<List<TEntity>> GetAllListAsync();
+        Task<List<TEntity>> GetAllListAsync(Options.GetAllOptions<TEntity, TPrimaryKey> options);
+
+        /// <summary>
+        /// Used to get all entities.
+        /// </summary>
+        /// <param name="options">Query options</param>
+        /// <param name="totalEntities">Gets count of all entities based on the given <paramref name="options"/></param>
+        /// <returns>List of all entities</returns>
+        List<TEntity> GetAllList(Options.GetAllOptions<TEntity, TPrimaryKey> options, out long totalEntities);
+
+        /// <summary>
+        /// Used to get all entities.
+        /// </summary>
+        /// <param name="options">Query options</param>
+        /// <param name="totalEntities">Gets count of all entities based on the given <paramref name="options"/></param>
+        /// <returns>List of all entities</returns>
+        Task<List<TEntity>> GetAllListAsync(Options.GetAllOptions<TEntity, TPrimaryKey> options, out long totalEntities);
 
         /// <summary>
         /// Used to get all entities based on given <paramref name="predicate"/>.
         /// </summary>
         /// <param name="predicate">A condition to filter entities</param>
+        /// <param name="options">Query options</param>
         /// <returns>List of all entities</returns>
-        List<TEntity> GetAllList(Expression<Func<TEntity, bool>> predicate);
+        List<TEntity> GetAllList(Expression<Func<TEntity, bool>> predicate, Options.GetAllOptions<TEntity, TPrimaryKey> options);
 
         /// <summary>
         /// Used to get all entities based on given <paramref name="predicate"/>.
         /// </summary>
         /// <param name="predicate">A condition to filter entities</param>
+        /// <param name="options">Query options</param>
         /// <returns>List of all entities</returns>
-        Task<List<TEntity>> GetAllListAsync(Expression<Func<TEntity, bool>> predicate);
+        Task<List<TEntity>> GetAllListAsync(Expression<Func<TEntity, bool>> predicate, Options.GetAllOptions<TEntity, TPrimaryKey> options);
+
+        /// <summary>
+        /// Used to get all entities based on given <paramref name="predicate"/>.
+        /// </summary>
+        /// <param name="predicate">A condition to filter entities</param>
+        /// <param name="options">Query options</param>
+        /// <param name="totalEntities">Gets count of all entities based on the given <paramref name="options"/></param>
+        /// <returns>List of all entities</returns>
+        List<TEntity> GetAllList(Expression<Func<TEntity, bool>> predicate, Options.GetAllOptions<TEntity, TPrimaryKey> options, out long totalEntities);
+
+        /// <summary>
+        /// Used to get all entities based on given <paramref name="predicate"/>.
+        /// </summary>
+        /// <param name="predicate">A condition to filter entities</param>
+        /// <param name="options">Query options</param>
+        /// <param name="totalEntities">Gets count of all entities based on the given <paramref name="options"/></param>
+        /// <returns>List of all entities</returns>
+        Task<List<TEntity>> GetAllListAsync(Expression<Func<TEntity, bool>> predicate, Options.GetAllOptions<TEntity, TPrimaryKey> options, out long totalEntities);
+
+        /// <summary>
+        /// Used to get all entities projected to a custom type.
+        /// </summary>
+        /// <typeparam name="TProjection">Projection Type</typeparam>
+        /// <param name="options">Query options</param>
+        /// <returns>List of all entities projected to <typeparamref name="TProjection"/> type</returns>
+        List<TProjection> GetAllList<TProjection>(Options.GetAllProjectedOptions<TEntity, TPrimaryKey, TProjection> options) where TProjection : class;
+
+        /// <summary>
+        /// Used to get all entities projected to a custom type.
+        /// </summary>
+        /// <typeparam name="TProjection">Projection Type</typeparam>
+        /// <param name="options">Query options</param>
+        /// <returns>List of all entities projected to <typeparamref name="TProjection"/> type</returns>
+        Task<List<TProjection>> GetAllListAsync<TProjection>(Options.GetAllProjectedOptions<TEntity, TPrimaryKey, TProjection> options) where TProjection : class;
+
+        /// <summary>
+        /// Used to get all entities projected to a custom type.
+        /// </summary>
+        /// <typeparam name="TProjection">Projection Type</typeparam>
+        /// <param name="options">Query options</param>
+        /// <param name="totalEntities">Gets count of all entities based on the given <paramref name="options"/></param>
+        /// <returns>List of all entities projected to <typeparamref name="TProjection"/> type</returns>
+        List<TProjection> GetAllList<TProjection>(Options.GetAllProjectedOptions<TEntity, TPrimaryKey, TProjection> options, out long totalEntities) where TProjection : class;
+
+        /// <summary>
+        /// Used to get all entities projected to a custom type.
+        /// </summary>
+        /// <typeparam name="TProjection">Projection Type</typeparam>
+        /// <param name="options">Query options</param>
+        /// <param name="totalEntities">Gets count of all entities based on the given <paramref name="options"/></param>
+        /// <returns>List of all entities projected to <typeparamref name="TProjection"/> type</returns>
+        Task<List<TProjection>> GetAllListAsync<TProjection>(Options.GetAllProjectedOptions<TEntity, TPrimaryKey, TProjection> options, out long totalEntities) where TProjection : class;
+
+        /// <summary>
+        /// Used to get all entities projected to a custom type based on given <paramref name="predicate"/>.
+        /// </summary>
+        /// <typeparam name="TProjection">Projection Type</typeparam>
+        /// <param name="predicate">A condition to filter entities</param>
+        /// <param name="options">Query options</param>
+        /// <returns>List of all entities projected to <typeparamref name="TProjection"/> type</returns>
+        List<TProjection> GetAllList<TProjection>(Expression<Func<TEntity, bool>> predicate, Options.GetAllProjectedOptions<TEntity, TPrimaryKey, TProjection> options) where TProjection : class;
+
+        /// <summary>
+        /// Used to get all entities projected to a custom type based on given <paramref name="predicate"/>.
+        /// </summary>
+        /// <typeparam name="TProjection">Projection Type</typeparam>
+        /// <param name="predicate">A condition to filter entities</param>
+        /// <param name="options">Query options</param>
+        /// <returns>List of all entities projected to <typeparamref name="TProjection"/> type</returns>
+        Task<List<TProjection>> GetAllListAsync<TProjection>(Expression<Func<TEntity, bool>> predicate, Options.GetAllProjectedOptions<TEntity, TPrimaryKey, TProjection> options) where TProjection : class;
+
+        /// <summary>
+        /// Used to get all entities projected to a custom type based on given <paramref name="predicate"/>.
+        /// </summary>
+        /// <typeparam name="TProjection">Projection Type</typeparam>
+        /// <param name="predicate">A condition to filter entities</param>
+        /// <param name="options">Query options</param>
+        /// <param name="totalEntities">Gets count of all entities based on the given <paramref name="options"/></param>
+        /// <returns>List of all entities projected to <typeparamref name="TProjection"/> type</returns>
+        List<TProjection> GetAllList<TProjection>(Expression<Func<TEntity, bool>> predicate, Options.GetAllProjectedOptions<TEntity, TPrimaryKey, TProjection> options, out long totalEntities) where TProjection : class;
+
+        /// <summary>
+        /// Used to get all entities projected to a custom type based on given <paramref name="predicate"/>.
+        /// </summary>
+        /// <typeparam name="TProjection">Projection Type</typeparam>
+        /// <param name="predicate">A condition to filter entities</param>
+        /// <param name="options">Query options</param>
+        /// <param name="totalEntities">Gets count of all entities based on the given <paramref name="options"/></param>
+        /// <returns>List of all entities projected to <typeparamref name="TProjection"/> type</returns>
+        Task<List<TProjection>> GetAllListAsync<TProjection>(Expression<Func<TEntity, bool>> predicate, Options.GetAllProjectedOptions<TEntity, TPrimaryKey, TProjection> options, out long totalEntities) where TProjection : class;
 
         /// <summary>
         /// Gets an entity with given primary key.
         /// </summary>
         /// <param name="id">Primary key of the entity to get</param>
+        /// <param name="options">Query options</param>
         /// <returns>Entity</returns>
-        TEntity Get(TPrimaryKey id);
+        TEntity Get(TPrimaryKey id, Options.GetOptions<TEntity, TPrimaryKey> options);
 
         /// <summary>
         /// Gets an entity with given primary key.
         /// </summary>
         /// <param name="id">Primary key of the entity to get</param>
+        /// <param name="options">Query options</param>
         /// <returns>Entity</returns>
-        Task<TEntity> GetAsync(TPrimaryKey id);
+        Task<TEntity> GetAsync(TPrimaryKey id, Options.GetOptions<TEntity, TPrimaryKey> options);
+
+        /// <summary>
+        /// Gets an entity with given primary key projected to a custom type.
+        /// </summary>
+        /// <typeparam name="TProjection">Projection Type</typeparam>
+        /// <param name="id">Primary key of the entity to get</param>
+        /// <param name="options">Query options</param>
+        /// <returns>Entity projected to <typeparamref name="TProjection"/> type</returns>
+        TProjection Get<TProjection>(TPrimaryKey id, Options.GetProjectedOptions<TEntity, TPrimaryKey, TProjection> options) where TProjection : class;
+
+        /// <summary>
+        /// Gets an entity with given primary key projected to a custom type.
+        /// </summary>
+        /// <typeparam name="TProjection">Projection Type</typeparam>
+        /// <param name="id">Primary key of the entity to get</param>
+        /// <param name="options">Query options</param>
+        /// <returns>Entity projected to <typeparamref name="TProjection"/> type</returns>
+        Task<TProjection> GetAsync<TProjection>(TPrimaryKey id, Options.GetProjectedOptions<TEntity, TPrimaryKey, TProjection> options) where TProjection : class;
 
         /// <summary>
         /// Gets exactly one entity with given predicate.
         /// Throws exception if no entity or more than one entity.
         /// </summary>
-        /// <param name="predicate">Entity</param>
-        TEntity Single(Expression<Func<TEntity, bool>> predicate);
+        /// <param name="predicate">A condition to filter entities</param>
+        /// <param name="options">Query options</param>
+        /// <returns>Entity</returns>
+        TEntity Single(Expression<Func<TEntity, bool>> predicate, Options.GetOptions<TEntity, TPrimaryKey> options);
 
         /// <summary>
         /// Gets exactly one entity with given predicate.
         /// Throws exception if no entity or more than one entity.
         /// </summary>
-        /// <param name="predicate">Entity</param>
-        Task<TEntity> SingleAsync(Expression<Func<TEntity, bool>> predicate);
+        /// <param name="predicate">A condition to filter entities</param>
+        /// <param name="options">Query options</param>
+        /// <returns>Entity</returns>
+        Task<TEntity> SingleAsync(Expression<Func<TEntity, bool>> predicate, Options.GetOptions<TEntity, TPrimaryKey> options);
+
+        /// <summary>
+        /// Gets exactly one entity with given predicate projected to a custom type.
+        /// Throws exception if no entity or more than one entity.
+        /// </summary>
+        /// <typeparam name="TProjection">Projection Type</typeparam>
+        /// <param name="predicate">A condition to filter entities</param>
+        /// <param name="options">Query options</param>
+        /// <returns>Entity projected to <typeparamref name="TProjection"/> type</returns>
+        TProjection Single<TProjection>(Expression<Func<TEntity, bool>> predicate, Options.GetProjectedOptions<TEntity, TPrimaryKey, TProjection> options) where TProjection : class;
+
+        /// <summary>
+        /// Gets exactly one entity with given predicate projected to a custom type.
+        /// Throws exception if no entity or more than one entity.
+        /// </summary>
+        /// <typeparam name="TProjection">Projection Type</typeparam>
+        /// <param name="predicate">A condition to filter entities</param>
+        /// <param name="options">Query options</param>
+        /// <returns>Entity projected to <typeparamref name="TProjection"/> type</returns>
+        Task<TProjection> SingleAsync<TProjection>(Expression<Func<TEntity, bool>> predicate, Options.GetProjectedOptions<TEntity, TPrimaryKey, TProjection> options) where TProjection : class;
 
         /// <summary>
         /// Gets an entity with given primary key or null if not found.
         /// </summary>
         /// <param name="id">Primary key of the entity to get</param>
+        /// <param name="options">Query options</param>
         /// <returns>Entity or null</returns>
-        TEntity FirstOrDefault(TPrimaryKey id);
+        TEntity FirstOrDefault(TPrimaryKey id, Options.GetOptions<TEntity, TPrimaryKey> options);
 
         /// <summary>
-        /// Gets an entity with given primary key or null if not found.
+        ///Gets an entity with given primary key or null if not found.
         /// </summary>
         /// <param name="id">Primary key of the entity to get</param>
+        /// <param name="options">Query options</param>
         /// <returns>Entity or null</returns>
-        Task<TEntity> FirstOrDefaultAsync(TPrimaryKey id);
+        Task<TEntity> FirstOrDefaultAsync(TPrimaryKey id, Options.GetOptions<TEntity, TPrimaryKey> options);
+
+        /// <summary>
+        /// Gets an entity with given primary key projected to a custom type or null if not found.
+        /// </summary>
+        /// <typeparam name="TProjection">Projection Type</typeparam>
+        /// <param name="id">Primary key of the entity to get</param>
+        /// <param name="options">Query options</param>
+        /// <returns>Entity projected to <typeparamref name="TProjection"/> type or null</returns>
+        TProjection FirstOrDefault<TProjection>(TPrimaryKey id, Options.GetProjectedOptions<TEntity, TPrimaryKey, TProjection> options) where TProjection : class;
+
+        /// <summary>
+        /// Gets an entity with given primary key projected to a custom type or null if not found.
+        /// </summary>
+        /// <typeparam name="TProjection">Projection Type</typeparam>
+        /// <param name="id">Primary key of the entity to get</param>
+        /// <param name="options">Query options</param>
+        /// <returns>Entity projected to <typeparamref name="TProjection"/> type or null</returns>
+        Task<TProjection> FirstOrDefaultAsync<TProjection>(TPrimaryKey id, Options.GetProjectedOptions<TEntity, TPrimaryKey, TProjection> options) where TProjection : class;
 
         /// <summary>
         /// Gets an entity with given given predicate or null if not found.
         /// </summary>
-        /// <param name="predicate">Predicate to filter entities</param>
-        TEntity FirstOrDefault(Expression<Func<TEntity, bool>> predicate);
+        /// <param name="predicate">A condition to filter entities</param>
+        /// <param name="options">Query options</param>
+        /// <returns>Entity or null</returns>
+        TEntity FirstOrDefault(Expression<Func<TEntity, bool>> predicate, Options.GetOptions<TEntity, TPrimaryKey> options);
 
         /// <summary>
         /// Gets an entity with given given predicate or null if not found.
         /// </summary>
-        /// <param name="predicate">Predicate to filter entities</param>
-        Task<TEntity> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate);
+        /// <param name="predicate">A condition to filter entities</param>
+        /// <param name="options">Query options</param>
+        /// <returns>Entity or null</returns>
+        Task<TEntity> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate, Options.GetOptions<TEntity, TPrimaryKey> options);
+
+        /// <summary>
+        /// Gets an entity with given given predicate projected to a custom type or null if not found.
+        /// </summary>
+        /// <typeparam name="TProjection">Projection Type</typeparam>
+        /// <param name="predicate">A condition to filter entities</param>
+        /// <param name="options">Query options</param>
+        /// <returns>Entity projected to <typeparamref name="TProjection"/> type or null</returns>
+        TProjection FirstOrDefault<TProjection>(Expression<Func<TEntity, bool>> predicate, Options.GetProjectedOptions<TEntity, TPrimaryKey, TProjection> options) where TProjection : class;
+
+        /// <summary>
+        /// Gets an entity with given given predicate projected to a custom type or null if not found.
+        /// </summary>
+        /// <typeparam name="TProjection">Projection Type</typeparam>
+        /// <param name="predicate">A condition to filter entities</param>
+        /// <param name="options">Query options</param>
+        /// <returns>Entity projected to <typeparamref name="TProjection"/> type or null</returns>
+        Task<TProjection> FirstOrDefaultAsync<TProjection>(Expression<Func<TEntity, bool>> predicate, Options.GetProjectedOptions<TEntity, TPrimaryKey, TProjection> options) where TProjection : class;
 
         #endregion Select/Get/Query
 
