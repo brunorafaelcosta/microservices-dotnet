@@ -13,18 +13,24 @@ namespace Transversal.Domain.Repositories
         where TEntity : class, IEntity<TPrimaryKey>
     {
         protected abstract IQueryable<TEntity> AsQueryable();
+        protected abstract IQueryable<TEntity> AsQueryable(string overriddenLanguage = null);
         protected abstract IQueryable<TEntity> AsQueryable(
             Expression<Func<TEntity, bool>> predicate = null,
             Dictionary<Expression<Func<TEntity, object>>, ListSortDirection> sort = null,
-            int? entitiesToTake = null, int? entitiesToSkip = null);
+            int? entitiesToSkip = null, int? entitiesToTake = null,
+            string overriddenLanguage = null);
 
         protected abstract IQueryable<TProjection> AsQueryable<TProjection>(
             Expression<Func<TEntity, TProjection>> projection) where TProjection : class;
         protected abstract IQueryable<TProjection> AsQueryable<TProjection>(
             Expression<Func<TEntity, TProjection>> projection,
+            string overriddenLanguage = null) where TProjection : class;
+        protected abstract IQueryable<TProjection> AsQueryable<TProjection>(
+            Expression<Func<TEntity, TProjection>> projection,
             Expression<Func<TEntity, bool>> predicate = null,
             Dictionary<Expression<Func<TProjection, object>>, ListSortDirection> sort = null,
-            int? entitiesToTake = null, int? entitiesToSkip = null) where TProjection : class;
+            int? entitiesToSkip = null, int? entitiesToTake = null,
+            string overriddenLanguage = null) where TProjection : class;
 
         #region Select/Get/Query
 
@@ -33,8 +39,9 @@ namespace Transversal.Domain.Repositories
             IQueryable<TEntity> query = AsQueryable(
                 predicate: null,
                 sort : options?.Sort,
+                entitiesToSkip: options?.EntitiesToSkip,
                 entitiesToTake: options?.EntitiesToTake,
-                entitiesToSkip: options?.EntitiesToSkip);
+                overriddenLanguage: options?.OverriddenLanguage);
 
             return query.ToList();
         }
@@ -46,15 +53,16 @@ namespace Transversal.Domain.Repositories
 
         public virtual List<TEntity> GetAllList(Options.GetAllOptions<TEntity, TPrimaryKey> options, out long totalEntities)
         {
-            IQueryable<TEntity> countQuery = AsQueryable();
+            IQueryable<TEntity> countQuery = AsQueryable(overriddenLanguage: options?.OverriddenLanguage);
 
             totalEntities = countQuery.LongCount();
 
             IQueryable<TEntity> listQuery = AsQueryable(
                 predicate: null,
                 sort: options?.Sort,
+                entitiesToSkip: options?.EntitiesToSkip,
                 entitiesToTake: options?.EntitiesToTake,
-                entitiesToSkip: options?.EntitiesToSkip);
+                overriddenLanguage: options?.OverriddenLanguage);
 
             return listQuery.ToList();
         }
@@ -69,8 +77,9 @@ namespace Transversal.Domain.Repositories
             IQueryable<TEntity> query = AsQueryable(
                 predicate: predicate,
                 sort: options?.Sort,
+                entitiesToSkip: options?.EntitiesToSkip,
                 entitiesToTake: options?.EntitiesToTake,
-                entitiesToSkip: options?.EntitiesToSkip);
+                overriddenLanguage: options?.OverriddenLanguage);
 
             return query.ToList();
         }
@@ -83,15 +92,17 @@ namespace Transversal.Domain.Repositories
         public virtual List<TEntity> GetAllList(Expression<Func<TEntity, bool>> predicate, Options.GetAllOptions<TEntity, TPrimaryKey> options, out long totalEntities)
         {
             IQueryable<TEntity> countQuery = AsQueryable(
-                predicate: predicate);
+                predicate: predicate,
+                overriddenLanguage: options?.OverriddenLanguage);
 
             totalEntities = countQuery.LongCount();
 
             IQueryable<TEntity> listQuery = AsQueryable(
                 predicate: predicate,
                 sort: options?.Sort,
+                entitiesToSkip: options?.EntitiesToSkip,
                 entitiesToTake: options?.EntitiesToTake,
-                entitiesToSkip: options?.EntitiesToSkip);
+                overriddenLanguage: options?.OverriddenLanguage);
 
             return listQuery.ToList();
         }
@@ -107,8 +118,9 @@ namespace Transversal.Domain.Repositories
                 projection: options?.Projection,
                 predicate: null,
                 sort: options?.Sort,
+                entitiesToSkip: options?.EntitiesToSkip,
                 entitiesToTake: options?.EntitiesToTake,
-                entitiesToSkip: options?.EntitiesToSkip);
+                overriddenLanguage: options?.OverriddenLanguage);
 
             return query.ToList();
         }
@@ -121,7 +133,8 @@ namespace Transversal.Domain.Repositories
         public virtual List<TProjection> GetAllList<TProjection>(Options.GetAllProjectedOptions<TEntity, TPrimaryKey, TProjection> options, out long totalEntities) where TProjection : class
         {
             IQueryable<TProjection> countQuery = AsQueryable<TProjection>(
-                projection: options?.Projection);
+                projection: options?.Projection,
+                overriddenLanguage: options?.OverriddenLanguage);
 
             totalEntities = countQuery.LongCount();
 
@@ -129,8 +142,9 @@ namespace Transversal.Domain.Repositories
                 projection: options?.Projection,
                 predicate: null,
                 sort: options?.Sort,
+                entitiesToSkip: options?.EntitiesToSkip,
                 entitiesToTake: options?.EntitiesToTake,
-                entitiesToSkip: options?.EntitiesToSkip);
+                overriddenLanguage: options?.OverriddenLanguage);
 
             return listQuery.ToList();
         }
@@ -146,8 +160,9 @@ namespace Transversal.Domain.Repositories
                 projection: options?.Projection,
                 predicate: predicate,
                 sort: options?.Sort,
+                entitiesToSkip: options?.EntitiesToSkip,
                 entitiesToTake: options?.EntitiesToTake,
-                entitiesToSkip: options?.EntitiesToSkip);
+                overriddenLanguage: options?.OverriddenLanguage);
 
             return query.ToList();
         }
@@ -161,7 +176,8 @@ namespace Transversal.Domain.Repositories
         {
             IQueryable<TProjection> countQuery = AsQueryable<TProjection>(
                 projection: options?.Projection,
-                predicate: predicate);
+                predicate: predicate,
+                overriddenLanguage: options?.OverriddenLanguage);
 
             totalEntities = countQuery.LongCount();
 
@@ -169,8 +185,9 @@ namespace Transversal.Domain.Repositories
                 projection: options?.Projection,
                 predicate: predicate,
                 sort: options?.Sort,
+                entitiesToSkip: options?.EntitiesToSkip,
                 entitiesToTake: options?.EntitiesToTake,
-                entitiesToSkip: options?.EntitiesToSkip);
+                overriddenLanguage: options?.OverriddenLanguage);
 
             return listQuery.ToList();
         }
@@ -240,7 +257,8 @@ namespace Transversal.Domain.Repositories
         {
             IQueryable<TProjection> query = AsQueryable<TProjection>(
                 projection: options?.Projection,
-                predicate: predicate);
+                predicate: predicate,
+                overriddenLanguage: options?.OverriddenLanguage);
 
             return query.Single();
         }
@@ -253,7 +271,8 @@ namespace Transversal.Domain.Repositories
         public virtual TEntity FirstOrDefault(TPrimaryKey id, Options.GetOptions<TEntity, TPrimaryKey> options)
         {
             IQueryable<TEntity> query = AsQueryable(
-                predicate: CreateEqualityExpressionForId(id));
+                predicate: CreateEqualityExpressionForId(id),
+                overriddenLanguage: options?.OverriddenLanguage);
 
             return query.FirstOrDefault();
         }
@@ -267,7 +286,8 @@ namespace Transversal.Domain.Repositories
         {
             IQueryable<TProjection> query = AsQueryable<TProjection>(
                 projection: options?.Projection,
-                predicate: CreateEqualityExpressionForId(id));
+                predicate: CreateEqualityExpressionForId(id),
+                overriddenLanguage: options?.OverriddenLanguage);
 
             return query.FirstOrDefault();
         }
@@ -280,7 +300,8 @@ namespace Transversal.Domain.Repositories
         public virtual TEntity FirstOrDefault(Expression<Func<TEntity, bool>> predicate, Options.GetOptions<TEntity, TPrimaryKey> options)
         {
             IQueryable<TEntity> query = AsQueryable(
-                predicate: predicate);
+                predicate: predicate,
+                overriddenLanguage: options?.OverriddenLanguage);
 
             return query.FirstOrDefault();
         }
@@ -294,7 +315,8 @@ namespace Transversal.Domain.Repositories
         {
             IQueryable<TProjection> query = AsQueryable<TProjection>(
                 projection: options?.Projection,
-                predicate: predicate);
+                predicate: predicate,
+                overriddenLanguage: options?.OverriddenLanguage);
 
             return query.FirstOrDefault();
         }

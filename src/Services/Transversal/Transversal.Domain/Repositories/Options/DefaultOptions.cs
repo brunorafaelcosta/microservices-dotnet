@@ -3,12 +3,16 @@
 namespace Transversal.Domain.Repositories.Options
 {
     /// <summary>
-    /// Query options for <see cref="IRepository{TEntity, TPrimaryKey}"/> Get methods.
+    /// Query options for <see cref="IRepository{TEntity, TPrimaryKey}"/> all the methods.
     /// </summary>
     /// <typeparam name="TEntity">Repository entity type</typeparam>
     /// <typeparam name="TEntityPrimaryKey">Primary key type of the entity</typeparam>
-    public class GetOptions<TEntity, TEntityPrimaryKey> : DefaultOptions<TEntity, TEntityPrimaryKey>
+    public class DefaultOptions<TEntity, TEntityPrimaryKey>
         where TEntity : class, IEntity<TEntityPrimaryKey>
     {
+        /// <summary>
+        /// Language code used to override the repository language
+        /// </summary>
+        public string OverriddenLanguage { get; set; }
     }
 }

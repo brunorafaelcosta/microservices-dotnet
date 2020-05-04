@@ -207,6 +207,8 @@ namespace Services.Localization.API
                 .As(typeof(Transversal.Data.EFCore.DbMigrator.IEFCoreDbMigrator<>));
             containerBuilder.RegisterType<Transversal.Data.EFCore.DbContext.DefaultDbContextResolver>()
                 .As<Transversal.Data.EFCore.DbContext.IDbContextResolver>();
+            containerBuilder.RegisterType<Transversal.Data.EFCore.DbContext.DefaultDbContextInterceptor>()
+                .As<Transversal.Data.EFCore.DbContext.IDbContextInterceptor>();
             containerBuilder.RegisterGeneric(typeof(Transversal.Data.EFCore.Uow.UnitOfWorkDbContextProvider<>))
                 .As(typeof(Transversal.Data.EFCore.DbContext.IDbContextProvider<>));
             containerBuilder.RegisterType<Transversal.Data.EFCore.Uow.DbContextEfCoreTransactionStrategy>()

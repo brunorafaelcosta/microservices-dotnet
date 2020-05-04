@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Transversal.Common.Localization;
 
 namespace Transversal.Domain.ValueObjects.Localization
 {
@@ -8,44 +9,53 @@ namespace Transversal.Domain.ValueObjects.Localization
     {
         #region Language Values
 
-		[LocalizedValueObjectLanguageAttribute("en")]
-		public string Value_en { get; private set; }
-		
-        [LocalizedValueObjectLanguageAttribute("pt")]
-		public string Value_pt { get; private set; }
-		
-        [LocalizedValueObjectLanguageAttribute("es")]
-		public string Value_es { get; private set; }
+        public const string ValuePropertyNameFormat = "{0}Value";
 
-		[LocalizedValueObjectLanguageAttribute("fr")]
-		public string Value_fr { get; private set; }
+		[LocalizedValueObjectLanguage(SupportedLanguages.Codes.en)]
+		public string ENValue { get; set; }
+
+        [LocalizedValueObjectLanguage(SupportedLanguages.Codes.pt)]
+        public string PTValue { get; set; }
+
+        [LocalizedValueObjectLanguage(SupportedLanguages.Codes.es)]
+        public string ESValue { get; set; }
+
+        [LocalizedValueObjectLanguage(SupportedLanguages.Codes.fr)]
+        public string FRValue { get; set; }
         
         #endregion Language Values
 
-        public string Value { get; private set; }
+        public string InvariantValue { get; private set; }
 
-        public void SetValue(string value, string language)
+        public void SetValue(string value, string languageCode)
         {
-            var targetProperty = this.GetType()
+            var targetLanguage = SupportedLanguages.ToList.Single(l => l.Code == languageCode);
+            var targetProperty = GetType()
                 .GetProperties()
-                .Where(x => x.GetCustomAttributes<LocalizedValueObjectLanguageAttribute>().Any(l => l.Language == language))
+                .Where(x => x.GetCustomAttributes<LocalizedValueObjectLanguageAttribute>()
+                    .Any(l => l.LanguageCode.ToUpperInvariant() == targetLanguage.Code.ToUpperInvariant()))
                 .FirstOrDefault();
 
             if (targetProperty is null)
                 return;
 
             targetProperty.SetValue(this, value);
+
+            if (string.IsNullOrEmpty(InvariantValue))
+                InvariantValue = value;
         }
 
-        public string GetValue(string language)
+        public string GetValue(string languageCode)
         {
-            PropertyInfo targetProperty = this.GetType()
+            var targetLanguage = SupportedLanguages.ToList.Single(l => l.Code == languageCode);
+            PropertyInfo targetProperty = GetType()
                 .GetProperties()
-                .Where(x => x.GetCustomAttributes<LocalizedValueObjectLanguageAttribute>().Any(l => l.Language == language))
+                .Where(x => x.GetCustomAttributes<LocalizedValueObjectLanguageAttribute>()
+                    .Any(l => l.LanguageCode.ToUpperInvariant() == targetLanguage.Code.ToUpperInvariant()))
                 .FirstOrDefault();
             
             if (targetProperty is null)
-                return null;
+                return InvariantValue;
 
             string value = (string)targetProperty.GetValue(this);
 
@@ -54,15 +64,16 @@ namespace Transversal.Domain.ValueObjects.Localization
 
         protected override IEnumerable<object> GetAtomicValues()
         {
-            yield return Value_en;
-            yield return Value_pt;
-            yield return Value_es;
-            yield return Value_fr;
+            yield return InvariantValue;
+            yield return ENValue;
+            yield return PTValue;
+            yield return ESValue;
+            yield return FRValue;
         }
 
         public override string ToString()
         {
-            return GetValue("en");
+            return GetValue(SupportedLanguages.Default.Code) ?? InvariantValue;
         }
     }
 }

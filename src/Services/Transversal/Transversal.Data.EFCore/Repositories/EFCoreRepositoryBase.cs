@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using Transversal.Data.EFCore.DbContext;
+using Transversal.Data.EFCore.DbContext.LinqExpander;
 using Transversal.Domain.Entities;
 using Transversal.Domain.Repositories;
 
@@ -20,78 +21,85 @@ namespace Transversal.Data.EFCore.Repositories
         protected virtual TDbContext Context => _dbContextProvider.GetDbContext();
         protected virtual DbSet<TEntity> Entities => Context.Set<TEntity>();
 
+        #region Queryables
+
         protected override IQueryable<TEntity> AsQueryable()
         {
+            return AsQueryable(overriddenLanguage: null);
+        }
+        protected override IQueryable<TEntity> AsQueryable(string overriddenLanguage = null)
+        {
+            if (!string.IsNullOrEmpty(overriddenLanguage))
+            {
+                OverrideLanguage(overriddenLanguage);
+            }
+
             return Entities.AsQueryable();
         }
 
         protected override IQueryable<TEntity> AsQueryable(
             Expression<Func<TEntity, bool>> predicate = null,
             Dictionary<Expression<Func<TEntity, object>>, ListSortDirection> sort = null,
-            int? entitiesToTake = null, int? entitiesToSkip = null)
+            int? entitiesToSkip = null, int ? entitiesToTake = null,
+            string overriddenLanguage = null)
         {
-            IQueryable<TEntity> query = Entities.AsQueryable();
-
-            if (predicate != null)
-                query = query.Where(predicate).AsQueryable();
-
-            if (sort != null)
+            if (!string.IsNullOrEmpty(overriddenLanguage))
             {
-                foreach (var sortProperty in sort)
-                {
-                    if (sortProperty.Value == ListSortDirection.Ascending)
-                        query = query.OrderBy(sortProperty.Key);
-                    else
-                        query = query.OrderByDescending(sortProperty.Key);
-                }
+                OverrideLanguage(overriddenLanguage);
             }
 
-            if (entitiesToSkip.GetValueOrDefault() >= 0 && entitiesToTake.GetValueOrDefault() > 0)
-            {
-                query = query.Skip(entitiesToSkip.Value).Take(entitiesToTake.Value);
-            }
-
-            return query.AsQueryable();
+            return Entities
+                .AsQueryable()
+                .ApplyPredicate(predicate)
+                .ApplySort(sort)
+                .ApplySubSequence(entitiesToSkip, entitiesToTake)
+                .AsQueryable();
         }
 
         protected override IQueryable<TProjection> AsQueryable<TProjection>(
             Expression<Func<TEntity, TProjection>> projection)
         {
-            return Entities.Select(projection).AsQueryable();
+            return AsQueryable<TProjection>(projection, overriddenLanguage: null);
+        }
+        protected override IQueryable<TProjection> AsQueryable<TProjection>(
+            Expression<Func<TEntity, TProjection>> projection,
+            string overriddenLanguage = null)
+        {
+            if (!string.IsNullOrEmpty(overriddenLanguage))
+            {
+                OverrideLanguage(overriddenLanguage);
+            }
+
+            return Entities
+                .AsNoTracking()
+                .AsExpandable()
+                .ApplyProjection(projection)
+                .AsQueryable();
         }
 
         protected override IQueryable<TProjection> AsQueryable<TProjection>(
             Expression<Func<TEntity, TProjection>> projection,
             Expression<Func<TEntity, bool>> predicate = null,
             Dictionary<Expression<Func<TProjection, object>>, ListSortDirection> sort = null,
-            int? entitiesToTake = null, int? entitiesToSkip = null)
+            int? entitiesToSkip = null, int ? entitiesToTake = null,
+            string overriddenLanguage = null)
         {
-            IQueryable<TEntity> baseQuery = Entities.AsQueryable();
-
-            if (predicate != null)
-                baseQuery = baseQuery.Where(predicate).AsQueryable();
-
-            IQueryable<TProjection> projectedQuery = baseQuery.Select(projection).AsQueryable();
-
-            if (sort != null)
+            if (!string.IsNullOrEmpty(overriddenLanguage))
             {
-                foreach (var sortProperty in sort)
-                {
-                    if (sortProperty.Value == ListSortDirection.Ascending)
-                        projectedQuery = projectedQuery.OrderBy(sortProperty.Key);
-                    else
-                        projectedQuery = projectedQuery.OrderByDescending(sortProperty.Key);
-                }
+                OverrideLanguage(overriddenLanguage);
             }
 
-            if (entitiesToSkip.GetValueOrDefault() >= 0 && entitiesToTake.GetValueOrDefault() > 0)
-            {
-                projectedQuery = projectedQuery.Skip(entitiesToSkip.Value).Take(entitiesToTake.Value);
-            }
-
-            return projectedQuery.AsQueryable();
+            return Entities
+                .AsNoTracking()
+                .AsExpandable()
+                .ApplyPredicate(predicate)
+                .ApplyProjection(projection)
+                .ApplySort(sort)
+                .ApplySubSequence(entitiesToSkip, entitiesToTake)
+                .AsQueryable();
         }
 
+        #endregion Queryables
 
         public EFCoreRepositoryBase(IDbContextProvider<TDbContext> dbContextProvider)
         {
@@ -183,6 +191,13 @@ namespace Transversal.Data.EFCore.Repositories
         {
             return default(TPrimaryKey);
         }
-    
+
+        protected virtual void OverrideLanguage(string languageCode)
+        {
+            if (!string.IsNullOrEmpty(languageCode))
+            {
+                Context.OverrideLanguage(languageCode);
+            }
+        }
     }
 }

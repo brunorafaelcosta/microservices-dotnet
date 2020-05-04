@@ -1,4 +1,4 @@
-﻿using Services.Localization.API.Core.Application.Dto;
+﻿using Services.Localization.API.Core.Application.Dto.ResourceGroups;
 using Services.Localization.API.Core.Domain.Resources;
 using System;
 using Transversal.Application;
@@ -46,7 +46,7 @@ namespace Services.Localization.API.Core.Application
             using (var uow = UowManager.Begin())
             {
                 var options = request.ResolveRepositoryGetAllProjectedOptions(ResourceGroupDto.Projection);
-
+                
                 var entities = _resourceGroupRepository.GetAllList(
                     e => e.Name.Contains("Seeded Resource Group"),
                     options,

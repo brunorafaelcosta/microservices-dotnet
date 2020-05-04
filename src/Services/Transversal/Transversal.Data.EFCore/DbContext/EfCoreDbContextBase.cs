@@ -1,6 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using System;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Transversal.Common.Extensions;
 
 namespace Transversal.Data.EFCore.DbContext
 {
@@ -9,15 +14,19 @@ namespace Transversal.Data.EFCore.DbContext
     /// </summary>
     public abstract class EfCoreDbContextBase : Microsoft.EntityFrameworkCore.DbContext
     {
-        protected EfCoreDbContextBase(DbContextOptions options)
+        protected virtual IDbContextInterceptor Interceptor { get; set; }
+
+        protected EfCoreDbContextBase(DbContextOptions options, IDbContextInterceptor interceptor)
             : base(options)
         {
-            InitializeDbContext();
+            InitializeDbContext(interceptor);
         }
 
-        protected virtual void InitializeDbContext()
+        protected virtual void InitializeDbContext(IDbContextInterceptor interceptor)
         {
-
+            this.Interceptor = interceptor;
+            var listener = this.GetService<DiagnosticSource>().As<DiagnosticListener>();
+            listener.SubscribeWithAdapter(this.Interceptor);
         }
 
         public override int SaveChanges()
@@ -49,6 +58,18 @@ namespace Transversal.Data.EFCore.DbContext
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Owned<Domain.ValueObjects.Localization.LocalizedValueObject>();
+        }
+        
+        public void OverrideLanguage(string languageCode)
+        {
+            if (string.IsNullOrEmpty(languageCode) ||
+                !Common.Localization.SupportedLanguages.ToList.Any(l => l.Code == languageCode))
+                throw new InvalidOperationException($"Unsupported application language. [Code: '{languageCode}']");
+
+            if (Interceptor != null)
+            {
+                Interceptor.LanguageCode = languageCode;
+            }
         }
     }
 }

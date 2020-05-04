@@ -31,8 +31,8 @@ namespace Transversal.Application.Request
 
             var options = new GetAllOptions<TEntity, TEntityPrimaryKey>
             {
+                EntitiesToSkip = (request.PageIndex - 1) * request.PageSize,
                 EntitiesToTake = request.PageSize,
-                EntitiesToSkip = (request.PageIndex - 1) * request.PageSize
             };
 
             return options;
@@ -62,8 +62,8 @@ namespace Transversal.Application.Request
 
             var options = new GetAllProjectedOptions<TEntity, TEntityPrimaryKey, TResponseDto>
             {
-                EntitiesToTake = request.PageSize,
                 EntitiesToSkip = (request.PageIndex - 1) * request.PageSize,
+                EntitiesToTake = request.PageSize,
                 Projection = projection
             };
 

@@ -48,7 +48,8 @@ namespace Transversal.Domain.Uow
                 throw new DefaultException(DidNotCallCompleteMethodExceptionMessage);
             }
         }
-        
+
+        [Obsolete]
         private static bool HasException()
         {
             try

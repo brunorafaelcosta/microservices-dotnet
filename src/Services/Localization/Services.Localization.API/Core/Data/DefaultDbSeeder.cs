@@ -1,8 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Transversal.Data.EFCore.DbSeeder;
+using Transversal.Domain.ValueObjects.Localization;
 
 namespace Services.Localization.API.Core.Data
 {
@@ -23,30 +25,10 @@ namespace Services.Localization.API.Core.Data
             {
                 if (!context.ResourceGroups.Any())
                 {
-                    await context.ResourceGroups.AddAsync(new Domain.Resources.ResourceGroup()
+                    for (int i = 0; i < 200; i++)
                     {
-                        Name = "Seeded Resource Group 1",
-                        Description = "Seeded Resource Group one",
-                        IsPrivate = true
-                    });
-                    await context.ResourceGroups.AddAsync(new Domain.Resources.ResourceGroup()
-                    {
-                        Name = "Seeded Resource Group 2",
-                        Description = "Seeded Resource Group two",
-                        IsPrivate = true
-                    });
-                    await context.ResourceGroups.AddAsync(new Domain.Resources.ResourceGroup()
-                    {
-                        Name = "Seeded Resource Group 3",
-                        Description = "Seeded Resource Group three",
-                        IsPrivate = true
-                    });
-                    await context.ResourceGroups.AddAsync(new Domain.Resources.ResourceGroup()
-                    {
-                        Name = "Seeded Resource Group 4",
-                        Description = "Seeded Resource Group four",
-                        IsPrivate = true
-                    });
+                        await context.ResourceGroups.AddAsync(GenerateResourceGroup(i));
+                    }
                 }
             }
             catch (Exception ex)
@@ -60,6 +42,34 @@ namespace Services.Localization.API.Core.Data
                     await SeedAsync(context, retryForAvaiability);
                 }
             }
+        }
+
+        private Domain.Resources.ResourceGroup GenerateResourceGroup(int rgIndex)
+        {
+            var resourceGroup = new Domain.Resources.ResourceGroup()
+            {
+                Name = $"Seeded Resource Group {rgIndex}",
+                Description = $"This Resource Group has been auto-generated - [Index: {rgIndex}]",
+                IsPrivate = new Random().Next(100) <= 50 ? true : false,
+                Resources = new List<Domain.Resources.Resource>()
+            };
+
+            for (int i = 0; i < new Random().Next(1, 20); i++)
+            {
+                var resource = new Domain.Resources.Resource()
+                {
+                    Key = $"RG_{rgIndex}_{i}",
+                    Description = $"This Resource has been auto-generated - [Index: {i}]",
+                    Value = new LocalizedValueObject()
+                };
+                resource.Value.SetValue($"RG_{rgIndex}_{i} - EN Value", Transversal.Common.Localization.SupportedLanguages.Codes.en);
+                resource.Value.SetValue($"RG_{rgIndex}_{i} - PT Value", Transversal.Common.Localization.SupportedLanguages.Codes.pt);
+                resource.Value.SetValue($"RG_{rgIndex}_{i} - ES Value", Transversal.Common.Localization.SupportedLanguages.Codes.es);
+                resource.Value.SetValue($"RG_{rgIndex}_{i} - FR Value", Transversal.Common.Localization.SupportedLanguages.Codes.fr);
+                resourceGroup.Resources.Add(resource);
+            }
+            
+            return resourceGroup;
         }
     }
 }

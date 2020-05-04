@@ -1,14 +1,16 @@
 using Microsoft.EntityFrameworkCore;
 using Services.Identity.STS.Core.Domain.Users;
+using Transversal.Data.EFCore.DbContext;
 
 namespace Services.Identity.STS.Core.Data
 {
-    public class DefaultDbContext : Transversal.Data.EFCore.DbContext.EfCoreDbContextBase
+    public class DefaultDbContext : EfCoreDbContextBase
     {
         public DbSet<User> Users { get; set; }
         public DbSet<UserPicture> UserPictures { get; set; }
 
-        public DefaultDbContext(DbContextOptions options) : base(options)
+        public DefaultDbContext(DbContextOptions options, IDbContextInterceptor interceptor)
+            : base(options, interceptor)
         {
         }
 

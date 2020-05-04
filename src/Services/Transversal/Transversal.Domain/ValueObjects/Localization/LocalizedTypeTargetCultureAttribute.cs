@@ -5,11 +5,11 @@ namespace Transversal.Domain.ValueObjects.Localization
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public class LocalizedValueObjectLanguageAttribute : Attribute
     {
-        public string Language { get; set; }
+        public string LanguageCode { get; set; }
 
-        public LocalizedValueObjectLanguageAttribute(string language)
+        public LocalizedValueObjectLanguageAttribute(string languageCode)
         {
-            this.Language = language ?? throw new ArgumentNullException(nameof(language));
+            this.LanguageCode = languageCode ?? throw new ArgumentNullException(nameof(languageCode));
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Services.Localization.API.Core.Application.Dto;
+﻿using Services.Localization.API.Core.Application.Dto.ResourceGroups;
 using Transversal.Application;
 using Transversal.Application.Request;
 using Transversal.Application.Response;

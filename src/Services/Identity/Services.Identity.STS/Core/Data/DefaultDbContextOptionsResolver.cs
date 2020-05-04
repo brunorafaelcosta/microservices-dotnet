@@ -15,11 +15,11 @@ namespace Services.Identity.STS.Core.Data
         {
             var builder = new DbContextOptionsBuilder<DefaultDbContext>();
 
-            builder.UseMySql(connectionString, mySqlOptionsAction: sqlOptions =>
+            builder.UseSqlServer(connectionString, sqlServerOptionsAction: sqlOptions =>
             {
                 sqlOptions.MigrationsAssembly(typeof(Startup).GetTypeInfo().Assembly.GetName().Name);
             });
-            
+
             return builder.Options;
         }
     }

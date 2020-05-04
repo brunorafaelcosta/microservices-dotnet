@@ -11,18 +11,18 @@ namespace Transversal.Domain.Repositories.Options
     /// </summary>
     /// <typeparam name="TEntity">Repository entity type</typeparam>
     /// <typeparam name="TEntityPrimaryKey">Primary key type of the entity</typeparam>
-    public class GetAllOptions<TEntity, TEntityPrimaryKey>
+    public class GetAllOptions<TEntity, TEntityPrimaryKey> : DefaultOptions<TEntity, TEntityPrimaryKey>
         where TEntity : class, IEntity<TEntityPrimaryKey>
     {
-        /// <summary>
-        /// Number of entities to read
-        /// </summary>
-        public int? EntitiesToTake { get; set; }
-
         /// <summary>
         /// Number of entities to skip
         /// </summary>
         public int? EntitiesToSkip { get; set; }
+
+        /// <summary>
+        /// Number of entities to fetch
+        /// </summary>
+        public int? EntitiesToTake { get; set; }
 
         /// <summary>
         /// Sort direction
