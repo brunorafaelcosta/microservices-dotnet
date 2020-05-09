@@ -9,7 +9,7 @@ namespace Services.Localization.API.Core.Application
     {
         IResponse<ResourceGroupDto> Get(int id);
 
-        IPaginatedResponse<ResourceGroupDto> GetAll(ILocalizedPaginatedRequest<RequestResourceGroupDto> request);
+        IPaginatedResponse<ResourceGroupDto> GetAll(ILocalizedPaginatedRequest<RequestResourceGroupDto, ResourceGroupDto> request);
 
         IResponse<int?> Create(CreateResourceGroupDto input);
         

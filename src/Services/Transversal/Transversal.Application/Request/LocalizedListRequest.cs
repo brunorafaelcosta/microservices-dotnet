@@ -2,11 +2,12 @@
 
 namespace Transversal.Application.Request
 {
-    public class LocalizedListRequest<TDto> : ListRequest<TDto>,
-        ILocalizedListRequest<TDto>
-        where TDto : IDto
+    public class LocalizedListRequest<TRequestDto, TResponseDto> : ListRequest<TRequestDto, TResponseDto>,
+        ILocalizedListRequest<TRequestDto, TResponseDto>
+        where TRequestDto : IDto
+        where TResponseDto : IDto
     {
-        public string Language { get; set; }
+        public string OverriddenLanguage { get; set; }
 
         public LocalizedListRequest()
             : base()

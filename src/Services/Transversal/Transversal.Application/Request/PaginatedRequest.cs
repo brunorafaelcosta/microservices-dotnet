@@ -2,9 +2,10 @@
 
 namespace Transversal.Application.Request
 {
-    public class PaginatedRequest<TDto> : ListRequest<TDto>,
-        IPaginatedRequest<TDto>
-        where TDto : IDto
+    public class PaginatedRequest<TRequestDto, TResponseDto> : ListRequest<TRequestDto, TResponseDto>,
+        IPaginatedRequest<TRequestDto, TResponseDto>
+        where TRequestDto : IDto
+        where TResponseDto : IDto
     {
         public int PageIndex { get; set; }
 

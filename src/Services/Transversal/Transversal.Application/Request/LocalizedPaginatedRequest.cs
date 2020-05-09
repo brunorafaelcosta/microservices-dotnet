@@ -2,10 +2,11 @@
 
 namespace Transversal.Application.Request
 {
-    public class LocalizedPaginatedRequest<TDto> : PaginatedRequest<TDto>,
-        ILocalizedPaginatedRequest<TDto>
-        where TDto : IDto
+    public class LocalizedPaginatedRequest<TRequestDto, TResponseDto> : PaginatedRequest<TRequestDto, TResponseDto>,
+        ILocalizedPaginatedRequest<TRequestDto, TResponseDto>
+        where TRequestDto : IDto
+        where TResponseDto : IDto
     {
-        public string Language { get; set; }
+        public string OverriddenLanguage { get; set; }
     }
 }

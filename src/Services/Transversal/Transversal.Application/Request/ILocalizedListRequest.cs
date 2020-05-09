@@ -5,13 +5,15 @@ namespace Transversal.Application.Request
     /// <summary>
     /// List request parameters used by <see cref="IApplicationService"/> localized methods.
     /// </summary>
-    /// <typeparam name="TDto">Data Transfer Object type used to pass query parameters</typeparam>
-    public interface ILocalizedListRequest<TDto> : IListRequest<TDto>
-        where TDto : IDto
+    /// <typeparam name="TRequestDto">Data Transfer Object type used to pass query parameters</typeparam>
+    /// <typeparam name="TResponseDto">Data Transfer Object response type</typeparam>
+    public interface ILocalizedListRequest<TRequestDto, TResponseDto> : IListRequest<TRequestDto, TResponseDto>
+        where TRequestDto : IDto
+        where TResponseDto : IDto
     {
         /// <summary>
-        /// Entities language
+        /// Entities overridden language
         /// </summary>
-        string Language { get; set; }
+        string OverriddenLanguage { get; set; }
     }
 }

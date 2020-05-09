@@ -9,13 +9,15 @@ namespace Transversal.Application.Request
     /// <summary>
     /// List request parameters used by <see cref="IApplicationService"/> methods.
     /// </summary>
-    /// <typeparam name="TDto">Data Transfer Object type used to pass query parameters</typeparam>
-    public interface IListRequest<TDto>
-        where TDto : IDto
+    /// <typeparam name="TRequestDto">Data Transfer Object type used to pass query parameters</typeparam>
+    /// <typeparam name="TResponseDto">Data Transfer Object response type</typeparam>
+    public interface IListRequest<TRequestDto, TResponseDto>
+        where TRequestDto : IDto
+        where TResponseDto : IDto
     {
         /// <summary>
         /// Sort direction
         /// </summary>
-        IDictionary<Expression<Func<TDto, object>>, ListSortDirection> Sort { get; set; }
+        Dictionary<Expression<Func<TResponseDto, object>>, ListSortDirection> Sort { get; set; }
     }
 }

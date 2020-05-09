@@ -39,14 +39,14 @@ namespace Services.Localization.API.Core.Application
             }
         }
 
-        public IPaginatedResponse<ResourceGroupDto> GetAll(ILocalizedPaginatedRequest<RequestResourceGroupDto> request)
+        public IPaginatedResponse<ResourceGroupDto> GetAll(ILocalizedPaginatedRequest<RequestResourceGroupDto, ResourceGroupDto> request)
         {
             PaginatedResponse<ResourceGroupDto> response = new PaginatedResponse<ResourceGroupDto>();
 
             using (var uow = UowManager.Begin())
             {
                 var options = request.ResolveRepositoryGetAllProjectedOptions(ResourceGroupDto.Projection);
-                
+
                 var entities = _resourceGroupRepository.GetAllList(
                     e => e.Name.Contains("Seeded Resource Group"),
                     options,

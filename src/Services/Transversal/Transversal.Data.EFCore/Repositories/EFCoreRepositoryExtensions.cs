@@ -25,13 +25,27 @@ namespace Transversal.Data.EFCore.Repositories
         {
             if (sort != null)
             {
+                IOrderedQueryable<T> orderedQueryable = null;
+
                 foreach (var sortProperty in sort)
                 {
                     if (sortProperty.Value == ListSortDirection.Ascending)
-                        queryable = queryable.OrderBy(sortProperty.Key);
+                    {
+                        orderedQueryable = orderedQueryable is null
+                            ? queryable.OrderBy(sortProperty.Key)
+                            : orderedQueryable.ThenBy(sortProperty.Key);
+                    }
                     else
-                        queryable = queryable.OrderByDescending(sortProperty.Key);
+                    {
+                        orderedQueryable = orderedQueryable is null
+                            ? queryable.OrderByDescending(sortProperty.Key)
+                            : orderedQueryable.ThenByDescending(sortProperty.Key);
+                    }
                 }
+
+                queryable = orderedQueryable is null
+                    ? queryable
+                    : orderedQueryable.AsQueryable();
             }
 
             return queryable.AsQueryable();

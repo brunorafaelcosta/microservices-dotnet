@@ -6,14 +6,15 @@ using Transversal.Application.Dto;
 
 namespace Transversal.Application.Request
 {
-    public class ListRequest<TDto> : IListRequest<TDto>
-        where TDto : IDto
+    public class ListRequest<TRequestDto, TResponseDto> : IListRequest<TRequestDto, TResponseDto>
+        where TRequestDto : IDto
+        where TResponseDto : IDto
     {
-        public IDictionary<Expression<Func<TDto, object>>, ListSortDirection> Sort { get; set; }
+        public Dictionary<Expression<Func<TResponseDto, object>>, ListSortDirection> Sort { get; set; }
 
         public ListRequest()
         {
-            Sort = new Dictionary<Expression<Func<TDto, object>>, ListSortDirection>();
+            Sort = new Dictionary<Expression<Func<TResponseDto, object>>, ListSortDirection>();
         }
     }
 }

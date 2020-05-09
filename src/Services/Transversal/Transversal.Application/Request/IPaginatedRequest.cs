@@ -5,9 +5,11 @@ namespace Transversal.Application.Request
     /// <summary>
     /// List request parameters used by <see cref="IApplicationService"/> paginated methods.
     /// </summary>
-    /// <typeparam name="TDto">Data Transfer Object type used to pass query parameters</typeparam>
-    public interface IPaginatedRequest<TDto> : IListRequest<TDto>
-        where TDto : IDto
+    /// <typeparam name="TRequestDto">Data Transfer Object type used to pass query parameters</typeparam>
+    /// <typeparam name="TResponseDto">Data Transfer Object response type</typeparam>
+    public interface IPaginatedRequest<TRequestDto, TResponseDto> : IListRequest<TRequestDto, TResponseDto>
+        where TRequestDto : IDto
+        where TResponseDto : IDto
     {
         /// <summary>
         /// Page index to be fetched
