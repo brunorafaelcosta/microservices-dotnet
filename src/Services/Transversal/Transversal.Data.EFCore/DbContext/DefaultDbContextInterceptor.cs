@@ -8,7 +8,7 @@ namespace Transversal.Data.EFCore.DbContext
 {
     public class DefaultDbContextInterceptor : IDbContextInterceptor
     {
-        public string LanguageCode { get; set; }
+        public Func<string> GetCurrentLanguageCode { get; set; }
 
         public DefaultDbContextInterceptor()
         {
@@ -27,12 +27,19 @@ namespace Transversal.Data.EFCore.DbContext
         {
             string result = commandText;
 
-            if (string.IsNullOrEmpty(LanguageCode))
+            if (GetCurrentLanguageCode is null)
                 return result;
 
-            var targetCultureCode = Common.Localization.SupportedLanguages.ToList.Single(l => l.Code == LanguageCode).Code;
+            string currentLanguageCode = GetCurrentLanguageCode();
+            if (string.IsNullOrEmpty(currentLanguageCode))
+                return result;
+
+            if (!Common.Localization.SupportedLanguages.ToList.Any(l => l.Code == currentLanguageCode))
+                throw new InvalidOperationException($"Unsupported application language. [Code: '{currentLanguageCode}']");
+
+            var targetLanguageCode = Common.Localization.SupportedLanguages.ToList.Single(l => l.Code == currentLanguageCode).Code;
             var search = "_" + nameof(Domain.ValueObjects.Localization.LocalizedValueObject.InvariantValue);
-            var replace = "_" + string.Format(Domain.ValueObjects.Localization.LocalizedValueObject.ValuePropertyNameFormat, targetCultureCode.ToUpperInvariant());
+            var replace = "_" + string.Format(Domain.ValueObjects.Localization.LocalizedValueObject.ValuePropertyNameFormat, targetLanguageCode.ToUpperInvariant());
 
             if (!string.IsNullOrEmpty(commandText) &&
                 commandText.Contains(search) &&

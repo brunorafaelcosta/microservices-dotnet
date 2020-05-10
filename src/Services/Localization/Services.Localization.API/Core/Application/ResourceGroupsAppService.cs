@@ -45,19 +45,22 @@ namespace Services.Localization.API.Core.Application
 
             using (var uow = UowManager.Begin())
             {
-                var options = request.ResolveRepositoryGetAllProjectedOptions(ResourceGroupDto.Projection);
-
-                var entities = _resourceGroupRepository.GetAllList(
-                    e => e.Name.Contains("Seeded Resource Group"),
-                    options,
-                    out long totalEntities);
-
-                if (entities != null)
+                //using (UowManager.Current.OverrideCurrentTenantId(12))
+                using (UowManager.Current.OverrideCurrentLanguageCode(request.LanguageCode ?? Session.LanguageCode))
                 {
-                    response.PageIndex = request.PageIndex;
-                    response.PageSize = request.PageSize;
-                    response.Total = totalEntities;
-                    response.Result = entities.AsReadOnly();
+                    var options = request.ResolveRepositoryGetAllProjectedOptions(ResourceGroupDto.Projection);
+                    var entities = _resourceGroupRepository.GetAllList(
+                        e => e.Name.Contains("Seeded"),
+                        options,
+                        out long totalEntities);
+
+                    if (entities != null)
+                    {
+                        response.PageIndex = request.PageIndex;
+                        response.PageSize = request.PageSize;
+                        response.Total = totalEntities;
+                        response.Result = entities.AsReadOnly();
+                    }
                 }
             }
 

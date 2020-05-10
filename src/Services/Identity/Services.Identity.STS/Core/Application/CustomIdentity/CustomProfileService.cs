@@ -38,6 +38,9 @@ namespace Services.Identity.STS.Core.Application.CustomIdentity
         {
             using (var uow = _uowManager.Begin())
             {
+                _uowManager.Current.DisableMayHaveTenantBaseFilter();
+                _uowManager.Current.DisableMustHaveTenantBaseFilter();
+
                 var subject = context.Subject ?? throw new ArgumentNullException(nameof(context.Subject));
                 var userId = subject.Claims.Where(x => x.Type == JwtClaimTypes.Subject).FirstOrDefault().Value;
 
@@ -54,6 +57,9 @@ namespace Services.Identity.STS.Core.Application.CustomIdentity
         {
             using (var uow = _uowManager.Begin())
             {
+                _uowManager.Current.DisableMayHaveTenantBaseFilter();
+                _uowManager.Current.DisableMustHaveTenantBaseFilter();
+
                 context.IsActive = false;
 
                 var subject = context.Subject ?? throw new ArgumentNullException(nameof(context.Subject));
@@ -137,6 +143,9 @@ namespace Services.Identity.STS.Core.Application.CustomIdentity
 
                 var permissions = !string.IsNullOrWhiteSpace(user.Permissions) ? user.Permissions : ClaimsConstants.NullValue;
                 claims.Add(new Claim(ClaimsConstants.PermissionsClaimType, permissions));
+
+                var languageCode = !string.IsNullOrWhiteSpace(user.LanguageCode) ? user.LanguageCode : ClaimsConstants.NullValue;
+                claims.Add(new Claim(ClaimsConstants.LanguageCodeClaimType, languageCode));
             }
 
             return claims;

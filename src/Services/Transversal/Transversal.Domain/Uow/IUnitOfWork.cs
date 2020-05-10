@@ -9,7 +9,7 @@ namespace Transversal.Domain.Uow
     /// <remarks>
     /// Use <see cref="Manager.IUnitOfWorkManager.Begin()"/> to start a new Unit of Work.
     /// </remarks>
-    public interface IUnitOfWork : IUnitOfWorkCompleteHandle, IDisposable
+    public interface IUnitOfWork : IActiveUnitOfWork, IUnitOfWorkCompleteHandle, IDisposable
     {
         /// <summary>
         /// Unique id of this Unit of Work.
@@ -36,24 +36,5 @@ namespace Transversal.Domain.Uow
         /// </summary>
         /// <param name="options">Unit of Work options</param>
         void Begin(UnitOfWorkOptions options);
-        
-        #region Events
-
-        /// <summary>
-        /// This event is raised when this Unit of Work is successfully completed.
-        /// </summary>
-        event EventHandler Completed;
-
-        /// <summary>
-        /// This event is raised when this Unit of Work is failed.
-        /// </summary>
-        event EventHandler<UnitOfWorkFailedEventArgs> Failed;
-
-        /// <summary>
-        /// This event is raised when this Unit of Work is disposed.
-        /// </summary>
-        event EventHandler Disposed;
-
-        #endregion Events
     }
 }

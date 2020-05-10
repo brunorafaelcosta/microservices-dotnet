@@ -1,7 +1,9 @@
 using System;
 using System.Threading.Tasks;
+using Transversal.Common.Disposable;
 using Transversal.Common.Exceptions;
 using Transversal.Common.Extensions;
+using Transversal.Common.Session;
 using Transversal.Domain.Uow.Options;
 
 namespace Transversal.Domain.Uow
@@ -16,13 +18,25 @@ namespace Transversal.Domain.Uow
 
         private Exception _failedException;
 
-        protected IConnectionStringResolver ConnectionStringResolver { get; }
+        protected virtual IConnectionStringResolver ConnectionStringResolver { get; }
+        protected virtual ISessionInfo SessionInfo { get; }
 
-        protected UnitOfWorkBase(IConnectionStringResolver connectionStringResolver)
+        protected UnitOfWorkBase(
+            IConnectionStringResolver connectionStringResolver,
+            ISessionInfo sessionInfo)
         {
             Id = Guid.NewGuid().ToString("N");
 
             ConnectionStringResolver = connectionStringResolver;
+            SessionInfo = sessionInfo;
+
+            CurrentUserId = SessionInfo.UserId;
+            CurrentTenantId = SessionInfo.TenantId;
+            CurrentLanguageCode = SessionInfo.LanguageCode;
+
+            IsSoftDeleteBaseFilterEnabled = BaseFilterConstants.IsSoftDeleteBaseFilterEnabled;
+            IsMayHaveTenantBaseFilterEnabled = BaseFilterConstants.IsMayHaveTenantBaseFilterEnabled;
+            IsMustHaveTenantBaseFilterEnabled = BaseFilterConstants.IsMustHaveTenantBaseFilterEnabled;
         }
 
         public string Id { get; }
@@ -100,6 +114,95 @@ namespace Transversal.Domain.Uow
         }
 
         #endregion Events
+
+        #region Current user info
+
+        public virtual long? CurrentUserId { get; protected set; }
+        public virtual int? CurrentTenantId { get; protected set; }
+        public virtual string CurrentLanguageCode { get; protected set; }
+
+        public virtual IDisposable OverrideCurrentUserId(int? overriddenUserId)
+        {
+            var previousUserId = CurrentUserId;
+
+            CurrentUserId = overriddenUserId;
+
+            return new DisposableAction(() =>
+            {
+                CurrentUserId = previousUserId;
+            });
+        }
+
+        public virtual IDisposable OverrideCurrentTenantId(int? overriddenTenantId, bool disableMustHaveTenantBaseFilter = true)
+        {
+            var previousTenantId = CurrentTenantId;
+
+            CurrentTenantId = overriddenTenantId;
+
+            IDisposable restoreDisabledMustHaveTenantBaseFilter = new DisposableAction(() => { });
+            if (disableMustHaveTenantBaseFilter && IsMustHaveTenantBaseFilterEnabled)
+            {
+                restoreDisabledMustHaveTenantBaseFilter = DisableMustHaveTenantBaseFilter();
+            }
+
+            return new DisposableAction(() =>
+            {
+                restoreDisabledMustHaveTenantBaseFilter.Dispose();
+                CurrentTenantId = previousTenantId;
+            });
+        }
+
+        public virtual IDisposable OverrideCurrentLanguageCode(string overriddenLanguageCode)
+        {
+            var previousLanguageCode = CurrentLanguageCode;
+
+            CurrentLanguageCode = overriddenLanguageCode;
+
+            return new DisposableAction(() =>
+            {
+                CurrentLanguageCode = previousLanguageCode;
+            });
+        }
+
+        #endregion Current user info
+
+        #region Entity base filters
+
+        public virtual bool IsSoftDeleteBaseFilterEnabled { get; private set; }
+        public virtual bool IsMayHaveTenantBaseFilterEnabled { get; private set; }
+        public virtual bool IsMustHaveTenantBaseFilterEnabled { get; private set; }
+
+        public virtual IDisposable DisableSoftDeleteBaseFilter()
+        {
+            IsSoftDeleteBaseFilterEnabled = false;
+
+            return new DisposableAction(() =>
+            {
+                IsSoftDeleteBaseFilterEnabled = true;
+            });
+        }
+
+        public virtual IDisposable DisableMayHaveTenantBaseFilter()
+        {
+            IsMayHaveTenantBaseFilterEnabled = false;
+
+            return new DisposableAction(() =>
+            {
+                IsMayHaveTenantBaseFilterEnabled = true;
+            });
+        }
+
+        public virtual IDisposable DisableMustHaveTenantBaseFilter()
+        {
+            IsMustHaveTenantBaseFilterEnabled = false;
+
+            return new DisposableAction(() =>
+            {
+                IsMustHaveTenantBaseFilterEnabled = true;
+            });
+        }
+
+        #endregion Entity base filters
 
         #region IDisposable
 

@@ -12,8 +12,8 @@ namespace Transversal.Application.Request
         where TResponseDto : IDto
     {
         /// <summary>
-        /// Entities overridden language
+        /// Entities language code
         /// </summary>
-        string OverriddenLanguage { get; set; }
+        string LanguageCode { get; set; }
     }
 }

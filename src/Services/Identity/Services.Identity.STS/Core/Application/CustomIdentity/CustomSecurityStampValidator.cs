@@ -32,6 +32,9 @@ namespace Services.Identity.STS.Core.Application.CustomIdentity
         {
             using (var uow = UowManager.Begin())
             {
+                UowManager.Current.DisableMayHaveTenantBaseFilter();
+                UowManager.Current.DisableMustHaveTenantBaseFilter();
+
                 return base.ValidateAsync(context);
             }
         }

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Transversal.Data.EFCore.DbContext;
+using Transversal.Domain.Uow.Provider;
 
 namespace Services.Localization.API.Core.Data
 {
@@ -8,8 +9,11 @@ namespace Services.Localization.API.Core.Data
         public DbSet<Domain.Resources.ResourceGroup> ResourceGroups { get; set; }
         public DbSet<Domain.Resources.Resource> Resource { get; set; }
 
-        public DefaultDbContext(DbContextOptions options, IDbContextInterceptor interceptor)
-            : base(options, interceptor)
+        public DefaultDbContext(
+            DbContextOptions options,
+            IDbContextInterceptor interceptor,
+            ICurrentUnitOfWorkProvider currentUnitOfWorkProvider)
+            : base(options, interceptor, currentUnitOfWorkProvider)
         {
         }
 

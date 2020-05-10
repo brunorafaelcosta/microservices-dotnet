@@ -31,6 +31,8 @@ namespace Services.Identity.STS.Core.Domain.Users
         public string Roles { get; set; }
         public string Permissions { get; set; }
 
+        public string LanguageCode { get; set; }
+
         public bool IsActive()
         {
             return this.Status == UserStatus.Active;

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Services.Identity.STS.Core.Domain.Users;
 using Transversal.Data.EFCore.DbContext;
+using Transversal.Domain.Uow.Provider;
 
 namespace Services.Identity.STS.Core.Data
 {
@@ -9,8 +10,11 @@ namespace Services.Identity.STS.Core.Data
         public DbSet<User> Users { get; set; }
         public DbSet<UserPicture> UserPictures { get; set; }
 
-        public DefaultDbContext(DbContextOptions options, IDbContextInterceptor interceptor)
-            : base(options, interceptor)
+        public DefaultDbContext(
+            DbContextOptions options,
+            IDbContextInterceptor interceptor,
+            ICurrentUnitOfWorkProvider currentUnitOfWorkProvider)
+            : base(options, interceptor, currentUnitOfWorkProvider)
         {
         }
 

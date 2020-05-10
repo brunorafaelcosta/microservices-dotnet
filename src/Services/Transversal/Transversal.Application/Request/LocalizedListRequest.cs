@@ -7,7 +7,7 @@ namespace Transversal.Application.Request
         where TRequestDto : IDto
         where TResponseDto : IDto
     {
-        public string OverriddenLanguage { get; set; }
+        public string LanguageCode { get; set; }
 
         public LocalizedListRequest()
             : base()

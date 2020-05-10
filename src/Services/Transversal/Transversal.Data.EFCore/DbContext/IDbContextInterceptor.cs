@@ -11,9 +11,9 @@ namespace Transversal.Data.EFCore.DbContext
     public interface IDbContextInterceptor
     {
         /// <summary>
-        /// Language to be used on the executing command
+        /// Gets the language code to be used on the executing command
         /// </summary>
-        string LanguageCode { get; set; }
+        Func<string> GetCurrentLanguageCode { get; set; }
 
         void OnCommandExecuting(DbCommand command, DbCommandMethod executeMethod, Guid commandId, Guid connectionId, bool async, DateTimeOffset startTime);
     }

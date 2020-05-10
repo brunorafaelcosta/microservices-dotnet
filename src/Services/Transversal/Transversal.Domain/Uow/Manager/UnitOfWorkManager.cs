@@ -21,7 +21,7 @@ namespace Transversal.Domain.Uow.Manager
             _defaultOptions = defaultOptions;
         }
         
-        public IUnitOfWork Current
+        public IActiveUnitOfWork Current
         {
             get { return _currentUnitOfWorkProvider.Current; }
         }

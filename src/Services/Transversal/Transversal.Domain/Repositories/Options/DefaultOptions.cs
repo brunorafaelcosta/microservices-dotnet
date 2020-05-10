@@ -10,9 +10,5 @@ namespace Transversal.Domain.Repositories.Options
     public class DefaultOptions<TEntity, TEntityPrimaryKey>
         where TEntity : class, IEntity<TEntityPrimaryKey>
     {
-        /// <summary>
-        /// Language code used to override the repository language
-        /// </summary>
-        public string OverriddenLanguage { get; set; }
     }
 }

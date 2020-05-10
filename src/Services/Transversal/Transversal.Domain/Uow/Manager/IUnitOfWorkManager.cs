@@ -11,7 +11,7 @@ namespace Transversal.Domain.Uow.Manager
         /// <summary>
         /// Gets currently active Unit of Work (or null if doesn't exists).
         /// </summary>
-        IUnitOfWork Current { get; }
+        IActiveUnitOfWork Current { get; }
 
         /// <summary>
         /// Begins a new Unit of Work.

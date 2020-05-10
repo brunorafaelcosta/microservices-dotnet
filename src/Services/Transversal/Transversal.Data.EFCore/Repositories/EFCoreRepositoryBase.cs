@@ -25,29 +25,14 @@ namespace Transversal.Data.EFCore.Repositories
 
         protected override IQueryable<TEntity> AsQueryable()
         {
-            return AsQueryable(overriddenLanguage: null);
-        }
-        protected override IQueryable<TEntity> AsQueryable(string overriddenLanguage = null)
-        {
-            if (!string.IsNullOrEmpty(overriddenLanguage))
-            {
-                OverrideLanguage(overriddenLanguage);
-            }
-
             return Entities.AsQueryable();
         }
 
         protected override IQueryable<TEntity> AsQueryable(
             Expression<Func<TEntity, bool>> predicate = null,
             Dictionary<Expression<Func<TEntity, object>>, ListSortDirection> sort = null,
-            int? entitiesToSkip = null, int ? entitiesToTake = null,
-            string overriddenLanguage = null)
+            int? entitiesToSkip = null, int ? entitiesToTake = null)
         {
-            if (!string.IsNullOrEmpty(overriddenLanguage))
-            {
-                OverrideLanguage(overriddenLanguage);
-            }
-
             return Entities
                 .AsQueryable()
                 .ApplyPredicate(predicate)
@@ -59,17 +44,6 @@ namespace Transversal.Data.EFCore.Repositories
         protected override IQueryable<TProjection> AsQueryable<TProjection>(
             Expression<Func<TEntity, TProjection>> projection)
         {
-            return AsQueryable<TProjection>(projection, overriddenLanguage: null);
-        }
-        protected override IQueryable<TProjection> AsQueryable<TProjection>(
-            Expression<Func<TEntity, TProjection>> projection,
-            string overriddenLanguage = null)
-        {
-            if (!string.IsNullOrEmpty(overriddenLanguage))
-            {
-                OverrideLanguage(overriddenLanguage);
-            }
-
             return Entities
                 .AsNoTracking()
                 .AsExpandable()
@@ -81,14 +55,8 @@ namespace Transversal.Data.EFCore.Repositories
             Expression<Func<TEntity, TProjection>> projection,
             Expression<Func<TEntity, bool>> predicate = null,
             Dictionary<Expression<Func<TProjection, object>>, ListSortDirection> sort = null,
-            int? entitiesToSkip = null, int ? entitiesToTake = null,
-            string overriddenLanguage = null)
+            int? entitiesToSkip = null, int ? entitiesToTake = null)
         {
-            if (!string.IsNullOrEmpty(overriddenLanguage))
-            {
-                OverrideLanguage(overriddenLanguage);
-            }
-
             return Entities
                 .AsNoTracking()
                 .AsExpandable()
@@ -190,14 +158,6 @@ namespace Transversal.Data.EFCore.Repositories
         protected virtual TPrimaryKey GetNextValueId()
         {
             return default(TPrimaryKey);
-        }
-
-        protected virtual void OverrideLanguage(string languageCode)
-        {
-            if (!string.IsNullOrEmpty(languageCode))
-            {
-                Context.OverrideLanguage(languageCode);
-            }
         }
     }
 }

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Transversal.Common.Dependency;
+using Transversal.Common.Session;
 using Transversal.Data.EFCore.DbContext;
 using Transversal.Domain.Uow;
 
@@ -21,8 +22,9 @@ namespace Transversal.Data.EFCore.Uow
             IIocResolver iocResolver,
             IEfCoreTransactionStrategy transactionStrategy,
             IDbContextResolver dbContextResolver,
-            IConnectionStringResolver connectionStringResolver)
-            : base(connectionStringResolver)
+            IConnectionStringResolver connectionStringResolver,
+            ISessionInfo sessionInfo)
+            : base(connectionStringResolver, sessionInfo)
         {
             IocResolver = iocResolver;
             TransactionStrategy = transactionStrategy;

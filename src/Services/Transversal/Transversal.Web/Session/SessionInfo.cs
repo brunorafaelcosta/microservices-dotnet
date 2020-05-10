@@ -18,13 +18,16 @@ namespace Transversal.Web.Session
             {
                 long? userId = null;
 
-                var user = _httpContextAccessor.HttpContext.User;
-                if (user != null && user.HasClaim(c => c.Type == Identity.ClaimsConstants.UserIdClaimType))
+                if (_httpContextAccessor != null && _httpContextAccessor.HttpContext != null)
                 {
-                    string claimValue = user.Claims.FirstOrDefault(c => c.Type == Identity.ClaimsConstants.UserIdClaimType)?.Value;
-                    if (long.TryParse(claimValue, out long claimParsedValue))
+                    var user = _httpContextAccessor.HttpContext.User;
+                    if (user != null && user.HasClaim(c => c.Type == Identity.ClaimsConstants.UserIdClaimType))
                     {
-                        userId = claimParsedValue;
+                        string claimValue = user.Claims.FirstOrDefault(c => c.Type == Identity.ClaimsConstants.UserIdClaimType)?.Value;
+                        if (long.TryParse(claimValue, out long claimParsedValue))
+                        {
+                            userId = claimParsedValue;
+                        }
                     }
                 }
 
@@ -38,17 +41,44 @@ namespace Transversal.Web.Session
             {
                 int? tenantId = null;
 
-                var user = _httpContextAccessor.HttpContext.User;
-                if (user != null && user.HasClaim(c => c.Type == Identity.ClaimsConstants.TenantIdClaimType))
+                if (_httpContextAccessor != null && _httpContextAccessor.HttpContext != null)
                 {
-                    string claimValue = user.Claims.FirstOrDefault(c => c.Type == Identity.ClaimsConstants.TenantIdClaimType)?.Value;
-                    if (int.TryParse(claimValue, out int claimParsedValue))
+                    var user = _httpContextAccessor.HttpContext.User;
+                    if (user != null && user.HasClaim(c => c.Type == Identity.ClaimsConstants.TenantIdClaimType))
                     {
-                        tenantId = claimParsedValue;
+                        string claimValue = user.Claims.FirstOrDefault(c => c.Type == Identity.ClaimsConstants.TenantIdClaimType)?.Value;
+                        if (int.TryParse(claimValue, out int claimParsedValue))
+                        {
+                            tenantId = claimParsedValue;
+                        }
                     }
                 }
 
                 return tenantId;
+            }
+        }
+
+        public string LanguageCode
+        {
+            get
+            {
+                string languageCode = null;
+
+                if (_httpContextAccessor != null && _httpContextAccessor.HttpContext != null)
+                {
+                    var user = _httpContextAccessor.HttpContext.User;
+                    if (user != null && user.HasClaim(c => c.Type == Identity.ClaimsConstants.LanguageCodeClaimType))
+                    {
+                        string claimValue = user.Claims.FirstOrDefault(c => c.Type == Identity.ClaimsConstants.LanguageCodeClaimType)?.Value;
+                        if (!string.IsNullOrEmpty(claimValue))
+                        {
+                            languageCode = claimValue;
+                        }
+                    }
+                }
+                
+
+                return languageCode;
             }
         }
     }

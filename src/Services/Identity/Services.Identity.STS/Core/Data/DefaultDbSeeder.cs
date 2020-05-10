@@ -62,6 +62,8 @@ namespace Services.Identity.STS.Core.Data
                 },
                 Roles = "user",
                 Permissions = "permission1;permission2",
+                LanguageCode = Transversal.Common.Localization.SupportedLanguages.Codes.fr,
+                TenantId = 1
             };
 
             user.PasswordHash = _passwordHasher.HashPassword(user, "Pass@word1");

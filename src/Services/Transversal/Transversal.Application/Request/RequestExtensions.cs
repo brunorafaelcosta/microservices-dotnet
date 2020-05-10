@@ -70,8 +70,7 @@ namespace Transversal.Application.Request
                 EntitiesToSkip = (request.PageIndex - 1) * request.PageSize,
                 EntitiesToTake = request.PageSize,
                 Projection = projection,
-                Sort = request?.Sort,
-                OverriddenLanguage = request?.OverriddenLanguage
+                Sort = request?.Sort
             };
 
             return options;

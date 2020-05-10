@@ -21,5 +21,13 @@ namespace Transversal.Common.Session
         /// It can be null if no user is logged in.
         /// </remarks>
         int? TenantId { get; }
+
+        /// <summary>
+        /// Gets current user language code or null.
+        /// </summary>
+        /// <remarks>
+        /// It can be null if no user is logged in.
+        /// </remarks>
+        string LanguageCode { get; }
     }
 }

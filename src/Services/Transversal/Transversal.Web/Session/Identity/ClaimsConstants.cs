@@ -11,6 +11,8 @@
 
         public const string TenantIdClaimType = "tenant_id";
 
+        public const string LanguageCodeClaimType = "language_code";
+
         public const string NameClaimType = "name";
 
         public const string LastNameClaimType = "last_name";

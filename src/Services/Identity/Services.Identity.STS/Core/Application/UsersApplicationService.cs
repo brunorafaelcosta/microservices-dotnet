@@ -33,6 +33,9 @@ namespace Services.Identity.STS.Core.Application
         {
             using (var uow = UowManager.Begin())
             {
+                UowManager.Current.DisableMayHaveTenantBaseFilter();
+                UowManager.Current.DisableMustHaveTenantBaseFilter();
+
                 return _signInManager.SignInAsync(user, properties, authenticationMethod);
             }
         }
@@ -41,6 +44,9 @@ namespace Services.Identity.STS.Core.Application
         {
             using (var uow = UowManager.Begin())
             {
+                UowManager.Current.DisableMayHaveTenantBaseFilter();
+                UowManager.Current.DisableMustHaveTenantBaseFilter();
+
                 return await _userManager.CheckPasswordAsync(user, password);
             }
         }
@@ -49,6 +55,9 @@ namespace Services.Identity.STS.Core.Application
         {
             using (var uow = UowManager.Begin())
             {
+                UowManager.Current.DisableMayHaveTenantBaseFilter();
+                UowManager.Current.DisableMustHaveTenantBaseFilter();
+                
                 return await _userManager.FindByNameAsync(username);
             }
         }
