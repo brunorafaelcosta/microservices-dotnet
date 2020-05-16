@@ -3,6 +3,7 @@ using System;
 namespace Transversal.Domain.Entities
 {
     public abstract class AuditedEntity<TPrimaryKey> : Entity<TPrimaryKey>,
+        IEntity<TPrimaryKey>,
         Auditing.IAudited
     {
         public long CreatorUserId { get; set; }
@@ -16,6 +17,7 @@ namespace Transversal.Domain.Entities
     }
 
     public abstract class AuditedEntity : AuditedEntity<int>,
+        IEntity,
         Auditing.IAudited
     {
     }

@@ -9,9 +9,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Identity", "Identity", "{FE
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.Identity.STS", "Services\Identity\Services.Identity.STS\Services.Identity.STS.csproj", "{5978959F-00D9-47DD-A85C-45E6419AACFE}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Localization", "Localization", "{2E57D151-A1A9-4447-85AA-4B5E00BD23C7}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Resources", "Resources", "{2E57D151-A1A9-4447-85AA-4B5E00BD23C7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.Localization.API", "Services\Localization\Services.Localization.API\Services.Localization.API.csproj", "{E9AC58EB-97DC-4640-8333-A43E2F0C5FB0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.Resources.API", "Services\Resources\Services.Resources.API\Services.Resources.API.csproj", "{E9AC58EB-97DC-4640-8333-A43E2F0C5FB0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Transversal", "Transversal", "{CF62A032-733C-4B0E-B0EB-2D4FACA82E6A}"
 EndProject

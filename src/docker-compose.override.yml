@@ -8,7 +8,7 @@ services:
         environment:
             ConnectionStrings__Sql: 'Server=tcp:sqldata;Initial Catalog=microservicesdotnet.services.identitydb;User Id=sa;Password=${MICROSERVICESDOTNET_SQL_SA_PASSWORD};'
             ExternalEndpoint: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_IDENTITY_STS_PORT}'
-            ClientEndpoints__localization_api: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_LOCALIZATION_API_PORT}'
+            ClientEndpoints__resources_api: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_RESOURCES_API_PORT}'
             ClientEndpoints__web_base_administration: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_WEB_BASE_ADMINISTRATION_PORT}'
         ports:
             - '${MICROSERVICESDOTNET_IDENTITY_STS_PORT}:8080'
@@ -21,19 +21,19 @@ services:
             # - ${DOTNET_PATH}/sdk/NuGetFallbackFolder:/root/.nuget/fallbackpackages:ro
 
     # API
-    ## Localization
-    localization_api:
+    ## Resources
+    resources_api:
         env_file:
-            - Services/Localization/Services.Localization.API/Development.env
+            - Services/Resources/Services.Resources.API/Development.env
         environment:
-            ConnectionStrings__Sql: 'Server=tcp:sqldata;Initial Catalog=microservicesdotnet.services.localizationdb;User Id=sa;Password=${MICROSERVICESDOTNET_SQL_SA_PASSWORD};'
+            ConnectionStrings__Sql: 'Server=tcp:sqldata;Initial Catalog=microservicesdotnet.services.resourcesdb;User Id=sa;Password=${MICROSERVICESDOTNET_SQL_SA_PASSWORD};'
             ConnectionStrings__Redis: ${MICROSERVICESDOTNET_REDIS_DB:-redisdata}
             IdentityUrl: 'http://identity_sts:8080'
             IdentityUrlExternal: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_IDENTITY_STS_PORT}'
         ports:
-            - '${MICROSERVICESDOTNET_LOCALIZATION_API_PORT}:8080'
+            - '${MICROSERVICESDOTNET_RESOURCES_API_PORT}:8080'
         expose:
-            - '${MICROSERVICESDOTNET_LOCALIZATION_API_PORT}'
+            - '${MICROSERVICESDOTNET_RESOURCES_API_PORT}'
         # volumes:
             # - ~/vsdbg:/vsdbg:ro
             # - ./Services:/workspace

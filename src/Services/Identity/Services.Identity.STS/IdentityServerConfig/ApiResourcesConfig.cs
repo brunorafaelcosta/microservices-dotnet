@@ -12,7 +12,7 @@ namespace Services.Identity.STS.IdentityServerConfig
         {
             return new List<ApiResource>
             {
-                new ApiResource("localization", "Localization Service"),
+                new ApiResource("resources", "Resources API"),
             };
         }
     }

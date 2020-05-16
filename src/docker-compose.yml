@@ -14,12 +14,12 @@ services:
             - messagebroker
 
     # API
-    ## Localization
-    localization_api:
-        image: ${REGISTRY:-microservices-dotnet}/localization_api:${PLATFORM:-linux}-${TAG:-latest}
+    ## Resources
+    resources_api:
+        image: ${REGISTRY:-microservices-dotnet}/resources_api:${PLATFORM:-linux}-${TAG:-latest}
         build:
             context: Services
-            dockerfile: Localization/Services.Localization.API/Development.Dockerfile
+            dockerfile: Resources/Services.Resources.API/Development.Dockerfile
         networks:
             - default
         depends_on:

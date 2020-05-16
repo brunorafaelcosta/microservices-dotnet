@@ -29,16 +29,16 @@ namespace Services.Identity.STS.IdentityServerConfig
                 },
                 new Client
                 {
-                    ClientId = "localizationswaggerui",
-                    ClientName = "Localization Swagger UI",
+                    ClientId = "resourcesswaggerui",
+                    ClientName = "Resources Swagger UI",
                     AllowedGrantTypes = GrantTypes.Implicit,
                     AllowAccessTokensViaBrowser = true,
-                    RedirectUris = { $"{clientsUrl["localization_api"]}/swagger/oauth2-redirect.html" },
-                    PostLogoutRedirectUris = { $"{clientsUrl["localization_api"]}/swagger/" },
+                    RedirectUris = { $"{clientsUrl["resources_api"]}/swagger/oauth2-redirect.html" },
+                    PostLogoutRedirectUris = { $"{clientsUrl["resources_api"]}/swagger/" },
                     RequireConsent = false,
                     AllowedScopes =
                     {
-                        "localization"
+                        "resources"
                     }
                 }
             };
