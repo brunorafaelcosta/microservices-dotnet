@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Transversal.Common.Extensions;
-using Transversal.Domain.Entities.Tenancy;
 
 namespace Transversal.Domain.Entities
 {
@@ -64,14 +62,7 @@ namespace Transversal.Domain.Entities
                 return false;
             }
 
-            if (this is IMayHaveTenant && other is IMayHaveTenant &&
-                this.As<IMayHaveTenant>().TenantId != other.As<IMayHaveTenant>().TenantId)
-            {
-                return false;
-            }
-
-            if (this is IMustHaveTenant && other is IMustHaveTenant &&
-                this.As<IMustHaveTenant>().TenantId != other.As<IMustHaveTenant>().TenantId)
+            if (!EntityExtensions.TenantIdsAreEqual<Entity<TPrimaryKey>, TPrimaryKey, Entity<TPrimaryKey>, TPrimaryKey>(this, other))
             {
                 return false;
             }

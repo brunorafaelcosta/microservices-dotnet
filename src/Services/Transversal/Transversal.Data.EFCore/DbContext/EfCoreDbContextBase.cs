@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
@@ -61,9 +62,25 @@ namespace Transversal.Data.EFCore.DbContext
 
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
+                Type TEntity = entityType.ClrType;
+                Type TPrimaryKey = TEntity.GetProperty("Id")?.PropertyType;
+
+                if (TPrimaryKey is null)
+                    continue;
+
+                if (EntityExtensions.EntityIsMayHaveTenant(TEntity, TPrimaryKey))
+                {
+                    modelBuilder.Entity(TEntity)
+                        .HasOne(TEntity, "TenantlessEntity")
+                        .WithMany("TenantEntities")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasForeignKey("TenantlessEntityId")
+                        .IsRequired(false);
+                }
+
                 typeof(EfCoreDbContextBase)
                     .GetMethod(nameof(ApplyBaseFilters), BindingFlags.Instance | BindingFlags.NonPublic)
-                    .MakeGenericMethod(entityType.ClrType)
+                    .MakeGenericMethod(TEntity, TPrimaryKey)
                     .Invoke(this, new object[] { modelBuilder, entityType });
             }
         }
@@ -74,17 +91,21 @@ namespace Transversal.Data.EFCore.DbContext
         protected virtual bool IsMayHaveTenantBaseFilterEnabled => CurrentUnitOfWorkProvider?.Current.IsMayHaveTenantBaseFilterEnabled ?? true;
         protected virtual bool IsMustHaveTenantBaseFilterEnabled => CurrentUnitOfWorkProvider?.Current?.IsMustHaveTenantBaseFilterEnabled ?? true;
 
-        protected virtual void ApplyBaseFilters<TEntity>(ModelBuilder modelBuilder, IMutableEntityType entityType)
-            where TEntity : class
+        protected virtual void ApplyBaseFilters<TEntity, TPrimaryKey>(ModelBuilder modelBuilder, IMutableEntityType entityType)
+            where TEntity : class, IEntity<TPrimaryKey>
         {
-            var shouldApplyBaseFilters =
-                typeof(ISoftDelete).IsAssignableFrom(typeof(TEntity))
-                || typeof(IMayHaveTenant).IsAssignableFrom(typeof(TEntity))
-                || typeof(IMustHaveTenant).IsAssignableFrom(typeof(TEntity));
+            bool isSoftDelete = typeof(ISoftDelete).IsAssignableFrom(typeof(TEntity));
+            bool isMayHaveTenantType = EntityExtensions.EntityIsMayHaveTenant(typeof(TEntity), typeof(TPrimaryKey));
+            bool isMustHaveTenant = typeof(IMustHaveTenant).IsAssignableFrom(typeof(TEntity));
 
-            if (entityType.BaseType == null && shouldApplyBaseFilters)
+            bool shouldApplyBaseFilters() => isSoftDelete || isMayHaveTenantType || isMustHaveTenant;
+            if (entityType.BaseType == null && shouldApplyBaseFilters())
             {
-                var baseFiltersExpression = CreateBaseFiltersExpression<TEntity>();
+                var baseFiltersExpression = CreateBaseFiltersExpression<TEntity, TPrimaryKey>(
+                    isSoftDelete,
+                    isMayHaveTenantType,
+                    isMustHaveTenant
+                    );
                 if (baseFiltersExpression != null)
                 {
                     modelBuilder.Entity<TEntity>().HasQueryFilter(baseFiltersExpression);
@@ -92,46 +113,74 @@ namespace Transversal.Data.EFCore.DbContext
             }
         }
 
-        protected virtual Expression<Func<TEntity, bool>> CreateBaseFiltersExpression<TEntity>()
-            where TEntity : class
+        protected virtual Expression<Func<TEntity, bool>> CreateBaseFiltersExpression<TEntity, TPrimaryKey>(
+            bool isSoftDelete,
+            bool isMayHaveTenantType,
+            bool isMustHaveTenant)
+            where TEntity : class, IEntity<TPrimaryKey>
         {
+            Type entityType = typeof(TEntity);
+            Type primaryKeyType = typeof(TPrimaryKey);
+
             Expression<Func<TEntity, bool>> expression = null;
 
-            if (typeof(ISoftDelete).IsAssignableFrom(typeof(TEntity)))
+            if (isSoftDelete)
             {
-                /* This condition should normally be defined as below:
-                 * !IsSoftDeleteFilterEnabled || !((ISoftDelete) e).IsDeleted
-                 * But this causes a problem with EF Core (see https://github.com/aspnet/EntityFrameworkCore/issues/9502)
-                 * So, we made a workaround to make it working. It works same as above.
+                /* 
+                 * https://github.com/aspnet/EntityFrameworkCore/issues/9502
                  */
-
                 Expression<Func<TEntity, bool>> softDeleteFilter = e => !((ISoftDelete)e).IsDeleted || ((ISoftDelete)e).IsDeleted != IsSoftDeleteBaseFilterEnabled;
                 expression = expression == null ? softDeleteFilter : expression.CombineWithExpression(softDeleteFilter);
             }
 
-            if (typeof(IMayHaveTenant).IsAssignableFrom(typeof(TEntity)))
+            if (isMayHaveTenantType)
             {
-                /* This condition should normally be defined as below:
-                 * !IsMayHaveTenantFilterEnabled || ((IMayHaveTenant)e).TenantId == CurrentTenantId
-                 * But this causes a problem with EF Core (see https://github.com/aspnet/EntityFrameworkCore/issues/9502)
-                 * So, we made a workaround to make it working. It works same as above.
-                 */
-                Expression<Func<TEntity, bool>> mayHaveTenantFilter = e => ((IMayHaveTenant)e).TenantId == CurrentTenantId || (((IMayHaveTenant)e).TenantId == CurrentTenantId) == IsMayHaveTenantBaseFilterEnabled;
+                Expression<Func<TEntity, bool>> mayHaveTenantFilter = typeof(EfCoreDbContextBase)
+                    .GetMethod(nameof(CreateMayHaveTenantBaseFiltersExpression), BindingFlags.Instance | BindingFlags.NonPublic)
+                    .MakeGenericMethod(entityType, primaryKeyType)
+                    .Invoke(this, null)
+                    .As<Expression<Func<TEntity, bool>>>();
+
                 expression = expression == null ? mayHaveTenantFilter : expression.CombineWithExpression(mayHaveTenantFilter);
             }
 
-            if (typeof(IMustHaveTenant).IsAssignableFrom(typeof(TEntity)))
+            if (isMustHaveTenant)
             {
-                /* This condition should normally be defined as below:
-                 * !IsMustHaveTenantFilterEnabled || ((IMustHaveTenant)e).TenantId == CurrentTenantId
-                 * But this causes a problem with EF Core (see https://github.com/aspnet/EntityFrameworkCore/issues/9502)
-                 * So, we made a workaround to make it working. It works same as above.
+                /* 
+                 * https://github.com/aspnet/EntityFrameworkCore/issues/9502
                  */
-                Expression<Func<TEntity, bool>> mustHaveTenantFilter = e => ((IMustHaveTenant)e).TenantId == CurrentTenantId || (((IMustHaveTenant)e).TenantId == CurrentTenantId) == IsMustHaveTenantBaseFilterEnabled;
+                Expression<Func<TEntity, bool>> mustHaveTenantFilter = e =>
+                    CurrentTenantId == null
+                    || (
+                        (((IMustHaveTenant)e).TenantId == CurrentTenantId
+                            || (((IMustHaveTenant)e).TenantId == CurrentTenantId) == IsMustHaveTenantBaseFilterEnabled)
+                    );
+                
                 expression = expression == null ? mustHaveTenantFilter : expression.CombineWithExpression(mustHaveTenantFilter);
             }
 
             return expression;
+        }
+
+        protected virtual Expression<Func<TEntity, bool>> CreateMayHaveTenantBaseFiltersExpression<TEntity, TPrimaryKey>()
+            where TEntity : class, IEntity<TPrimaryKey>, IMayHaveTenant<TEntity, TPrimaryKey>
+        {
+            /* 
+             * https://github.com/aspnet/EntityFrameworkCore/issues/9502
+             */
+            Expression<Func<TEntity, bool>> mayHaveTenantFilter = e =>
+                (CurrentTenantId == null
+                || (CurrentTenantId != null &
+                    (e.TenantId == null
+                        && (!e.TenantEntities.AsQueryable().IgnoreQueryFilters().Any(te => te.TenantId == CurrentTenantId)))
+                    || (
+                        (e.TenantId != null && e.TenantId == CurrentTenantId)
+                        || ((e.TenantId == CurrentTenantId) == IsMayHaveTenantBaseFilterEnabled)
+                        )
+                    )
+                );
+
+            return mayHaveTenantFilter;
         }
 
         #endregion Entity base filters

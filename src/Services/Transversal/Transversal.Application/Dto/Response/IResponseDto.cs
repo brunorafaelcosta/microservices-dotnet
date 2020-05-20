@@ -3,7 +3,7 @@
     /// <summary>
     /// Response Data Transfer Object used by <see cref="IApplicationService"/> methods.
     /// </summary>
-    public interface IResponseDto
+    public interface IResponseDto : IDto
     {
     }
 }

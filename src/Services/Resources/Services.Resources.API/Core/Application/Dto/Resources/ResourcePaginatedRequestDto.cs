@@ -7,5 +7,6 @@ namespace Services.Resources.API.Core.Application.Dto.Resources
     {
         public int? WithId { get; set; }
         public string WithKey { get; set; }
+        public bool? MustBePublic { get; set; }
     }
 }

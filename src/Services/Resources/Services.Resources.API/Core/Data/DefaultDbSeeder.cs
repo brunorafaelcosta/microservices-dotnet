@@ -60,13 +60,31 @@ namespace Services.Resources.API.Core.Data
                 {
                     Key = $"RG_{rgIndex}_{i}",
                     Description = $"This Resource has been auto-generated - [Index: {i}]",
-                    Value = new LocalizedValueObject()
+                    Value = new LocalizedValueObject(),
+                    TenantId = null
                 };
                 resource.Value.SetValue($"RG_{rgIndex}_{i} - EN Value", Transversal.Common.Localization.SupportedLanguages.Codes.en);
                 resource.Value.SetValue($"RG_{rgIndex}_{i} - PT Value", Transversal.Common.Localization.SupportedLanguages.Codes.pt);
                 resource.Value.SetValue($"RG_{rgIndex}_{i} - ES Value", Transversal.Common.Localization.SupportedLanguages.Codes.es);
                 resource.Value.SetValue($"RG_{rgIndex}_{i} - FR Value", Transversal.Common.Localization.SupportedLanguages.Codes.fr);
                 resourceGroup.Resources.Add(resource);
+
+                if (resourceGroup.IsPrivate)
+                {
+                    var overridenEntityResource = new Domain.Resource()
+                    {
+                        Key = $"RG_{rgIndex}_{i}",
+                        Description = $"This Resource has been auto-generated- [Index: {i}] [Overriden for tenant 1]",
+                        Value = new LocalizedValueObject(),
+                        TenantId = 1,
+                        TenantlessEntity = resource
+                    };
+                    overridenEntityResource.Value.SetValue($"RG_{rgIndex}_{i} - EN Value [Overriden for tenant 1]", Transversal.Common.Localization.SupportedLanguages.Codes.en);
+                    overridenEntityResource.Value.SetValue($"RG_{rgIndex}_{i} - PT Value [Overriden for tenant 1]", Transversal.Common.Localization.SupportedLanguages.Codes.pt);
+                    overridenEntityResource.Value.SetValue($"RG_{rgIndex}_{i} - ES Value [Overriden for tenant 1]", Transversal.Common.Localization.SupportedLanguages.Codes.es);
+                    overridenEntityResource.Value.SetValue($"RG_{rgIndex}_{i} - FR Value [Overriden for tenant 1]", Transversal.Common.Localization.SupportedLanguages.Codes.fr);
+                    resourceGroup.Resources.Add(overridenEntityResource);
+                }
             }
             
             return resourceGroup;

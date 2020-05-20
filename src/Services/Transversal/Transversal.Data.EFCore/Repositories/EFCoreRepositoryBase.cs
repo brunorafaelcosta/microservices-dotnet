@@ -33,8 +33,7 @@ namespace Transversal.Data.EFCore.Repositories
             Dictionary<Expression<Func<TEntity, object>>, ListSortDirection> sort = null,
             int? entitiesToSkip = null, int ? entitiesToTake = null)
         {
-            return Entities
-                .AsQueryable()
+            return AsQueryable()
                 .ApplyPredicate(predicate)
                 .ApplySort(sort)
                 .ApplySubSequence(entitiesToSkip, entitiesToTake)
@@ -44,7 +43,7 @@ namespace Transversal.Data.EFCore.Repositories
         protected override IQueryable<TProjection> AsQueryable<TProjection>(
             Expression<Func<TEntity, TProjection>> projection)
         {
-            return Entities
+            return AsQueryable()
                 .AsNoTracking()
                 .AsExpandable()
                 .ApplyProjection(projection)
@@ -57,7 +56,7 @@ namespace Transversal.Data.EFCore.Repositories
             Dictionary<Expression<Func<TProjection, object>>, ListSortDirection> sort = null,
             int? entitiesToSkip = null, int ? entitiesToTake = null)
         {
-            return Entities
+            return AsQueryable()
                 .AsNoTracking()
                 .AsExpandable()
                 .ApplyPredicate(predicate)

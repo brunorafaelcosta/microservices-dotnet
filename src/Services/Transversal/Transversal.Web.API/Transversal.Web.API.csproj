@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Transversal.Application\Transversal.Application.csproj" />
     <ProjectReference Include="..\Transversal.Common\Transversal.Common.csproj" />
     <ProjectReference Include="..\Transversal.Web\Transversal.Web.csproj" />
   </ItemGroup>

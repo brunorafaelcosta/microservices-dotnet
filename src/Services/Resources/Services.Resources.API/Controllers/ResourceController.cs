@@ -1,11 +1,12 @@
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Services.Resources.API.Core.Application.Dto.Resources;
 using Services.Resources.API.Models;
+using Transversal.Web.API.Models.Response;
 
 namespace Services.Resources.API.Controllers
 {
@@ -28,40 +29,120 @@ namespace Services.Resources.API.Controllers
 
         [HttpGet()]
         [Authorize]
-        [ProducesResponseType(typeof(IEnumerable<ResourceModel>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IPaginatedResponseModel<ResourceModel>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetAsync()
+        [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
+        public async Task<IActionResult> GetAsync([FromQuery] ResourceRequestModel request)
         {
-            return Ok("Used to get resources");
+            try
+            {
+                // TODO: Use automapper here!
+                var appRequest = new ResourcePaginatedRequestDto
+                {
+                    WithId = request.WithId,
+                    WithKey = request.WithKey
+                    //LanguageCode = request.lang
+                };
+                var appResponse = await _resourcesAppService.GetAllAsync(appRequest);
+                
+                var response = appResponse.ToPaginatedResponseModel<ResourceModel, ResourceDto>();
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                return StatusCode((int)HttpStatusCode.InternalServerError);
+            }
         }
 
         [HttpGet("{key}")]
         [Authorize]
         [ProducesResponseType(typeof(ResourceModel), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
         public async Task<IActionResult> GetByKeyAsync(
             string key,
             [FromQuery] string languageCode = null)
         {
-            return Ok("Used to get a resource");
+            try
+            {
+                var appRequest = new ResourceRequestDto
+                {
+                    WithKey = key,
+                    LanguageCode = languageCode
+                };
+                var appResponse = await _resourcesAppService.GetAsync(appRequest);
+
+                var response = appResponse.ToResponseModel<ResourceModel, ResourceDto>();
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                return StatusCode((int)HttpStatusCode.InternalServerError);
+            }
         }
 
         [HttpGet("public")]
-        [ProducesResponseType(typeof(IEnumerable<ResourceModel>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IPaginatedResponseModel<ResourceModel>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetPublicAsync()
+        [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
+        public async Task<IActionResult> GetPublicAsync([FromQuery] ResourceRequestModel request)
         {
-            return Ok("Used to get public resources");
+            try
+            {
+                // TODO: Use automapper here!
+                var appRequest = new ResourcePaginatedRequestDto
+                {
+                    WithId = request.WithId,
+                    WithKey = request.WithKey,
+                    MustBePublic = true
+                    //LanguageCode = request.lang
+                };
+                var appResponse = await _resourcesAppService.GetAllAsync(appRequest);
+
+                var response = appResponse.ToPaginatedResponseModel<ResourceModel, ResourceDto>();
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                return StatusCode((int)HttpStatusCode.InternalServerError);
+            }
         }
 
         [HttpGet("public/{key}")]
         [ProducesResponseType(typeof(ResourceModel), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
         public async Task<IActionResult> GetPublicByKeyAsync(
             string key,
             [FromQuery] string languageCode = null)
         {
-            return Ok("Used to get a public resource");
+            try
+            {
+                var appRequest = new ResourceRequestDto
+                {
+                    WithKey = key,
+                    LanguageCode = languageCode,
+                    MustBePublic = true
+                };
+                var appResponse = await _resourcesAppService.GetAsync(appRequest);
+
+                var response = appResponse.ToResponseModel<ResourceModel, ResourceDto>();
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                return StatusCode((int)HttpStatusCode.InternalServerError);
+            }
         }
 
         #endregion GET
