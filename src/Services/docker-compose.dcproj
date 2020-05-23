@@ -3,10 +3,10 @@
   <PropertyGroup Label="Globals">
     <ProjectVersion>2.1</ProjectVersion>
     <DockerTargetOS>Linux</DockerTargetOS>
-    <ProjectGuid>722b6d32-0a48-4605-882c-a326cd56837b</ProjectGuid>
+    <ProjectGuid>2081e1f1-6946-47f0-ac7f-5a95dcc93dbc</ProjectGuid>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}</DockerServiceUrl>
-    <DockerServiceName>web_administration_baseadmin</DockerServiceName>
+    <DockerServiceName>services.identity.sts</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>
     <None Include="docker-compose.override.yml">

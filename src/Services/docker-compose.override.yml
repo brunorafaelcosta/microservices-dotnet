@@ -4,7 +4,7 @@ services:
     # Identity
     identity_sts:
         env_file:
-            - Services/Identity/Services.Identity.STS/Development.env
+            - Identity/Services.Identity.STS/Development.env
         environment:
             ConnectionStrings__Sql: 'Server=tcp:sqldata;Initial Catalog=microservicesdotnet.services.identitydb;User Id=sa;Password=${MICROSERVICESDOTNET_SQL_SA_PASSWORD};'
             ExternalEndpoint: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_IDENTITY_STS_PORT}'
@@ -16,7 +16,7 @@ services:
             - '${MICROSERVICESDOTNET_IDENTITY_STS_PORT}'
         # volumes:
             # - ~/vsdbg:/vsdbg:ro
-            # - ./Services:/workspace
+            # - .:/workspace
             # - ${HOME}/.nuget/packages:/root/.nuget/packages:ro
             # - ${DOTNET_PATH}/sdk/NuGetFallbackFolder:/root/.nuget/fallbackpackages:ro
 
@@ -24,7 +24,7 @@ services:
     ## Resources
     resources_api:
         env_file:
-            - Services/Resources/Services.Resources.API/Development.env
+            - Resources/Services.Resources.API/Development.env
         environment:
             ConnectionStrings__Sql: 'Server=tcp:sqldata;Initial Catalog=microservicesdotnet.services.resourcesdb;User Id=sa;Password=${MICROSERVICESDOTNET_SQL_SA_PASSWORD};'
             ConnectionStrings__Redis: ${MICROSERVICESDOTNET_REDIS_DB:-redisdata}
@@ -36,28 +36,9 @@ services:
             - '${MICROSERVICESDOTNET_RESOURCES_API_PORT}'
         # volumes:
             # - ~/vsdbg:/vsdbg:ro
-            # - ./Services:/workspace
+            # - .:/workspace
             # - ${HOME}/.nuget/packages:/root/.nuget/packages:ro
             # - ${DOTNET_PATH}/sdk/NuGetFallbackFolder:/root/.nuget/fallbackpackages:ro
-
-    # Web
-    ## Administration
-    #### base-admin
-    web_administration_baseadmin:
-        env_file:
-        - Web/Administration/web-administration/Development.env
-        environment:
-            AUTHORITYLOGINURL: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_IDENTITY_STS_PORT}/${MICROSERVICESDOTNET_IDENTITY_STS_LOGIN_PATH}'
-            AUTHORITYREDIRECTURL: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_WEB_BASE_ADMINISTRATION_PORT}/'
-            AUTHORITYLOGOUTURL: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_IDENTITY_STS_PORT}/${MICROSERVICESDOTNET_IDENTITY_STS_LOGOUT_PATH}'
-            AUTHORITYUSERINFOURL: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_IDENTITY_STS_PORT}/${MICROSERVICESDOTNET_IDENTITY_STS_USERINFO_PATH}'
-        ports:
-            - '${MICROSERVICESDOTNET_WEB_BASE_ADMINISTRATION_PORT}:4200'
-        expose:
-            - '${MICROSERVICESDOTNET_WEB_BASE_ADMINISTRATION_PORT}'
-        volumes:
-            - ./Web/Administration/web-administration:/workspace
-            - /workspace/node_modules
 
     # Databases
     ## SQL

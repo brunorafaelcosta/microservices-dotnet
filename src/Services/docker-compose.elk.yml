@@ -16,7 +16,7 @@ services:
   ## E
   elasticsearch:
     build:
-      context: ../infrastructure/logging
+      context: ../../infrastructure/logging
       dockerfile: elasticsearch/Development.Dockerfile
     ports:
       - '${MICROSERVICESDOTNET_ELASTICSEARCH_PORT}:9200'
@@ -24,14 +24,14 @@ services:
     environment:
       ES_JAVA_OPTS: '-Xmx256m -Xms256m'
     volumes:
-      - ../infrastructure/logging/elasticsearch/config.Development.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ../../infrastructure/logging/elasticsearch/config.Development.yml:/usr/share/elasticsearch/config/elasticsearch.yml
       - elasticsearch_data:/usr/share/elasticsearch/data
     networks:
       - logging
   ## L
   logstash:
     build:
-      context: ../infrastructure/logging
+      context: ../../infrastructure/logging
       dockerfile: logstash/Development.Dockerfile
     ports:
       - '${MICROSERVICESDOTNET_LOGSTASH_TCP_PORT}:${MICROSERVICESDOTNET_LOGSTASH_TCP_PORT}'
@@ -42,8 +42,8 @@ services:
       ELASTICSEARCH_URL: 'elasticsearch:${MICROSERVICESDOTNET_ELASTICSEARCH_PORT}'
       LS_JAVA_OPTS: '-Xmx256m -Xms256m'
     volumes:
-      - ../infrastructure/logging/logstash/config.Development.yml:/usr/share/logstash/config/logstash.yml
-      - ../infrastructure/logging/logstash/pipeline.Development.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ../../infrastructure/logging/logstash/config.Development.yml:/usr/share/logstash/config/logstash.yml
+      - ../../infrastructure/logging/logstash/pipeline.Development.conf:/usr/share/logstash/pipeline/logstash.conf
     networks:
       - logging
       - default
@@ -52,14 +52,14 @@ services:
   ## K
   kibana:
     build:
-      context: ../infrastructure/logging
+      context: ../../infrastructure/logging
       dockerfile: kibana/Development.Dockerfile
     ports:
       - '${MICROSERVICESDOTNET_KIBANA_PORT}:5601'
     environment:
       ELASTICSEARCH_URL: 'http://elasticsearch:${MICROSERVICESDOTNET_ELASTICSEARCH_PORT}'
     volumes:
-      - ../infrastructure/logging/kibana/config.Development.yml://usr/share/kibana/config/kibana.yml
+      - ../../infrastructure/logging/kibana/config.Development.yml://usr/share/kibana/config/kibana.yml
     networks:
       - logging
     depends_on:

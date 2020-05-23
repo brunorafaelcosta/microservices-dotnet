@@ -5,7 +5,7 @@ services:
     identity_sts:
         image: ${REGISTRY:-microservices-dotnet}/identity_sts:${PLATFORM:-linux}-${TAG:-latest}
         build:
-            context: Services
+            context: .
             dockerfile: Identity/Services.Identity.STS/Development.Dockerfile
         networks:
             - default
@@ -18,7 +18,7 @@ services:
     resources_api:
         image: ${REGISTRY:-microservices-dotnet}/resources_api:${PLATFORM:-linux}-${TAG:-latest}
         build:
-            context: Services
+            context: .
             dockerfile: Resources/Services.Resources.API/Development.Dockerfile
         networks:
             - default
@@ -26,19 +26,6 @@ services:
             - sqldata
             - redisdata
             - messagebroker
-            - identity_sts
-  
-    # Web
-    ## Administration
-    #### base-admin
-    web_administration_baseadmin:
-        image: ${REGISTRY:-microservices-dotnet}/web_administration_baseadmin:${PLATFORM:-linux}-${TAG:-latest}
-        build:
-            context: Web/Administration/web-administration
-            dockerfile: Development.Dockerfile
-        networks:
-            - default
-        depends_on:
             - identity_sts
 
     # Databases
