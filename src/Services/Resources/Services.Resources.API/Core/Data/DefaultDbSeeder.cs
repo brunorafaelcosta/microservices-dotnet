@@ -25,7 +25,9 @@ namespace Services.Resources.API.Core.Data
             {
                 if (!context.ResourceGroups.Any())
                 {
-                    for (int i = 0; i < 200; i++)
+                    await context.ResourceGroups.AddAsync(GenerateIdentityResourceGroup());
+
+                    for (int i = 0; i < 100; i++)
                     {
                         await context.ResourceGroups.AddAsync(GenerateResourceGroup(i));
                     }
@@ -42,6 +44,32 @@ namespace Services.Resources.API.Core.Data
                     await SeedAsync(context, retryForAvaiability);
                 }
             }
+        }
+
+        private Domain.ResourceGroup GenerateIdentityResourceGroup()
+        {
+            var resourceGroup = new Domain.ResourceGroup()
+            {
+                Code = $"identity_sts",
+                Description = $"Public resources for the Identity STS pages",
+                IsPrivate = false,
+                Resources = new List<Domain.Resource>()
+            };
+
+            var loginResource = new Domain.Resource()
+            {
+                Key = $"login_lb",
+                Description = $"Login label",
+                Value = new LocalizedValueObject(),
+                TenantId = null
+            };
+            loginResource.Value.SetValue($"Login", Transversal.Common.Localization.SupportedLanguages.Codes.en);
+            loginResource.Value.SetValue($"Entrar", Transversal.Common.Localization.SupportedLanguages.Codes.pt);
+            loginResource.Value.SetValue($"Iniciar Sesión", Transversal.Common.Localization.SupportedLanguages.Codes.es);
+            loginResource.Value.SetValue($"Connexion", Transversal.Common.Localization.SupportedLanguages.Codes.fr);
+            resourceGroup.Resources.Add(loginResource);
+
+            return resourceGroup;
         }
 
         private Domain.ResourceGroup GenerateResourceGroup(int rgIndex)

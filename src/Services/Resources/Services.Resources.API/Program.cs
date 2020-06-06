@@ -9,11 +9,15 @@ using Serilog.Exceptions;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Transversal.Data.EFCore.DbMigrator;
+using System.Net;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 namespace Services.Resources.API
 {
     public class Program
     {
+        protected static string ASPNETCORE_ENVIRONMENT = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
         public static readonly string Namespace = typeof(Program).Namespace;
         public static readonly string AppName = Namespace;
 
@@ -49,6 +53,7 @@ namespace Services.Resources.API
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder
+                        .ConfigureKestrel(options => SetKestrelConfiguration(options, configuration))
                         .UseStartup<Startup>()
                         .UseConfiguration(configuration);
                 })
@@ -57,15 +62,37 @@ namespace Services.Resources.API
         
         private static IConfiguration GetConfiguration()
         {
-            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{ASPNETCORE_ENVIRONMENT}.json", optional: true, reloadOnChange: true)
                 .AddEnvironmentVariables();
 
             return builder.Build();
+        }
+
+        private static void SetKestrelConfiguration(KestrelServerOptions options, IConfiguration configuration)
+        {
+            /*
+             * If an HTTP/2 endpoint is configured without TLS, the endpoint's ListenOptions.Protocols must be set to HttpProtocols.Http2
+             * An endpoint with multiple protocols (for example, HttpProtocols.Http1AndHttp2) can't be used without TLS because there is no negotiation.
+             * All connections to the unsecured endpoint default to HTTP/1.1, and gRPC calls fail.
+             * 
+             * https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel?view=aspnetcore-3.1#endpoint-configuration
+             */
+
+            var portsConfig = configuration.GetSection("Ports");
+            int httpPort = portsConfig.GetValue<int>("Http");
+            int grpcPort = portsConfig.GetValue<int>("Grpc");
+
+            options.Listen(IPAddress.Any, httpPort, listenOptions =>
+            {
+                listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
+            });
+            options.Listen(IPAddress.Any, grpcPort, listenOptions =>
+            {
+                listenOptions.Protocols = HttpProtocols.Http2;
+            });
         }
 
         private static ILogger CreateSerilogLogger(IConfiguration configuration)

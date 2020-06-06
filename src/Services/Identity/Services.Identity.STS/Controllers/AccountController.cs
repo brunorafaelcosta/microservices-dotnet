@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Transversal.Web.Grpc.Client;
 using AccountModels = Services.Identity.STS.Models.Account;
 
 namespace Services.Identity.STS.Controllers
@@ -24,16 +25,18 @@ namespace Services.Identity.STS.Controllers
         private readonly IWebHostEnvironment _env;
         private readonly ILogger<AccountController> _logger;
         private readonly IConfiguration _configuration;
+        private readonly Settings _settings;
         private readonly IIdentityServerInteractionService _interaction;
         private readonly Core.Application.IUsersApplicationService _usersApplicationService;
 
-        public AccountController(IWebHostEnvironment env, ILogger<AccountController> logger, IConfiguration config,
+        public AccountController(IWebHostEnvironment env, ILogger<AccountController> logger, IConfiguration config, Settings settings,
             IIdentityServerInteractionService interaction,
             Core.Application.IUsersApplicationService usersApplicationService)
         {
             _env = env;
             _logger = logger;
             _configuration = config;
+            _settings = settings;
             _interaction = interaction;
             _usersApplicationService = usersApplicationService;
         }
@@ -46,6 +49,16 @@ namespace Services.Identity.STS.Controllers
         [HttpGet]
         public async Task<IActionResult> Login(string returnUrl)
         {
+            var loginKey = await GrpcCallerService.CallService(_settings.InternalEndpoints["grpcResources"], _logger, async channel =>
+            {
+                var client = new Resources.API.Grpc.ResourceService.ResourceServiceClient(channel);
+                var request = new Resources.API.Grpc.GetByKeyRequest() { Key = "login_lb", LanguageCode = "fr" };
+                _logger.LogInformation("grpc client created, request = {@request}", request);
+                var reply = await client.GetByKeyAsync(request);
+                _logger.LogInformation("grpc reply {@reply}", reply);
+                return reply?.Value;
+            });
+
             if (User.Identity.IsAuthenticated == true) {
                 return RedirectToAction(nameof(LoggedIn));
             }
@@ -223,7 +236,7 @@ namespace Services.Identity.STS.Controllers
 
         #endregion Logout
 
-        // <summary>
+        /// <summary>
         /// Shows the logged user information page
         /// </summary>
         [HttpGet]

@@ -1,6 +1,7 @@
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -8,12 +9,15 @@ using Serilog;
 using Serilog.Exceptions;
 using System;
 using System.IO;
+using System.Net;
 using Transversal.Data.EFCore.DbMigrator;
 
 namespace Services.Identity.STS
 {
     public class Program
     {
+        protected static string ASPNETCORE_ENVIRONMENT = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
         public static readonly string Namespace = typeof(Program).Namespace;
         public static readonly string AppName = Namespace;
 
@@ -49,6 +53,7 @@ namespace Services.Identity.STS
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder
+                        .ConfigureKestrel(options => SetKestrelConfiguration(options, configuration))
                         .UseStartup<Startup>()
                         .UseConfiguration(configuration);
                 })
@@ -57,15 +62,24 @@ namespace Services.Identity.STS
 
         private static IConfiguration GetConfiguration()
         {
-            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{ASPNETCORE_ENVIRONMENT}.json", optional: true, reloadOnChange: true)
                 .AddEnvironmentVariables();
 
             return builder.Build();
+        }
+
+        private static void SetKestrelConfiguration(KestrelServerOptions options, IConfiguration configuration)
+        {
+            var portsConfig = configuration.GetSection("Ports");
+            int httpPort = portsConfig.GetValue<int>("Http");
+
+            options.Listen(IPAddress.Any, httpPort, listenOptions =>
+            {
+                listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
+            });
         }
 
         private static ILogger CreateSerilogLogger(IConfiguration configuration)

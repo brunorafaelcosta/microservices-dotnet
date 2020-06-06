@@ -33,6 +33,8 @@ namespace Services.Resources.API
                 .AddControllers(options => options.Filters.Add(typeof(Transversal.Web.API.Filters.HttpGlobalExceptionFilter)))
                 .AddJsonOptions(options => options.JsonSerializerOptions.WriteIndented = !WebHostEnvironment.IsProduction());
 
+            ConfiguregRPC(services);
+
             ConfigureAuthenticationService(services);
 
             ConfigureSwaggerService(services);
@@ -76,6 +78,45 @@ namespace Services.Resources.API
             {
                 endpoints.MapDefaultControllerRoute();
                 endpoints.MapControllers();
+
+                if (env.IsDevelopment())
+                {
+                    endpoints.MapGet("/_proto", async ctx =>
+                    {
+                        ctx.Response.ContentType = "text/plain";
+
+                        var response = new System.Text.StringBuilder();
+
+                        var protoFiles = System.IO.Directory.EnumerateFiles(
+                            System.IO.Path.Combine(env.ContentRootPath, "Grpc"),
+                            "*.proto",
+                            System.IO.SearchOption.AllDirectories);
+
+                        foreach (string protoFile in protoFiles)
+                        {
+                            var protoFileInfo = new System.IO.FileInfo(protoFile);
+
+                            response.AppendLine(protoFileInfo.Name);
+
+                            using var fs = new System.IO.FileStream(protoFileInfo.FullName, System.IO.FileMode.Open, System.IO.FileAccess.Read);
+                            using var sr = new System.IO.StreamReader(fs);
+                            while (!sr.EndOfStream)
+                            {
+                                var line = await sr.ReadLineAsync();
+                                if (line != "/* >>" || line != "<< */")
+                                {
+                                    response.AppendLine(line);
+                                }
+                            }
+
+                            response.AppendLine();
+                        }
+
+                        await ctx.Response.WriteAsync(response.ToString());
+                    });
+                }
+
+                endpoints.MapGrpcService<Grpc.Implementations.ResourceService>();
             });
 
             ConfigureSwagger(app, pathBase, logger);
@@ -90,6 +131,11 @@ namespace Services.Resources.API
         }
 
         #region Configure Services
+
+        private void ConfiguregRPC(IServiceCollection services)
+        {
+            services.AddGrpc();
+        }
 
         private void ConfigureAuthenticationService(IServiceCollection services)
         {

@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option csharp_namespace = "Services.Resources.API.Grpc";
+
+package resources;
+
+service ResourceService {
+  rpc GetByKey (GetByKeyRequest) returns (GetByKeyReply);
+
+  rpc GetPublicByKey (GetByKeyRequest) returns (GetByKeyReply);
+}
+
+message GetByKeyRequest {
+  string key = 1;
+  string languageCode = 2;
+}
+
+message GetByKeyReply {
+  string value = 1;
+}

@@ -16,6 +16,12 @@ namespace Services.Resources.API.Core.Data
         {
             var builder = new DbContextOptionsBuilder<DefaultDbContext>();
 
+#if DEBUG
+            builder
+                .LogTo(str => Console.WriteLine(str), Microsoft.Extensions.Logging.LogLevel.Debug)
+                .EnableSensitiveDataLogging();
+#endif
+
             builder.UseSqlServer(connectionString, sqlServerOptionsAction: sqlOptions =>
             {
                 sqlOptions.MigrationsAssembly(typeof(Startup).GetTypeInfo().Assembly.GetName().Name);

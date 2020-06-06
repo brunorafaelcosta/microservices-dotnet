@@ -58,3 +58,7 @@
 	- Download and install OpenSSL from https://slproweb.com/products/Win32OpenSSL.html
 	- openssl req -x509 -newkey rsa:4096 -sha256 -nodes -keyout development.cert.key -out development.cert.crt -subj "/CN=example.com" -days 3650
 	- openssl pkcs12 -export -out development.cert.pfx -inkey development.cert.key -in development.cert.crt -certfile development.cert.crt
+
+## Infrastructure
+### Security
+ - https://www.grahamlea.com/2015/07/microservices-security-questions/

@@ -6,12 +6,14 @@ services:
         env_file:
             - Identity/Services.Identity.STS/Development.env
         environment:
+            Ports__Http: '${MICROSERVICESDOTNET_IDENTITY_STS_INTERNAL_PORT}'
             ConnectionStrings__Sql: 'Server=tcp:sqldata;Initial Catalog=microservicesdotnet.services.identitydb;User Id=sa;Password=${MICROSERVICESDOTNET_SQL_SA_PASSWORD};'
+            InternalEndpoints__grpcResources: 'http://resources_api:${MICROSERVICESDOTNET_RESOURCES_API_INTERNAL_GRPC_PORT}'
             ExternalEndpoint: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_IDENTITY_STS_PORT}'
             ClientEndpoints__resources_api: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_RESOURCES_API_PORT}'
             ClientEndpoints__web_base_administration: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_WEB_BASE_ADMINISTRATION_PORT}'
         ports:
-            - '${MICROSERVICESDOTNET_IDENTITY_STS_PORT}:8080'
+            - '${MICROSERVICESDOTNET_IDENTITY_STS_PORT}:${MICROSERVICESDOTNET_IDENTITY_STS_INTERNAL_PORT}'
         expose:
             - '${MICROSERVICESDOTNET_IDENTITY_STS_PORT}'
         # volumes:
@@ -26,12 +28,14 @@ services:
         env_file:
             - Resources/Services.Resources.API/Development.env
         environment:
+            Ports__Http: '${MICROSERVICESDOTNET_RESOURCES_API_INTERNAL_HTTP_PORT}'
+            Ports__Grpc: '${MICROSERVICESDOTNET_RESOURCES_API_INTERNAL_GRPC_PORT}'
             ConnectionStrings__Sql: 'Server=tcp:sqldata;Initial Catalog=microservicesdotnet.services.resourcesdb;User Id=sa;Password=${MICROSERVICESDOTNET_SQL_SA_PASSWORD};'
             ConnectionStrings__Redis: ${MICROSERVICESDOTNET_REDIS_DB:-redisdata}
-            IdentityUrl: 'http://identity_sts:8080'
+            IdentityUrl: 'http://identity_sts:${MICROSERVICESDOTNET_IDENTITY_STS_INTERNAL_PORT}'
             IdentityUrlExternal: '${MICROSERVICESDOTNET_EXTERNAL_DNS_NAME_OR_IP}:${MICROSERVICESDOTNET_IDENTITY_STS_PORT}'
         ports:
-            - '${MICROSERVICESDOTNET_RESOURCES_API_PORT}:8080'
+            - '${MICROSERVICESDOTNET_RESOURCES_API_PORT}:${MICROSERVICESDOTNET_RESOURCES_API_INTERNAL_HTTP_PORT}'
         expose:
             - '${MICROSERVICESDOTNET_RESOURCES_API_PORT}'
         # volumes:

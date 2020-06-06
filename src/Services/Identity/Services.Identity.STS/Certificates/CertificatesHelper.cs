@@ -9,9 +9,9 @@ namespace Services.Identity.STS.Certificates
 {
     static class CertificatesHelper
     {
-        public static X509Certificate2 Get(IWebHostEnvironment webHostEnvironment, IConfiguration configuration)
+        public static X509Certificate2 GetForSigningCredential(IWebHostEnvironment webHostEnvironment, IConfiguration configuration)
         {
-            var certificateConfig = configuration.GetSection("Certificate");
+            var certificateConfig = configuration.GetSection("Certificates:SigningCredential");
 
             X509Certificate2 certificate;
 

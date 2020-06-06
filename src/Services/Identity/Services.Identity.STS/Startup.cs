@@ -150,7 +150,7 @@ namespace Services.Identity.STS
 
             services.AddHttpContextAccessor();
 
-            var certificate = Certificates.CertificatesHelper.Get(WebHostEnvironment, Configuration);
+            var certificate = Certificates.CertificatesHelper.GetForSigningCredential(WebHostEnvironment, Configuration);
             var clientEndpoints = Configuration.GetSection("ClientEndpoints").Get<Dictionary<string, string>>();
 
             services

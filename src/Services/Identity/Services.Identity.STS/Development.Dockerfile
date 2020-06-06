@@ -1,9 +1,11 @@
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS dev
 
+ARG HTTP_PORT
+
 # Project configuration
 ENV PROJECT_ROOT_FOLDER "Identity/Services.Identity.STS"
 ENV PROJECT_FILE_NAME "Services.Identity.STS.csproj"
-ENV PROJECT_HTTP_PORT "8080"
+ENV PROJECT_HTTP_PORT ${HTTP_PORT}
 
 ENV ASPNETCORE_ENVIRONMENT=Development
 ENV DOTNET_USE_POLLING_FILE_WATCHER=1
