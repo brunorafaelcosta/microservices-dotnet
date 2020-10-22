@@ -50,8 +50,38 @@ namespace Services.Resources.API
             });
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-        }
 
+            if (WebHostEnvironment.IsDevelopment())
+            {
+                #region snippet_AddDistributedMemoryCache
+                services.AddDistributedMemoryCache();
+                #endregion
+            }
+            else
+            {
+                //#if SQLServer
+                #region snippet_AddDistributedSqlServerCache
+                services.AddDistributedSqlServerCache(options =>
+                {
+                    options.ConnectionString =
+                        Configuration["DistCache_ConnectionString"];
+                    options.SchemaName = "dbo";
+                    options.TableName = "TestTableNameOnion";
+                });
+                #endregion
+                //#else
+                #region snippet_AddStackExchangeRedisCache
+                services.AddStackExchangeRedisCache(options =>
+                {
+                    options.Configuration = "localhost";
+                    options.InstanceName = "SampleInstanceOnion";
+                });
+                #endregion
+                //#endif
+
+            }
+
+        }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
@@ -239,7 +269,7 @@ namespace Services.Resources.API
             containerBuilder.RegisterType<Core.Data.DefaultDbContext>();
             containerBuilder.RegisterType<Core.Data.DefaultDbSeeder>()
                 .As<Transversal.Data.EFCore.DbSeeder.IEfCoreDbSeeder<Core.Data.DefaultDbContext>>();
-            
+
             containerBuilder.RegisterType<Transversal.Domain.Uow.Manager.UnitOfWorkManager>()
                 .As<Transversal.Domain.Uow.Manager.IUnitOfWorkManager>();
             containerBuilder.RegisterType<Transversal.Domain.Uow.Options.UnitOfWorkDefaultOptions>()
