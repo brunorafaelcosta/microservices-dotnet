@@ -11,7 +11,7 @@ services:
 
     # API
     ## Localization
-    localization_api:
+    resources_api:
         volumes:
             - ~/vsdbg:/vsdbg:ro
             - .:/workspace
