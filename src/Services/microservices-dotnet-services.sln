@@ -33,7 +33,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Resources", "Resources", "{
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.Resources.API", "Resources\Services.Resources.API\Services.Resources.API.csproj", "{6F7A735A-38C4-4446-A653-9B468D2E3530}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transversal.Web.Grpc.Client", "Transversal\Transversal.Web.Grpc.Client\Transversal.Web.Grpc.Client.csproj", "{1108A05B-ADAA-4639-8A4C-7CE3962B6A07}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transversal.Web.Grpc.Client", "Transversal\Transversal.Web.Grpc.Client\Transversal.Web.Grpc.Client.csproj", "{1108A05B-ADAA-4639-8A4C-7CE3962B6A07}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Kubernetes", "Kubernetes", "{B2C40367-A7BD-40A3-80BC-6C4BDEA2B2D2}"
+	ProjectSection(SolutionItems) = preProject
+		Kubernetes\getToken.cmd = Kubernetes\getToken.cmd
+		Kubernetes\install.ps1 = Kubernetes\install.ps1
+		Kubernetes\readmeToKompose.txt = Kubernetes\readmeToKompose.txt
+		Kubernetes\start.ps1 = Kubernetes\start.ps1
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
