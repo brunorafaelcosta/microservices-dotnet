@@ -1,4 +1,4 @@
-using Transversal.Common.Dependency;
+using Transversal.Common.InversionOfControl;
 using Transversal.Data.EFCore.DbContext;
 using Transversal.Domain.Uow.Options;
 
@@ -11,11 +11,11 @@ namespace Transversal.Data.EFCore.Uow
     {
         void InitOptions(UnitOfWorkOptions options);
 
-        TDbContext CreateDbContext<TDbContext>(string connectionString, IDbContextResolver dbContextResolver)
+        TDbContext CreateDbContext<TDbContext>(string dbContextKey, IDbContextResolver dbContextResolver)
             where TDbContext : EfCoreDbContextBase;
 
         void Commit();
 
-        void Dispose(IIocResolver iocResolver);
+        void Dispose(IIoCResolver iocResolver);
     }
 }

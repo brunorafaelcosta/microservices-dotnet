@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Net;
 using Transversal.Common.Exceptions;
 
@@ -16,8 +15,8 @@ namespace Transversal.Web.API.Filters
 
         public HttpGlobalExceptionFilter(IHostEnvironment env, ILogger<HttpGlobalExceptionFilter> logger)
         {
-            this._env = env;
-            this._logger = logger;
+            _env = env;
+            _logger = logger;
         }
 
         public void OnException(ExceptionContext context)
@@ -34,7 +33,7 @@ namespace Transversal.Web.API.Filters
                 };
 
                 // Result asigned to a result object but in destiny the response is empty. This is a known bug of .net core 1.1
-                //It will be fixed in .net core 1.1.2. See https://github.com/aspnet/Mvc/issues/5594 for more information
+                // It will be fixed in .net core 1.1.2. See https://github.com/aspnet/Mvc/issues/5594 for more information
                 context.Result = new BadRequestObjectResult(json);
                 context.HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
             }

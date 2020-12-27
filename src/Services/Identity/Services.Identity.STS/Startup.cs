@@ -2,112 +2,45 @@ using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using Transversal.Common.InversionOfControl.Registrar;
+using Transversal.Web;
 
 namespace Services.Identity.STS
 {
-    public class Startup
+    public class Startup : WebBootstrapperBase<Settings>
     {
         public Startup(IConfiguration configuration, IWebHostEnvironment env)
+            : base(configuration, env)
         {
-            Configuration = configuration;
-            WebHostEnvironment = env;
         }
 
-        public IConfiguration Configuration { get; }
-        public IWebHostEnvironment WebHostEnvironment { get; }
+        public override IIoCRegistrarCatalog GetIoCRegistrarCatalog()
+        {
+            var catalog = new IoCRegistrarCatalog();
+            catalog.Register<Core.Data.DataIoCRegistrar>();
+            catalog.Register<Core.Application.ApplicationIoCRegistrar>();
+            return catalog;
+        }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services
-                .AddControllersWithViews()
-                .AddJsonOptions(options => options.JsonSerializerOptions.WriteIndented = !WebHostEnvironment.IsProduction());
+            ConfigureServiceCollection(services);
 
             ConfigureIdentityServerService(services);
+
+            services
+                .AddMvc()
+                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
         }
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
-        {
-            var logger = loggerFactory.CreateLogger<Startup>();
-            
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
-
-            #region Base path
-            var pathBase = Configuration["PATH_BASE"];
-            if (!string.IsNullOrEmpty(pathBase))
-            {
-                logger.LogDebug("Using PATH BASE '{pathBase}'", pathBase);
-                app.UsePathBase(pathBase);
-            }
-            #endregion Base path
-
-            app.UseSerilogRequestLogging();
-            
-            app.UseStaticFiles();
-
-            // Make work identity server redirections in Edge and lastest versions of browers.
-            // WARN: Not valid in a production environment.
-            if (env.IsDevelopment())
-            {
-                app.Use(async (context, next) =>
-                {
-                    context.Response.Headers.Add("Content-Security-Policy", "script-src 'self' 'unsafe-inline'");
-                    await next();
-                });
-            }
-
-            app.UseForwardedHeaders();
-
-            app.UseIdentityServer();
-
-            // Fix a problem with chrome. Chrome enabled a new feature "Cookies without SameSite must be secure", 
-            // the coockies shold be expided from https, but in eShop, the internal comunicacion in aks and docker compose is http.
-            // To avoid this problem, the policy of cookies shold be in Lax mode.
-            app.UseCookiePolicy(new CookiePolicyOptions { MinimumSameSitePolicy = Microsoft.AspNetCore.Http.SameSiteMode.Lax });
-
-            app.UseRouting();
-            
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Account}/{action=Login}");
-            });
-        }
-
-        // This method gets called by the runtime. Use this method configure the dependency injection container.
-        public void ConfigureContainer(ContainerBuilder builder)
-        {
-            builder.RegisterType<Transversal.Web.Dependency.AutofacIocManager>().As<Transversal.Common.Dependency.IIocManager>();
-            builder.RegisterType<Transversal.Web.Dependency.AutofacIocManager>().As<Transversal.Common.Dependency.IIocResolver>();
-
-            builder.Register(p => Configuration.Get<Settings>()).SingleInstance();
-
-            DI.Register(builder);
-        }
-
-        #region Configure Services
-
         private void ConfigureIdentityServerService(IServiceCollection services)
         {
             services
@@ -148,10 +81,10 @@ namespace Services.Identity.STS
                 o.ExpireTimeSpan = TimeSpan.FromMinutes(5);
             });
 
-            services.AddHttpContextAccessor();
+            services.AddAuthorization();
 
-            var certificate = Certificates.CertificatesHelper.GetForSigningCredential(WebHostEnvironment, Configuration);
-            var clientEndpoints = Configuration.GetSection("ClientEndpoints").Get<Dictionary<string, string>>();
+            var certificate = Certificates.CertificatesHelper.GetForSigningCredential(_webHostEnvironment, _configuration);
+            var clientEndpoints = _configuration.GetSection("ClientEndpoints").Get<Dictionary<string, string>>();
 
             services
                 .AddIdentityServer(x =>
@@ -162,12 +95,13 @@ namespace Services.Identity.STS
                 .AddSigningCredential(certificate)
                 .AddInMemoryIdentityResources(IdentityServerConfig.IdentityResourcesConfig.GetResources())
                 .AddInMemoryApiResources(IdentityServerConfig.ApiResourcesConfig.GetApis())
+                .AddInMemoryApiScopes(IdentityServerConfig.ApiResourcesConfig.GetApiScopes())
                 .AddInMemoryClients(IdentityServerConfig.ClientsConfig.GetClients(clientEndpoints))
                 .AddAspNetIdentity<Core.Domain.Users.User>();
 
             // https://docs.microsoft.com/en-us/aspnet/core/security/authentication/identity-custom-storage-providers?view=aspnetcore-3.1
             services.TryAddScoped<IdentityErrorDescriber>();
-            
+
             //services.TryAddScoped<ITwoFactorSecurityStampValidator, TwoFactorSecurityStampValidator<Core.Domain.Users.User>>();
             //services.TryAddScoped<IUserClaimsPrincipalFactory<Core.Domain.Users.User>, UserClaimsPrincipalFactory<Core.Domain.Users.User>>();
             services.TryAddScoped<UserManager<Core.Domain.Users.User>>();
@@ -178,50 +112,67 @@ namespace Services.Identity.STS
             services.AddTransient<ISecurityStampValidator, Core.Application.CustomIdentity.CustomSecurityStampValidator>();
         }
 
-        #endregion Configure Services
-    }
-
-    public static class DI
-    {
-        public static void Register(ContainerBuilder containerBuilder)
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app)
         {
-            containerBuilder.RegisterType<Transversal.Web.Session.SessionInfo>()
-                .As<Transversal.Common.Session.ISessionInfo>();
+            ConfigureApplication(app);
 
-            containerBuilder.RegisterType<Core.Data.Repositories.UserRepository>()
-                .As<Core.Domain.Users.IUserRepository>();
-            containerBuilder.RegisterType<Core.Data.Repositories.UserPictureRepository>()
-                .As<Core.Domain.Users.IUserPictureRepository>();
-            containerBuilder.RegisterType<Core.Application.UsersApplicationService>()
-                .As<Core.Application.IUsersApplicationService>();
+            if (_webHostEnvironment.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler("/Home/Error");
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseHsts();
+            }
 
-            containerBuilder.RegisterType<Core.Data.DefaultDbContextOptionsResolver>()
-                .As<Transversal.Data.EFCore.DbContext.IDbContextOptionsResolver<Core.Data.DefaultDbContext>>();
-            containerBuilder.RegisterType<Core.Data.DefaultDbContext>();
-            containerBuilder.RegisterType<Core.Data.DefaultDbSeeder>()
-                .As<Transversal.Data.EFCore.DbSeeder.IEfCoreDbSeeder<Core.Data.DefaultDbContext>>();
+            app.UseSerilogRequestLogging();
 
-            containerBuilder.RegisterType<Transversal.Domain.Uow.Manager.UnitOfWorkManager>()
-                .As<Transversal.Domain.Uow.Manager.IUnitOfWorkManager>();
-            containerBuilder.RegisterType<Transversal.Domain.Uow.Options.UnitOfWorkDefaultOptions>()
-                .As<Transversal.Domain.Uow.Options.IUnitOfWorkDefaultOptions>();
-            containerBuilder.RegisterType<Transversal.Domain.Uow.Provider.AsyncLocalCurrentUnitOfWorkProvider>()
-                .As<Transversal.Domain.Uow.Provider.ICurrentUnitOfWorkProvider>();
-            containerBuilder.RegisterType<Transversal.Data.EFCore.Uow.DefaultConnectionStringResolver>()
-                .As<Transversal.Domain.Uow.IConnectionStringResolver>();
-            containerBuilder.RegisterType<Transversal.Data.EFCore.Uow.DefaultEfCoreUnitOfWork>()
-                .As<Transversal.Domain.Uow.IUnitOfWork>();
+            app.UseStaticFiles();
 
-            containerBuilder.RegisterGeneric(typeof(Transversal.Data.EFCore.DbMigrator.DefaultEFCoreDbMigrator<>))
-                .As(typeof(Transversal.Data.EFCore.DbMigrator.IEFCoreDbMigrator<>));
-            containerBuilder.RegisterType<Transversal.Data.EFCore.DbContext.DefaultDbContextResolver>()
-                .As<Transversal.Data.EFCore.DbContext.IDbContextResolver>();
-            containerBuilder.RegisterType<Transversal.Data.EFCore.DbContext.DefaultDbContextInterceptor>()
-                .As<Transversal.Data.EFCore.DbContext.IDbContextInterceptor>();
-            containerBuilder.RegisterGeneric(typeof(Transversal.Data.EFCore.Uow.UnitOfWorkDbContextProvider<>))
-                .As(typeof(Transversal.Data.EFCore.DbContext.IDbContextProvider<>));
-            containerBuilder.RegisterType<Transversal.Data.EFCore.Uow.DbContextEfCoreTransactionStrategy>()
-                .As<Transversal.Data.EFCore.Uow.IEfCoreTransactionStrategy>();
+            // Make work identity server redirections in Edge and lastest versions of browers.
+            // WARN: Not valid in a production environment.
+            if (_webHostEnvironment.IsDevelopment())
+            {
+                app.Use(async (context, next) =>
+                {
+                    context.Response.Headers.Add("Content-Security-Policy", "script-src 'self' 'unsafe-inline'");
+                    await next();
+                });
+            }
+
+            app.UseForwardedHeaders();
+
+            app.UseIdentityServer();
+
+            // Fix a problem with chrome. Chrome enabled a new feature "Cookies without SameSite must be secure", 
+            // the coockies shold be expided from https, but in eShop, the internal comunicacion in aks and docker compose is http.
+            // To avoid this problem, the policy of cookies shold be in Lax mode.
+            app.UseCookiePolicy(new CookiePolicyOptions { MinimumSameSitePolicy = Microsoft.AspNetCore.Http.SameSiteMode.Lax });
+
+            app.UseRouting();
+
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Account}/{action=Login}");
+            });
+        }
+        
+        protected override void OnBootstrapCompleted()
+        {
+            base.OnBootstrapCompleted();
+
+            var defaultDbMigrator = _ioCManager.Resolve<Transversal.Data.EFCore.DbMigrator.IEFCoreDbMigrator<Core.Data.DefaultDbContext>>();
+            if (defaultDbMigrator != null)
+            {
+                defaultDbMigrator.CreateOrMigrate();
+            }
         }
     }
 }

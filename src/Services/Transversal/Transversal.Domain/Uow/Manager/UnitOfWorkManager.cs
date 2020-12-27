@@ -1,5 +1,5 @@
 using System.Transactions;
-using Transversal.Common.Dependency;
+using Transversal.Common.InversionOfControl;
 using Transversal.Domain.Uow.Options;
 using Transversal.Domain.Uow.Provider;
 
@@ -7,12 +7,12 @@ namespace Transversal.Domain.Uow.Manager
 {
     public class UnitOfWorkManager : IUnitOfWorkManager
     {
-        private readonly IIocResolver _iocResolver;
+        private readonly IIoCResolver _iocResolver;
         private readonly ICurrentUnitOfWorkProvider _currentUnitOfWorkProvider;
         private readonly IUnitOfWorkDefaultOptions _defaultOptions;
         
         public UnitOfWorkManager(
-            IIocResolver iocResolver,
+            IIoCResolver iocResolver,
             ICurrentUnitOfWorkProvider currentUnitOfWorkProvider,
             IUnitOfWorkDefaultOptions defaultOptions)
         {

@@ -6,11 +6,19 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Transversal.Common\Transversal.Common.csproj" />
+    <ProjectReference Include="..\Transversal.Core\Transversal.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="6.0.0" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="3.4.1-dev-00188" />
+    <PackageReference Include="Serilog.Exceptions" Version="6.0.0" />
+    <PackageReference Include="Serilog.Formatting.Elasticsearch" Version="8.5.0-alpha0003" />
+    <PackageReference Include="Serilog.Sinks.Http" Version="7.2.0" />
   </ItemGroup>
 
 </Project>

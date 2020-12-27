@@ -1,7 +1,7 @@
 ﻿namespace Transversal.Application.Dto
 {
     /// <summary>
-    /// Application Data Transfer Object
+    /// Application Data Transfer Object.
     /// </summary>
     public interface IDto
     {

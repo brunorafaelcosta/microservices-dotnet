@@ -18,7 +18,7 @@ namespace Services.Identity.STS.Core.Application.CustomIdentity
 {
     public class CustomProfileService : IProfileService
     {
-        private const string PictureEndpoint = "/Account/GetPicture";
+        private const string PictureEndpoint = "/Account/ProfilePicture";
 
         private readonly IUnitOfWorkManager _uowManager;
         private readonly Settings _settings;

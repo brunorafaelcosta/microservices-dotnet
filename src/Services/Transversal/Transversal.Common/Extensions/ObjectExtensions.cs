@@ -1,12 +1,12 @@
 namespace Transversal.Common.Extensions
 {
     /// <summary>
-    /// Extension methods for all objects.
+    /// Provides additional methods to objects.
     /// </summary>
     public static class ObjectExtensions
     {
         /// <summary>
-        /// Used to simplify and beautify casting an object to a type. 
+        /// Used to simplify and beautify casting an object to a type
         /// </summary>
         /// <typeparam name="T">Type to be casted</typeparam>
         /// <param name="obj">Object to cast</param>

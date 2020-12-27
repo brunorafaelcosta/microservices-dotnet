@@ -1,7 +1,7 @@
 ﻿namespace Transversal.Web.API.Models
 {
     /// <summary>
-    /// API model
+    /// API model.
     /// </summary>
     public interface IModel
     {

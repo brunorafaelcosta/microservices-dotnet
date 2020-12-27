@@ -5,7 +5,7 @@ using System.Linq;
 namespace Transversal.Common.Localization
 {
     /// <summary>
-    /// Application supported languages
+    /// Application supported languages.
     /// </summary>
     public static class SupportedLanguages
     {

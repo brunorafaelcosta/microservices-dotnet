@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Linq;
 
 namespace Transversal.Web.Session
@@ -18,17 +19,10 @@ namespace Transversal.Web.Session
             {
                 long? userId = null;
 
-                if (_httpContextAccessor != null && _httpContextAccessor.HttpContext != null)
+                var claimValue = GetClaimValue(Identity.ClaimsConstants.UserIdClaimType);
+                if (long.TryParse(claimValue, out long claimParsedValue))
                 {
-                    var user = _httpContextAccessor.HttpContext.User;
-                    if (user != null && user.HasClaim(c => c.Type == Identity.ClaimsConstants.UserIdClaimType))
-                    {
-                        string claimValue = user.Claims.FirstOrDefault(c => c.Type == Identity.ClaimsConstants.UserIdClaimType)?.Value;
-                        if (long.TryParse(claimValue, out long claimParsedValue))
-                        {
-                            userId = claimParsedValue;
-                        }
-                    }
+                    userId = claimParsedValue;
                 }
 
                 return userId;
@@ -41,20 +35,29 @@ namespace Transversal.Web.Session
             {
                 int? tenantId = null;
 
-                if (_httpContextAccessor != null && _httpContextAccessor.HttpContext != null)
+                var claimValue = GetClaimValue(Identity.ClaimsConstants.TenantIdClaimType);
+                if (int.TryParse(claimValue, out int claimParsedValue))
                 {
-                    var user = _httpContextAccessor.HttpContext.User;
-                    if (user != null && user.HasClaim(c => c.Type == Identity.ClaimsConstants.TenantIdClaimType))
-                    {
-                        string claimValue = user.Claims.FirstOrDefault(c => c.Type == Identity.ClaimsConstants.TenantIdClaimType)?.Value;
-                        if (int.TryParse(claimValue, out int claimParsedValue))
-                        {
-                            tenantId = claimParsedValue;
-                        }
-                    }
+                    tenantId = claimParsedValue;
                 }
 
                 return tenantId;
+            }
+        }
+
+        public string Name
+        {
+            get
+            {
+                string name = null;
+
+                var claimValue = GetClaimValue(Identity.ClaimsConstants.NameClaimType);
+                if (!string.IsNullOrEmpty(claimValue))
+                {
+                    name = claimValue;
+                }
+
+                return name;
             }
         }
 
@@ -64,22 +67,32 @@ namespace Transversal.Web.Session
             {
                 string languageCode = null;
 
-                if (_httpContextAccessor != null && _httpContextAccessor.HttpContext != null)
+                var claimValue = GetClaimValue(Identity.ClaimsConstants.LanguageCodeClaimType);
+                if (!string.IsNullOrEmpty(claimValue))
                 {
-                    var user = _httpContextAccessor.HttpContext.User;
-                    if (user != null && user.HasClaim(c => c.Type == Identity.ClaimsConstants.LanguageCodeClaimType))
-                    {
-                        string claimValue = user.Claims.FirstOrDefault(c => c.Type == Identity.ClaimsConstants.LanguageCodeClaimType)?.Value;
-                        if (!string.IsNullOrEmpty(claimValue))
-                        {
-                            languageCode = claimValue;
-                        }
-                    }
+                    languageCode = claimValue;
                 }
-                
 
                 return languageCode;
             }
+        }
+
+        public DateTime? StartTime => null;
+
+        protected string GetClaimValue(string claimType)
+        {
+            string value = null;
+
+            if (_httpContextAccessor != null && _httpContextAccessor.HttpContext != null)
+            {
+                var user = _httpContextAccessor.HttpContext.User;
+                if (user != null && user.HasClaim(c => c.Type == claimType))
+                {
+                    value = user.Claims.FirstOrDefault(c => c.Type == claimType)?.Value;
+                }
+            }
+
+            return value;
         }
     }
 }

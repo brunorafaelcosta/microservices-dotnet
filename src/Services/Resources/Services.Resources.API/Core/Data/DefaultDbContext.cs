@@ -10,7 +10,7 @@ namespace Services.Resources.API.Core.Data
         public DbSet<Domain.Resource> Resource { get; set; }
 
         public DefaultDbContext(
-            DbContextOptions options,
+            DbContextOptions<DefaultDbContext> options,
             IDbContextInterceptor interceptor,
             ICurrentUnitOfWorkProvider currentUnitOfWorkProvider)
             : base(options, interceptor, currentUnitOfWorkProvider)

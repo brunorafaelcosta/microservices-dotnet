@@ -3,7 +3,7 @@
 namespace Transversal.Common.Localization
 {
     /// <summary>
-    /// Defines an application language
+    /// Defines an application language.
     /// </summary>
     public class Language
     {
@@ -16,8 +16,8 @@ namespace Transversal.Common.Localization
 
         public Language(string code)
         {
-            this.Code = code ?? throw new System.ArgumentNullException(nameof(code));
-            this.IsDefault = false;
+            Code = code ?? throw new System.ArgumentNullException(nameof(code));
+            IsDefault = false;
         }
     }
 }

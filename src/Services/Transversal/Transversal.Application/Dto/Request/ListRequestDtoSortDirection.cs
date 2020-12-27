@@ -6,12 +6,12 @@
     public static class ListRequestDtoSortDirection
     {
         /// <summary>
-        ///  Sorts the property in ascending order.
+        ///  Sorts the property in ascending order
         /// </summary>
         public const string Ascending = "asc";
 
         /// <summary>
-        /// Sorts the property in descending order.
+        /// Sorts the property in descending order
         /// </summary>
         public const string Descending = "desc";
     }

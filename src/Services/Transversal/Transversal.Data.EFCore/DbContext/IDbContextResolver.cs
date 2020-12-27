@@ -7,7 +7,7 @@ namespace Transversal.Data.EFCore.DbContext
     /// </summary>
     public interface IDbContextResolver
     {
-        TDbContext Resolve<TDbContext>(string connectionString, DbConnection existingConnection)
+        TDbContext Resolve<TDbContext>(DbConnection existingConnection = null)
             where TDbContext : EfCoreDbContextBase;
     }
 }

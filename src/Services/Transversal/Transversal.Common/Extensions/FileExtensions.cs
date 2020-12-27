@@ -1,12 +1,12 @@
 ﻿namespace Transversal.Common.Extensions
 {
     /// <summary>
-    /// Extension methods for files.
+    /// Provides additional methods to files.
     /// </summary>
     public static class FileExtensions
     {
         /// <summary>
-        /// Gets the image mime type for the given file extension. 
+        /// Gets the image mime type for the given file extension
         /// </summary>
         /// <param name="extension">File extension</param>
         /// <returns>Mime type</returns>

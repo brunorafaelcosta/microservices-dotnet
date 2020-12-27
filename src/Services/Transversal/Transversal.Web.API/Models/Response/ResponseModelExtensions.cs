@@ -7,7 +7,7 @@ using Transversal.Application.Dto.Response;
 namespace Transversal.Web.API.Models.Response
 {
     /// <summary>
-    /// Extension methods for Response model object.
+    /// Provides additional methods to Response model objects.
     /// </summary>
     public static class ResponseModelExtensions
     {

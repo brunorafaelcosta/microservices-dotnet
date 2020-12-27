@@ -2,7 +2,7 @@
 
 namespace Transversal.Application.Dto.Response
 {
-    public class ListResponseDto<TDto> : BaseListResponseDto<TDto>,
+    public class ListResponseDto<TDto> : ListResponseDtoBase<TDto>,
         IListResponseDto<TDto>
         where TDto : IDto
     {

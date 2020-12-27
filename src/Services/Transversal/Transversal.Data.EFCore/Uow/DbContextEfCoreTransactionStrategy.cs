@@ -3,7 +3,7 @@ using System.Transactions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-using Transversal.Common.Dependency;
+using Transversal.Common.InversionOfControl;
 using Transversal.Common.Extensions.Collections;
 using Transversal.Data.EFCore.DbContext;
 using Transversal.Data.EFCore.Extensions.Transactions;
@@ -27,24 +27,23 @@ namespace Transversal.Data.EFCore.Uow
             Options = options;
         }
 
-        public TDbContext CreateDbContext<TDbContext>(string connectionString, IDbContextResolver dbContextResolver)
+        public TDbContext CreateDbContext<TDbContext>(string dbContextKey, IDbContextResolver dbContextResolver)
             where TDbContext : EfCoreDbContextBase
         {
             TDbContext dbContext;
 
-            var activeTransaction = ActiveTransactions.GetOrDefault(connectionString);
+            var activeTransaction = ActiveTransactions.GetOrDefault(dbContextKey);
             if (activeTransaction == null)
             {
-                dbContext = dbContextResolver.Resolve<TDbContext>(connectionString, null);
+                dbContext = dbContextResolver.Resolve<TDbContext>();
 
                 var dbtransaction = dbContext.Database.BeginTransaction((Options.IsolationLevel ?? IsolationLevel.ReadUncommitted).ToSystemDataIsolationLevel());
                 activeTransaction = new ActiveTransactionInfo(dbtransaction, dbContext);
-                ActiveTransactions[connectionString] = activeTransaction;
+                ActiveTransactions[dbContextKey] = activeTransaction;
             }
             else
             {
                 dbContext = dbContextResolver.Resolve<TDbContext>(
-                    connectionString,
                     activeTransaction.DbContextTransaction.GetDbTransaction().Connection
                 );
 
@@ -81,7 +80,7 @@ namespace Transversal.Data.EFCore.Uow
             }
         }
 
-        public void Dispose(IIocResolver iocResolver)
+        public void Dispose(IIoCResolver iocResolver)
         {
             foreach (var activeTransaction in ActiveTransactions.Values)
             {

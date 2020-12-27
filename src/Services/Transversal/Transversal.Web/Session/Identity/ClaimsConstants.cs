@@ -2,7 +2,7 @@
 {
     public class ClaimsConstants
     {
-        public const string NullValue = "";
+        public const string NullValue = "null";
         public const string EmptyValue = "";
         public const string TrueValue = "true";
         public const string FalseValue = "false";

@@ -4,14 +4,14 @@ using System.Text.RegularExpressions;
 namespace Transversal.Common.Extensions
 {
 	/// <summary>
-	/// Extension methods for Urls.
+	/// Provides additional methods to Urls.
 	/// </summary>
 	public static class UrlExtensions
     {
 		/// <summary>
 		/// Basically a Path.Combine for URLs. Ensures exactly one '/' separates each segment,
-		/// and exactly on '&amp;' separates each query parameter.
-		/// URL-encodes illegal characters but not reserved characters.
+		/// and exactly on '&amp;' separates each query parameter
+		/// <para>URL-encodes illegal characters but not reserved characters</para>
 		/// </summary>
 		/// <param name="baseUrl">URL base path</param>
 		/// <param name="parts">URL parts to combine</param>
@@ -60,13 +60,13 @@ namespace Transversal.Common.Extensions
 		}
 
 		/// <summary>
-		/// URL-encodes characters in a string that are neither reserved nor unreserved.
-		/// Avoids encoding reserved characters such as '/' and '?'.
-		/// Avoids encoding '%' if it begins a %-hex-hex sequence (i.e. avoids double-encoding).
+		/// URL-encodes characters in a string that are neither reserved nor unreserved
+		/// <para>Avoids encoding reserved characters such as '/' and '?'</para>
+		/// <para>Avoids encoding '%' if it begins a %-hex-hex sequence (i.e. avoids double-encoding)</para>
 		/// </summary>
 		/// <param name="url">Url to encode</param>
-		/// <param name="encodeSpaceAsPlus">If true, spaces will be encoded as + signs. Otherwise, they'll be encoded as %20.</param>
-		/// <returns>The encoded URL.</returns>
+		/// <param name="encodeSpaceAsPlus">If true, spaces will be encoded as + signs. Otherwise, they'll be encoded as %20</param>
+		/// <returns>The encoded URL</returns>
 		public static string EncodeIllegalCharacters(string url, bool encodeSpaceAsPlus = false)
 		{
 			if (string.IsNullOrEmpty(url))

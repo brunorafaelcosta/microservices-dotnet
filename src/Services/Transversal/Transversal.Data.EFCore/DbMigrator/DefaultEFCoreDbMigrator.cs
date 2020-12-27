@@ -4,7 +4,6 @@ using System;
 using System.Transactions;
 using Transversal.Data.EFCore.DbContext;
 using Transversal.Data.EFCore.DbSeeder;
-using Transversal.Domain.Uow;
 using Transversal.Domain.Uow.Manager;
 
 namespace Transversal.Data.EFCore.DbMigrator
@@ -13,20 +12,17 @@ namespace Transversal.Data.EFCore.DbMigrator
         where TDbContext : EfCoreDbContextBase
     {
         private readonly ILogger<DefaultEFCoreDbMigrator<TDbContext>> _logger;
-        private readonly IConnectionStringResolver _connectionStringResolver;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         private readonly IDbContextResolver _dbContextResolver;
         private readonly IEfCoreDbSeeder<TDbContext> _seeder;
 
         public DefaultEFCoreDbMigrator(
             ILogger<DefaultEFCoreDbMigrator<TDbContext>> logger,
-            IConnectionStringResolver connectionStringResolver,
             IUnitOfWorkManager unitOfWorkManager,
             IDbContextResolver dbContextResolver,
             IEfCoreDbSeeder<TDbContext> seeder)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _connectionStringResolver = connectionStringResolver ?? throw new ArgumentNullException(nameof(connectionStringResolver));
             _unitOfWorkManager = unitOfWorkManager ?? throw new ArgumentNullException(nameof(unitOfWorkManager));
             _dbContextResolver = dbContextResolver ?? throw new ArgumentNullException(nameof(dbContextResolver));
             _seeder = seeder ?? throw new ArgumentNullException(nameof(seeder));
@@ -34,13 +30,11 @@ namespace Transversal.Data.EFCore.DbMigrator
 
         public virtual void CreateOrMigrate()
         {
-            var connectionString = _connectionStringResolver.GetNameOrConnectionString();
-
             try
             {
                 using (var uow = _unitOfWorkManager.Begin(TransactionScopeOption.Suppress))
                 {
-                    using (var dbContext = _dbContextResolver.Resolve<TDbContext>(connectionString, null))
+                    using (var dbContext = _dbContextResolver.Resolve<TDbContext>())
                     {
                         _logger.LogInformation("Migrating database associated with context {DbContextName}", typeof(TDbContext).Name);
 

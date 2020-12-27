@@ -1,6 +1,6 @@
 ﻿namespace Transversal.Application.Dto.Response
 {
-    public class ResponseDto : BaseResponseDto,
+    public class ResponseDto : ResponseDtoBase,
         IResponseDto
     {
     }

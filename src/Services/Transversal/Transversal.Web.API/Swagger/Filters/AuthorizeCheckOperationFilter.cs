@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
@@ -13,12 +12,11 @@ namespace Transversal.Web.API.Swagger.Filters
 
         public AuthorizeCheckOperationFilter()
         {
-            _scope = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
+            _scope = System.Reflection.Assembly.GetEntryAssembly().GetName().Name;
         }
 
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
-            // Check for authorize attribute
             var hasAuthorize = context.MethodInfo.DeclaringType.GetCustomAttributes(true).OfType<AuthorizeAttribute>().Any() ||
                                context.MethodInfo.GetCustomAttributes(true).OfType<AuthorizeAttribute>().Any();
 

@@ -18,16 +18,13 @@ namespace Transversal.Domain.Uow
 
         private Exception _failedException;
 
-        protected virtual IConnectionStringResolver ConnectionStringResolver { get; }
         protected virtual ISessionInfo SessionInfo { get; }
 
         protected UnitOfWorkBase(
-            IConnectionStringResolver connectionStringResolver,
             ISessionInfo sessionInfo)
         {
             Id = Guid.NewGuid().ToString("N");
 
-            ConnectionStringResolver = connectionStringResolver;
             SessionInfo = sessionInfo;
 
             CurrentUserId = SessionInfo.UserId;

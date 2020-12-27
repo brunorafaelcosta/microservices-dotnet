@@ -18,29 +18,26 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Google.Protobuf" Version="3.12.2" />
-    <PackageReference Include="Grpc.Net.Client" Version="2.29.0" />
-    <PackageReference Include="Grpc.Tools" Version="2.29.0">
+    <PackageReference Include="Google.Protobuf" Version="3.14.0" />
+    <PackageReference Include="Grpc.Net.Client" Version="2.34.0" />
+    <PackageReference Include="Grpc.Tools" Version="2.34.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="IdentityServer4" Version="3.1.2" />
-    <PackageReference Include="IdentityServer4.AspNetIdentity" Version="3.1.2" />
-    <PackageReference Include="IdentityServer4.EntityFramework" Version="3.1.2" />
-    <PackageReference Include="IdentityServer4.EntityFramework.Storage" Version="3.1.2" />
-    <PackageReference Include="IdentityServer4.Storage" Version="3.1.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.0-preview.3.20215.14" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.0-preview.3.20181.2" />
+    <PackageReference Include="IdentityServer4" Version="4.1.1" />
+    <PackageReference Include="IdentityServer4.AspNetIdentity" Version="4.1.1" />
+    <PackageReference Include="IdentityServer4.EntityFramework" Version="4.1.1" />
+    <PackageReference Include="IdentityServer4.EntityFramework.Storage" Version="4.1.1" />
+    <PackageReference Include="IdentityServer4.Storage" Version="4.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.1" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.8" />
-    <PackageReference Include="Serilog.AspNetCore" Version="3.2.0" />
-    <PackageReference Include="Serilog.Exceptions" Version="5.4.0" />
-    <PackageReference Include="Serilog.Formatting.Elasticsearch" Version="8.0.1" />
-    <PackageReference Include="Serilog.Sinks.Http" Version="5.2.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\Transversal\Transversal.Application\Transversal.Application.csproj" />
     <ProjectReference Include="..\..\Transversal\Transversal.Data.EFCore\Transversal.Data.EFCore.csproj" />
+    <ProjectReference Include="..\..\Transversal\Transversal.Web.API\Transversal.Web.API.csproj" />
     <ProjectReference Include="..\..\Transversal\Transversal.Web.Grpc.Client\Transversal.Web.Grpc.Client.csproj" />
     <ProjectReference Include="..\..\Transversal\Transversal.Web\Transversal.Web.csproj" />
   </ItemGroup>

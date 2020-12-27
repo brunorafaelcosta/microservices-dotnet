@@ -4,10 +4,11 @@ using System.Linq.Expressions;
 namespace Transversal.Common.Extensions.Linq
 {
     /// <summary>
-    /// Extension methods for <see cref="Expression{TDelegate}"/>.
+    /// Provides additional methods to <see cref="Expression{TDelegate}"/>.
     /// </summary>
     public static class ExpressionExtensions
     {
+        #region Combine expressions
         public static Expression<Func<T, bool>> CombineWithExpression<T>(this Expression<Func<T, bool>> baseExpression, Expression<Func<T, bool>> otherExpression)
         {
             var parameter = Expression.Parameter(typeof(T));
@@ -20,7 +21,6 @@ namespace Transversal.Common.Extensions.Linq
 
             return Expression.Lambda<Func<T, bool>>(Expression.AndAlso(left, right), parameter);
         }
-
         class ReplaceExpressionVisitor : ExpressionVisitor
         {
             private readonly Expression _oldValue;
@@ -42,5 +42,6 @@ namespace Transversal.Common.Extensions.Linq
                 return base.Visit(node);
             }
         }
+        #endregion
     }
 }

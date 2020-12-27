@@ -39,7 +39,7 @@ namespace Services.Resources.API.Core.Data
                 {
                     retryForAvaiability++;
 
-                    _logger.LogError(ex, "EXCEPTION ERROR while migrating {DbContextName}", nameof(DefaultDbContext));
+                    _logger.LogError(ex, "An exception occurred while migrating {DbContextName}", nameof(DefaultDbContext));
 
                     await SeedAsync(context, retryForAvaiability);
                 }

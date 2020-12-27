@@ -2,7 +2,7 @@
 
 namespace Services.Resources.API.Core.Application.Dto.Resources
 {
-    public class ResourceRequestDto : BaseLocalizedRequestDto,
+    public class ResourceRequestDto : LocalizedRequestDtoBase,
         ILocalizedRequestDto
     {
         public int? WithId { get; set; }

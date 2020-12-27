@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
-using Transversal.Common.Dependency;
+using Transversal.Common.InversionOfControl;
 using Transversal.Common.Session;
 using Transversal.Data.EFCore.DbContext;
 using Transversal.Domain.Uow;
@@ -14,17 +14,16 @@ namespace Transversal.Data.EFCore.Uow
     public abstract class EfCoreUnitOfWork : UnitOfWorkBase
     {
         protected IDictionary<string, EfCoreDbContextBase> ActiveDbContexts { get; }
-        protected IIocResolver IocResolver { get; }
+        protected IIoCResolver IocResolver { get; }
         protected IEfCoreTransactionStrategy TransactionStrategy { get; }
         protected IDbContextResolver DbContextResolver { get; }
 
         public EfCoreUnitOfWork(
-            IIocResolver iocResolver,
+            IIoCResolver iocResolver,
             IEfCoreTransactionStrategy transactionStrategy,
             IDbContextResolver dbContextResolver,
-            IConnectionStringResolver connectionStringResolver,
             ISessionInfo sessionInfo)
-            : base(connectionStringResolver, sessionInfo)
+            : base(sessionInfo)
         {
             IocResolver = iocResolver;
             TransactionStrategy = transactionStrategy;
@@ -105,20 +104,18 @@ namespace Transversal.Data.EFCore.Uow
         {
             var concreteDbContextType = typeof(TDbContext);
 
-            var connectionString = base.ConnectionStringResolver.GetNameOrConnectionString();
-
-            var dbContextKey = concreteDbContextType.FullName + "#" + connectionString;
+            var dbContextKey = concreteDbContextType.FullName;
 
             EfCoreDbContextBase dbContext;
             if (!ActiveDbContexts.TryGetValue(dbContextKey, out dbContext))
             {
                 if (Options.IsTransactional == true)
                 {
-                    dbContext = TransactionStrategy.CreateDbContext<TDbContext>(connectionString, DbContextResolver);
+                    dbContext = TransactionStrategy.CreateDbContext<TDbContext>(dbContextKey, DbContextResolver);
                 }
                 else
                 {
-                    dbContext = DbContextResolver.Resolve<TDbContext>(connectionString, null);
+                    dbContext = DbContextResolver.Resolve<TDbContext>();
                 }
 
                 ActiveDbContexts[dbContextKey] = dbContext;

@@ -4,12 +4,12 @@ using System.Collections.Generic;
 namespace Transversal.Common.Extensions.Collections
 {
     /// <summary>
-    /// Extension methods for Dictionary.
+    /// Provides additional methods to <see cref="IDictionary{TKey, TValue}"/>.
     /// </summary>
     public static class DictionaryExtensions
     {
         /// <summary>
-        /// This method is used to try to get a value in a dictionary if it does exists.
+        /// This method is used to try to get a value in a dictionary if it does exists
         /// </summary>
         /// <typeparam name="T">Type of the value</typeparam>
         /// <param name="dictionary">The collection object</param>
@@ -30,13 +30,13 @@ namespace Transversal.Common.Extensions.Collections
         }
 
         /// <summary>
-        /// Gets a value from the dictionary with given key. Returns default value if can not find.
+        /// Gets a value from the dictionary with given key. Returns default value if can not find
         /// </summary>
         /// <param name="dictionary">Dictionary to check and get</param>
         /// <param name="key">Key to find the value</param>
         /// <typeparam name="TKey">Type of the key</typeparam>
         /// <typeparam name="TValue">Type of the value</typeparam>
-        /// <returns>Value if found, default if can not found.</returns>
+        /// <returns>Value if found, default if can not found</returns>
         public static TValue GetOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
         {
             TValue obj;
@@ -44,14 +44,14 @@ namespace Transversal.Common.Extensions.Collections
         }
 
         /// <summary>
-        /// Gets a value from the dictionary with given key. Returns default value if can not find.
+        /// Gets a value from the dictionary with given key. Returns default value if can not find
         /// </summary>
         /// <param name="dictionary">Dictionary to check and get</param>
         /// <param name="key">Key to find the value</param>
         /// <param name="factory">A factory method used to create the value if not found in the dictionary</param>
         /// <typeparam name="TKey">Type of the key</typeparam>
         /// <typeparam name="TValue">Type of the value</typeparam>
-        /// <returns>Value if found, default if can not found.</returns>
+        /// <returns>Value if found, default if can not found</returns>
         public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TKey, TValue> factory)
         {
             TValue obj;
@@ -64,14 +64,14 @@ namespace Transversal.Common.Extensions.Collections
         }
 
         /// <summary>
-        /// Gets a value from the dictionary with given key. Returns default value if can not find.
+        /// Gets a value from the dictionary with given key. Returns default value if can not find
         /// </summary>
         /// <param name="dictionary">Dictionary to check and get</param>
         /// <param name="key">Key to find the value</param>
         /// <param name="factory">A factory method used to create the value if not found in the dictionary</param>
         /// <typeparam name="TKey">Type of the key</typeparam>
         /// <typeparam name="TValue">Type of the value</typeparam>
-        /// <returns>Value if found, default if can not found.</returns>
+        /// <returns>Value if found, default if can not found</returns>
         public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TValue> factory)
         {
             return dictionary.GetOrAdd(key, k => factory());

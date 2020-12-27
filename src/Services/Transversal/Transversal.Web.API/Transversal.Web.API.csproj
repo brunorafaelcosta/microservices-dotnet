@@ -6,12 +6,14 @@
 
   <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.3.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.3" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Transversal.Application\Transversal.Application.csproj" />
     <ProjectReference Include="..\Transversal.Common\Transversal.Common.csproj" />
+    <ProjectReference Include="..\Transversal.Core\Transversal.Core.csproj" />
     <ProjectReference Include="..\Transversal.Web\Transversal.Web.csproj" />
   </ItemGroup>
 

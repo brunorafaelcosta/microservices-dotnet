@@ -10,8 +10,6 @@ namespace Transversal.Data.EFCore.DbContext
     public interface IDbContextOptionsResolver<TDbContext>
         where TDbContext : EfCoreDbContextBase
     {
-        DbContextOptions<TDbContext> GetDbContextOptions(string connectionString);
-
-        DbContextOptions<TDbContext> GetDbContextOptions(string connectionString, DbConnection existingConnection);
+        DbContextOptions<TDbContext> GetDbContextOptions(DbConnection existingConnection = null);
     }
 }

@@ -253,13 +253,13 @@ namespace Services.Identity.STS.Controllers
         }
 
         /// <summary>
-        /// Gets the logged user picture
+        /// Gets the logged user profilepicture
         /// </summary>
         [HttpGet]
         [Authorize]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> GetPictureAsync()
+        public async Task<IActionResult> ProfilePictureAsync()
         {
             var subjectId = User.Identity.GetSubjectId();
             var userId = Convert.ToInt32(subjectId);

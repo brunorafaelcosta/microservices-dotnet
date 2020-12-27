@@ -18,7 +18,7 @@ namespace Transversal.Common.Disposable
 
         public void Dispose()
         {
-            // Interlocked prevents multiple execution of the _action.
+            // Interlocked prevents multiple execution of the _action
             var action = System.Threading.Interlocked.Exchange(ref _action, null);
             action?.Invoke();
         }
